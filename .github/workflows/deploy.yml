@@ -23,12 +23,12 @@ jobs:
           VPS_USER: ${{ secrets.VPS_USER }}
         run: |
           ssh -o StrictHostKeyChecking=no $VPS_USER@$VPS_HOST << 'EOF'
-            cd /home/deployer
-            rm -rf OpenLatex
-            git clone https://github.com/${{ github.repository }}.git OpenLatex
-            cd OpenLatex/backend
+            cd /home/deployer/OpenLatex 2>/dev/null || (cd /home/deployer && git clone https://github.com/${{ github.repository }}.git OpenLatex && cd OpenLatex)
+            git fetch origin develop-bapi
+            git reset --hard origin/develop-bapi
+            cd backend
             docker build -t openlatex-backend .
-            docker stop openlatex-backend || true
-            docker rm openlatex-backend || true
+            docker stop openlatex-backend 2>/dev/null || true
+            docker rm openlatex-backend 2>/dev/null || true
             docker run -d --name openlatex-backend -p 8000:8000 --restart unless-stopped openlatex-backend
           EOF
