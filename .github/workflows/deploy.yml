@@ -1,0 +1,31 @@
+name: Deploy
+
+on:
+  push:
+    branches: [develop-bapi]
+
+jobs:
+  deploy-backend:
+    runs-on: debian-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy to VPS
+        env:
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$VPS_SSH_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H $VPS_HOST >> ~/.ssh/known_hosts
+          ssh $VPS_USER@$VPS_HOST << 'EOF'
+            cd /opt
+            rm -rf OpenLatex
+            git clone https://github.com/${{ github.repository }}.git OpenLatex
+            cd OpenLatex/backend
+            docker build -t openlatex-backend .
+            docker stop openlatex-backend || true
+            docker rm openlatex-backend || true
+            docker run -d --name openlatex-backend -p 8000:8000 --restart unless-stopped openlatex-backend
+          EOF

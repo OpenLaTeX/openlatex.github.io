@@ -1,0 +1,8 @@
+.claude
+node_modules
+dist
+.env
+.DS_Store
+github_deploy_key
+github_deploy_key.pub
+README.md
