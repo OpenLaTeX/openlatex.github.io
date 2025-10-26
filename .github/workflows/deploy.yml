@@ -9,10 +9,8 @@ jobs:
   deploy-backend:
     runs-on: ubuntu-latest
     steps:
-
       - name: Checkout repo
         uses: actions/checkout@v4
-
 
       - name: config ssh
         uses: webfactory/ssh-agent@v0.7.0
@@ -25,7 +23,7 @@ jobs:
           VPS_USER: ${{ secrets.VPS_USER }}
         run: |
           ssh -o StrictHostKeyChecking=no $VPS_USER@$VPS_HOST << 'EOF'
-            cd /opt
+            cd /home/deployer
             rm -rf OpenLatex
             git clone https://github.com/${{ github.repository }}.git OpenLatex
             cd OpenLatex/backend
