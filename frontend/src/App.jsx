@@ -4,7 +4,10 @@ import Editor from '@monaco-editor/react';
 const API_URL = 'http://159.65.196.71:8000';
 
 export default function App() {
-  const [tex, setTex] = useState('\\documentclass{article}\\n\\begin{document}\\nHello LaTeX!\\n\\end{document}');
+  const [tex, setTex] = useState(`\\documentclass{article}
+\\begin{document}
+Hello LaTeX!
+\\end{document}`);
   const [pdfUrl, setPdfUrl] = useState(null);
   const [loading, setLoading] = useState(false);
 
