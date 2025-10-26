@@ -1,4 +1,4 @@
-name: Deploy
+name: deploiement backend docker VPS
 
 on:
   push:
@@ -8,18 +8,22 @@ jobs:
   deploy-backend:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Deploy to VPS
+
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+
+      - name: config ssh
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
+
+      - name: Deploiement sur vps
         env:
-          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_USER: ${{ secrets.VPS_USER }}
         run: |
-          mkdir -p ~/.ssh
-          echo "$VPS_SSH_KEY" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H $VPS_HOST >> ~/.ssh/known_hosts
-          ssh $VPS_USER@$VPS_HOST << 'EOF'
+          ssh -o StrictHostKeyChecking=no $VPS_USER@$VPS_HOST << 'EOF'
             cd /opt
             rm -rf OpenLatex
             git clone https://github.com/${{ github.repository }}.git OpenLatex
