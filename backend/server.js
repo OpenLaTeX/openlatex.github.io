@@ -11,7 +11,7 @@ app.use(express.json({ limit: '10mb' }));
 app.get('/health', (req, res) => {
   exec('which pdflatex && pdflatex --version', { timeout: 5000 }, (error, stdout, stderr) => {
     if (error) {
-      console.error('Health check failed:', error.message);
+      console.error('health check échoué:', error.message);
       console.error('stderr:', stderr);
       return res.status(500).json({
         status: 'unhealthy',
@@ -28,7 +28,10 @@ app.get('/health', (req, res) => {
 
 app.post('/compile', async (req, res) => {
   const { files, mainFile } = req.body;
-  console.log('Compilation request:', files?.length, 'files, main:', mainFile);
+  console.log('\n--- demande de compilation en cousr---');
+  console.log('reçu', files?.length, 'fichiers');
+  console.log('fichier principal:', mainFile);
+  files?.forEach(f => console.log('  -', f.path, `(${f.content?.length || 0} octets)`));
 
   if (!files || !mainFile) {
     return res.status(400).json({ error: 'files et mainFile requis' });
@@ -39,7 +42,10 @@ app.post('/compile', async (req, res) => {
 
   try {
     workDir = await FileManager.createProjectDir(projectId);
+    console.log('dossier créé:', workDir);
+
     await FileManager.writeFiles(workDir, files);
+    console.log('fichiers écrits');
 
     const result = await Compiler.compile(workDir, mainFile);
 
@@ -53,7 +59,7 @@ app.post('/compile', async (req, res) => {
       });
     }
   } catch (error) {
-    console.error('Erreur compilation:', error);
+    console.error('erreur compilation:', error);
     res.status(500).json({ error: error.message });
   } finally {
     if (workDir) {
@@ -63,12 +69,12 @@ app.post('/compile', async (req, res) => {
 });
 
 app.listen(8000, () => {
-  console.log('Backend running on port 8000');
+  console.log('backend démarré sur le port 8000');
   exec('which pdflatex && pdflatex --version', (error, stdout) => {
     if (error) {
-      console.error('WARNING: pdflatex not found!');
+      console.error('warning: pdflatex pas trouvé');
     } else {
-      console.log('pdflatex found:', stdout.split('\n')[0]);
+      console.log('pdflatex ok:', stdout.split('\n')[0]);
     }
   });
 });

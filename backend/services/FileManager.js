@@ -15,7 +15,10 @@ class FileManager {
 
             await fs.mkdir(fileDir, { recursive: true });
 
-            if (this.isBinaryContent(file.path)) {
+            const isBinary = this.isBinaryContent(file.path);
+            console.log(`  écriture ${file.path} (${isBinary ? 'binaire' : 'texte'})`);
+
+            if (isBinary) {
                 const buffer = Buffer.from(file.content, 'base64');
                 await fs.writeFile(filePath, buffer);
             } else {
@@ -28,7 +31,7 @@ class FileManager {
         try {
             await fs.rm(dir, { recursive: true, force: true });
         } catch (error) {
-            console.error(`Erreur nettoyage ${dir}:`, error);
+            console.error(`erreur nettoyage ${dir}:`, error);
         }
     }
 
