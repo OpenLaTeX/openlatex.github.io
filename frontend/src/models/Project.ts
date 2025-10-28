@@ -1,4 +1,4 @@
-import { IProject, IFile, CompileRequest } from '../types';
+import { IProject, IFile, CompileRequest, FileType } from '../types';
 import { File } from './File';
 
 export class Project implements IProject {
@@ -6,45 +6,103 @@ export class Project implements IProject {
     mainFile: string = 'main.tex';
     currentFile: string | null = null;
 
-    constructor() {
-        this.files.push(new File('main.tex', this.getDefaultContent(), 'tex'));
-        this.currentFile = 'main.tex';
+    private constructor() {}
+
+    static createDefault(): Project {
+        const project = new Project();
+        project.files.push(new File('main.tex', project.getDefaultContent(), 'tex'));
+        project.currentFile = 'main.tex';
+        return project;
     }
 
-    addFile(file: IFile): void {
+    static createEmpty(): Project {
+        return new Project();
+    }
+
+    addFile(file: IFile): Project {
         if (this.getFile(file.path)) {
             throw new Error(`Un fichier existe déjà à: ${file.path}`);
         }
-        this.files.push(file);
+        const newProject = this.clone();
+        newProject.files.push(file);
+        return newProject;
     }
 
-    removeFile(path: string): void {
+    removeFile(path: string): Project {
         if (path === this.mainFile) {
             throw new Error('Impossible de supprimer le fichier principal');
         }
-        this.files = this.files.filter(f => f.path !== path);
-        if (this.currentFile === path) {
-            this.currentFile = this.files[0]?.path || null;
+        const newProject = this.clone();
+        newProject.files = newProject.files.filter(f => f.path !== path);
+        if (newProject.currentFile === path) {
+            newProject.currentFile = newProject.files[0]?.path || null;
         }
+        return newProject;
     }
 
     getFile(path: string): IFile | undefined {
         return this.files.find(f => f.path === path);
     }
 
-    setCurrentFile(path: string): void {
+    setCurrentFile(path: string): Project {
         if (!this.getFile(path)) {
             throw new Error(`Fichier introuvable: ${path}`);
         }
-        this.currentFile = path;
+        const newProject = this.clone();
+        newProject.currentFile = path;
+        return newProject;
     }
 
-    updateFileContent(path: string, content: string): void {
-        const file = this.getFile(path);
-        if (!file) {
+    updateFileContent(path: string, content: string): Project {
+        const fileIndex = this.files.findIndex(f => f.path === path);
+        if (fileIndex === -1) {
             throw new Error(`Fichier introuvable: ${path}`);
         }
-        file.content = content;
+        const newProject = this.clone();
+        newProject.files[fileIndex] = {
+            ...newProject.files[fileIndex],
+            content
+        };
+        return newProject;
+    }
+
+    addEmptyFile(path: string, type: FileType): Project {
+        if (this.getFile(path)) {
+            throw new Error(`Un fichier existe déjà à: ${path}`);
+        }
+        const newProject = this.clone();
+        newProject.files.push(new File(path, '', type));
+        return newProject;
+    }
+
+    renameFile(oldPath: string, newPath: string): Project {
+        const fileIndex = this.files.findIndex(f => f.path === oldPath);
+        if (fileIndex === -1) {
+            throw new Error(`Fichier introuvable: ${oldPath}`);
+        }
+        if (this.getFile(newPath)) {
+            throw new Error(`Un fichier existe déjà à: ${newPath}`);
+        }
+        const newProject = this.clone();
+        newProject.files[fileIndex] = {
+            ...newProject.files[fileIndex],
+            path: newPath
+        };
+        if (newProject.currentFile === oldPath) {
+            newProject.currentFile = newPath;
+        }
+        if (newProject.mainFile === oldPath) {
+            newProject.mainFile = newPath;
+        }
+        return newProject;
+    }
+
+    private clone(): Project {
+        const newProject = Project.createEmpty();
+        newProject.files = [...this.files];
+        newProject.mainFile = this.mainFile;
+        newProject.currentFile = this.currentFile;
+        return newProject;
     }
 
     toCompileRequest(): CompileRequest {

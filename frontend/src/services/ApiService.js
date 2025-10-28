@@ -1,8 +1,6 @@
-const API_URL = 'http://159.65.196.71:8000';
-
 class ApiService {
-  static async compile(files, mainFile) {
-    const response = await fetch(`${API_URL}/compile`, {
+  static async compile(apiUrl, files, mainFile) {
+    const response = await fetch(`${apiUrl}/compile`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ files, mainFile })
@@ -16,8 +14,8 @@ class ApiService {
     return await response.blob();
   }
 
-  static async health() {
-    const response = await fetch(`${API_URL}/health`);
+  static async health(apiUrl) {
+    const response = await fetch(`${apiUrl}/health`);
     return await response.json();
   }
 }

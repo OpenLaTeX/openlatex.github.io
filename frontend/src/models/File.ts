@@ -23,7 +23,7 @@ export class File implements IFile {
         const ext = file.name.split('.').pop()?.toLowerCase();
 
         if (!this.isValidFileType(ext)) {
-            throw new Error(`Type de fichier non supporté: ${ext}. Types acceptés: ${FILE_TYPES.join(', ')}`);
+            throw new Error(`Type de fichier non supportÃ©: ${ext}. Types acceptÃ©s: ${FILE_TYPES.join(', ')}`);
         }
 
         return new File(file.name, content, ext as FileType);
