@@ -1,0 +1,40 @@
+const fs = require('fs').promises;
+const path = require('path');
+
+class FileManager {
+    static async createProjectDir(projectId) {
+        const dir = path.join('/tmp', `latex-${projectId}`);
+        await fs.mkdir(dir, { recursive: true });
+        return dir;
+    }
+
+    static async writeFiles(workDir, files) {
+        for (const file of files) {
+            const filePath = path.join(workDir, file.path);
+            const fileDir = path.dirname(filePath);
+
+            await fs.mkdir(fileDir, { recursive: true });
+
+            if (this.isBinaryContent(file.content)) {
+                const buffer = Buffer.from(file.content, 'base64');
+                await fs.writeFile(filePath, buffer);
+            } else {
+                await fs.writeFile(filePath, file.content, 'utf-8');
+            }
+        }
+    }
+
+    static async cleanup(dir) {
+        try {
+            await fs.rm(dir, { recursive: true, force: true });
+        } catch (error) {
+            console.error(`Erreur nettoyage ${dir}:`, error);
+        }
+    }
+
+    static isBinaryContent(content) {
+        return content.startsWith('data:') || /^[A-Za-z0-9+/=]{100,}/.test(content);
+    }
+}
+
+module.exports = FileManager;

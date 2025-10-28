@@ -1,8 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const { exec } = require('child_process');
-const fs = require('fs');
-const path = require('path');
+const FileManager = require('./services/FileManager');
+const Compiler = require('./services/Compiler');
 
 const app = express();
 app.use(cors());
@@ -26,53 +26,40 @@ app.get('/health', (req, res) => {
   });
 });
 
-app.post('/compile', (req, res) => {
-  const { tex } = req.body;
-  console.log('Compilation request received, tex length:', tex?.length || 0);
+app.post('/compile', async (req, res) => {
+  const { files, mainFile } = req.body;
+  console.log('Compilation request:', files?.length, 'files, main:', mainFile);
 
-  if (!tex) return res.status(400).json({ error: 'No tex provided' });
+  if (!files || !mainFile) {
+    return res.status(400).json({ error: 'files et mainFile requis' });
+  }
 
-  const id = Date.now();
-  const dir = `/tmp/latex-${id}`;
-  const texFile = path.join(dir, 'input.tex');
-  const pdfFile = path.join(dir, 'input.pdf');
+  const projectId = Date.now().toString();
+  let workDir;
 
-  fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(texFile, tex);
+  try {
+    workDir = await FileManager.createProjectDir(projectId);
+    await FileManager.writeFiles(workDir, files);
 
-  const cmd = `pdflatex -interaction=nonstopmode -output-directory=${dir} ${texFile}`;
-  console.log('Executing:', cmd);
+    const result = await Compiler.compile(workDir, mainFile);
 
-  exec(cmd, { maxBuffer: 10 * 1024 * 1024, timeout: 30000 }, (error, stdout, stderr) => {
-    if (error) {
-      console.error('pdflatex error:', error.message);
-      console.error('stdout:', stdout);
-      console.error('stderr:', stderr);
-      fs.rmSync(dir, { recursive: true, force: true });
-      return res.status(500).json({
-        error: 'Compilation failed',
-        details: error.message,
-        output: stderr || stdout
+    if (result.success) {
+      res.setHeader('Content-Type', 'application/pdf');
+      res.send(result.pdf);
+    } else {
+      res.status(500).json({
+        error: result.error,
+        logs: result.logs
       });
     }
-
-    if (!fs.existsSync(pdfFile)) {
-      console.error('PDF not generated');
-      console.error('stdout:', stdout);
-      console.error('stderr:', stderr);
-      fs.rmSync(dir, { recursive: true, force: true });
-      return res.status(500).json({
-        error: 'PDF not generated',
-        output: stderr || stdout
-      });
+  } catch (error) {
+    console.error('Erreur compilation:', error);
+    res.status(500).json({ error: error.message });
+  } finally {
+    if (workDir) {
+      await FileManager.cleanup(workDir);
     }
-
-    console.log('PDF generated successfully');
-    res.setHeader('Content-Type', 'application/pdf');
-    const pdf = fs.readFileSync(pdfFile);
-    fs.rmSync(dir, { recursive: true, force: true });
-    res.send(pdf);
-  });
+  }
 });
 
 app.listen(8000, () => {
