@@ -7,15 +7,17 @@ const execPromise = util.promisify(exec);
 
 class Compiler {
     static async compile(workDir, mainFile) {
-        const mainFilePath = path.join(workDir, mainFile);
-        const pdfFileName = mainFile.replace(/\.tex$/, '.pdf');
-        const pdfFilePath = path.join(workDir, pdfFileName);
+        const mainFileDir = path.dirname(path.join(workDir, mainFile));
+        const mainFileName = path.basename(mainFile);
+        const pdfFileName = mainFileName.replace(/\.tex$/, '.pdf');
+        const pdfFilePath = path.join(mainFileDir, pdfFileName);
 
-        const cmd = `pdflatex -interaction=nonstopmode -no-shell-escape -output-directory=${workDir} ${mainFilePath}`;
+        const cmd = `pdflatex -interaction=nonstopmode -no-shell-escape ${mainFileName}`;
         console.log('lancement pdflatex...');
 
         try {
             const { stdout, stderr } = await execPromise(cmd, {
+                cwd: mainFileDir,
                 maxBuffer: 10 * 1024 * 1024,
                 timeout: 30000
             });
