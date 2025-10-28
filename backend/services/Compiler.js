@@ -11,7 +11,7 @@ class Compiler {
         const pdfFileName = mainFile.replace(/\.tex$/, '.pdf');
         const pdfFilePath = path.join(workDir, pdfFileName);
 
-        const cmd = `pdflatex -interaction=nonstopmode -output-directory=${workDir} ${mainFilePath}`;
+        const cmd = `pdflatex -interaction=nonstopmode -no-shell-escape -output-directory=${workDir} ${mainFilePath}`;
         console.log('lancement pdflatex...');
 
         try {
@@ -21,6 +21,12 @@ class Compiler {
             });
 
             console.log('pdflatex terminé, vérification du pdf...');
+            console.log('--- logs pdflatex ---');
+            console.log(stdout);
+            if (stderr) {
+                console.log('stderr:', stderr);
+            }
+
             const pdfExists = await this.fileExists(pdfFilePath);
             if (!pdfExists) {
                 console.log('erreur: pdf non généré');
@@ -37,6 +43,13 @@ class Compiler {
             };
         } catch (error) {
             console.log('erreur compilation:', error.message);
+            if (error.stdout) {
+                console.log('--- logs pdflatex (échec)---');
+                console.log(error.stdout);
+            }
+            if (error.stderr) {
+                console.log('stderr:', error.stderr);
+            }
             return {
                 success: false,
                 error: error.message,
