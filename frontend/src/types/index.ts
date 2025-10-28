@@ -10,7 +10,6 @@ export type FileType = typeof FILE_TYPES[number];
 
 export interface IProject {
     files: IFile[];
-    mainFile: string;
     currentFile: string | null;
 }
 

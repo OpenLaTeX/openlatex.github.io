@@ -15,7 +15,7 @@ class FileManager {
 
             await fs.mkdir(fileDir, { recursive: true });
 
-            if (this.isBinaryContent(file.content)) {
+            if (this.isBinaryContent(file.path)) {
                 const buffer = Buffer.from(file.content, 'base64');
                 await fs.writeFile(filePath, buffer);
             } else {
@@ -32,8 +32,10 @@ class FileManager {
         }
     }
 
-    static isBinaryContent(content) {
-        return content.startsWith('data:') || /^[A-Za-z0-9+/=]{100,}/.test(content);
+    static isBinaryContent(filePath) {
+        const binaryExtensions = ['.png', '.jpg', '.jpeg', '.pdf', '.gif', '.bmp', '.ico'];
+        const ext = filePath.toLowerCase().slice(filePath.lastIndexOf('.'));
+        return binaryExtensions.includes(ext);
     }
 }
 

@@ -33,13 +33,23 @@ export default function App() {
   };
 
   const handleCompile = async () => {
+    if (!project.currentFile) {
+      alert('Sélectionnez un fichier à compiler');
+      return;
+    }
+
+    if (!project.currentFile.endsWith('.tex')) {
+      alert('Sélectionnez un fichier .tex à compiler');
+      return;
+    }
+
     setLoading(true);
     try {
-      const compileRequest = project.toCompileRequest();
+      const compileRequest = project.toCompileRequest(project.currentFile);
       const blob = await ApiService.compile(apiUrl, compileRequest.files, compileRequest.mainFile);
       setPdfUrl(URL.createObjectURL(blob));
     } catch (err) {
-      alert('Erreur: ' + err.message);
+      alert('erreur: ' + err.message);
     }
     setLoading(false);
   };

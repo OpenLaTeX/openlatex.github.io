@@ -3,7 +3,6 @@ import { File } from './File';
 
 export class Project implements IProject {
     files: IFile[] = [];
-    mainFile: string = 'main.tex';
     currentFile: string | null = null;
 
     private constructor() {}
@@ -29,9 +28,6 @@ export class Project implements IProject {
     }
 
     removeFile(path: string): Project {
-        if (path === this.mainFile) {
-            throw new Error('Impossible de supprimer le fichier principal');
-        }
         const newProject = this.clone();
         newProject.files = newProject.files.filter(f => f.path !== path);
         if (newProject.currentFile === path) {
@@ -91,24 +87,20 @@ export class Project implements IProject {
         if (newProject.currentFile === oldPath) {
             newProject.currentFile = newPath;
         }
-        if (newProject.mainFile === oldPath) {
-            newProject.mainFile = newPath;
-        }
         return newProject;
     }
 
     private clone(): Project {
         const newProject = Project.createEmpty();
         newProject.files = [...this.files];
-        newProject.mainFile = this.mainFile;
         newProject.currentFile = this.currentFile;
         return newProject;
     }
 
-    toCompileRequest(): CompileRequest {
+    toCompileRequest(mainFile: string): CompileRequest {
         return {
             files: this.files.map(f => ({ path: f.path, content: f.content })),
-            mainFile: this.mainFile
+            mainFile
         };
     }
 
