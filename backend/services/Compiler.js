@@ -22,17 +22,11 @@ class Compiler {
                 timeout: 30000
             });
 
-            console.log('pdflatex terminé, vérification du pdf...');
+            console.log('pdflatex terminé');
             console.log('--- logs pdflatex ---');
             console.log(stdout);
             if (stderr) {
                 console.log('stderr:', stderr);
-            }
-
-            const pdfExists = await this.fileExists(pdfFilePath);
-            if (!pdfExists) {
-                console.log('erreur: pdf non généré');
-                throw new Error('PDF non généré, erreur de compilation');
             }
 
             const pdfBuffer = await fs.readFile(pdfFilePath);
@@ -52,6 +46,18 @@ class Compiler {
             if (error.stderr) {
                 console.log('stderr:', error.stderr);
             }
+
+            const pdfExists = await this.fileExists(pdfFilePath);
+            if (pdfExists) {
+                console.log('pdf généré malgré les erreurs');
+                const pdfBuffer = await fs.readFile(pdfFilePath);
+                return {
+                    success: true,
+                    pdf: pdfBuffer,
+                    logs: error.stdout || error.stderr || ''
+                };
+            }
+
             return {
                 success: false,
                 error: error.message,
