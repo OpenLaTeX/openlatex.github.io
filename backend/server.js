@@ -6,6 +6,7 @@ require('dotenv').config();
 const authRoutes = require('./routes/auth');
 const projectsRoutes = require('./routes/projects');
 const compileRoutes = require('./routes/compile');
+const compileGuestRoutes = require('./routes/compile-guest');
 
 const app = express();
 app.use(cors());
@@ -32,6 +33,7 @@ app.get('/health', (req, res) => {
 app.use('/auth', authRoutes);
 app.use('/projects', projectsRoutes);
 app.use('/compile', compileRoutes);
+app.use('/compile-guest', compileGuestRoutes);
 
 const PORT = process.env.PORT || 8000;
 
