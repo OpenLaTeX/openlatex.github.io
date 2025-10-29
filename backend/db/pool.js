@@ -1,7 +1,6 @@
 const { Pool } = require('pg');
 require('dotenv').config();
 
-// le .env sera reconstruit par github actions avec les secrets
 const pool = new Pool({
     user: process.env.POSTGRES_USER,
     host: process.env.POSTGRES_HOST,
@@ -19,6 +18,6 @@ pool.on('error', (err) => {
     process.exit(-1);
 });
 
-const query = (text, params) => pool.query(text, params);
+const SQLquery = (text, params) => pool.query(text, params);
 
-module.exports = { query };
+module.exports = { SQLquery };
