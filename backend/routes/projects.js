@@ -20,7 +20,7 @@ router.get('/', async (req, res) => {
     }
 });
 
-// cree un projet 
+// cree un projet
 router.post('/', async (req, res) => {
     const { name, description, files } = req.body;
 

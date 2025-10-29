@@ -1,17 +1,20 @@
 const express = require('express');
 const cors = require('cors');
 const { exec } = require('child_process');
-const FileManager = require('./services/FileManager');
-const Compiler = require('./services/Compiler');
+require('dotenv').config();
+
+const authRoutes = require('./routes/auth');
+const projectsRoutes = require('./routes/projects');
+const compileRoutes = require('./routes/compile');
 
 const app = express();
 app.use(cors());
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: '50mb' }));
 
 app.get('/health', (req, res) => {
   exec('which pdflatex && pdflatex --version', { timeout: 5000 }, (error, stdout, stderr) => {
     if (error) {
-      console.error('health check échoué:', error.message);
+      console.error('health check echoue:', error.message);
       console.error('stderr:', stderr);
       return res.status(500).json({
         status: 'unhealthy',
@@ -26,53 +29,17 @@ app.get('/health', (req, res) => {
   });
 });
 
-app.post('/compile', async (req, res) => {
-  const { files, mainFile } = req.body;
-  console.log('\n--- demande de compilation en cousr---');
-  console.log('reçu', files?.length, 'fichiers');
-  console.log('fichier principal:', mainFile);
-  files?.forEach(f => console.log('  -', f.path, `(${f.content?.length || 0} octets)`));
+app.use('/auth', authRoutes);
+app.use('/projects', projectsRoutes);
+app.use('/compile', compileRoutes);
 
-  if (!files || !mainFile) {
-    return res.status(400).json({ error: 'files et mainFile requis' });
-  }
+const PORT = process.env.PORT || 8000;
 
-  const projectId = Date.now().toString();
-  let workDir;
-
-  try {
-    workDir = await FileManager.createProjectDir(projectId);
-    console.log('dossier créé:', workDir);
-
-    await FileManager.writeFiles(workDir, files);
-    console.log('fichiers écrits');
-
-    const result = await Compiler.compile(workDir, mainFile);
-
-    if (result.success) {
-      res.setHeader('Content-Type', 'application/pdf');
-      res.send(result.pdf);
-    } else {
-      res.status(500).json({
-        error: result.error,
-        logs: result.logs
-      });
-    }
-  } catch (error) {
-    console.error('erreur compilation:', error);
-    res.status(500).json({ error: error.message });
-  } finally {
-    if (workDir) {
-      await FileManager.cleanup(workDir);
-    }
-  }
-});
-
-app.listen(8000, () => {
-  console.log('backend démarré sur le port 8000');
+app.listen(PORT, () => {
+  console.log('backend demarre sur le port', PORT);
   exec('which pdflatex && pdflatex --version', (error, stdout) => {
     if (error) {
-      console.error('warning: pdflatex pas trouvé');
+      console.error('warning: pdflatex pas trouve');
     } else {
       console.log('pdflatex ok:', stdout.split('\n')[0]);
     }
