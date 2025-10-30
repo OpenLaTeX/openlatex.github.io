@@ -1,4 +1,4 @@
-name: Deploiement backend docker VPS
+name: deploiement backend docker VPS
 
 on:
   push:
@@ -17,7 +17,7 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
 
-      - name: Deploiement sur VPS
+      - name: deploiement sur VPS
         env:
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_USER: ${{ secrets.VPS_USER }}
@@ -27,19 +27,17 @@ jobs:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           JWT_EXPIRES_IN: ${{ secrets.JWT_EXPIRES_IN }}
         run: |
-          ssh -o StrictHostKeyChecking=no $VPS_USER@$VPS_HOST <<'EOF'
+          ssh -o StrictHostKeyChecking=no $VPS_USER@$VPS_HOST <<EOF
             cd /home/deployer/OpenLatex 2>/dev/null || (cd /home/deployer && git clone https://github.com/${{ github.repository }}.git OpenLatex && cd OpenLatex)
             git fetch origin develop-bapi
             git reset --hard origin/develop-bapi
             cd backend
 
-            cat > .env <<ENVFILE
-POSTGRES_USER=$POSTGRES_USER
-POSTGRES_PASSWORD=$POSTGRES_PASSWORD
-POSTGRES_DB=$POSTGRES_DB
-JWT_SECRET=$JWT_SECRET
-JWT_EXPIRES_IN=$JWT_EXPIRES_IN
-ENVFILE
+            echo "POSTGRES_USER=$POSTGRES_USER" > .env
+            echo "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" >> .env
+            echo "POSTGRES_DB=$POSTGRES_DB" >> .env
+            echo "JWT_SECRET=$JWT_SECRET" >> .env
+            echo "JWT_EXPIRES_IN=$JWT_EXPIRES_IN" >> .env
 
             chmod 600 .env
             docker compose down --remove-orphans
