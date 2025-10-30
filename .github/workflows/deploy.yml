@@ -40,6 +40,6 @@ jobs:
             echo "JWT_EXPIRES_IN=$JWT_EXPIRES_IN" >> .env
 
             chmod 600 .env
-            docker compose down --remove-orphans
+            docker compose down
             docker compose up -d --build
           EOF
