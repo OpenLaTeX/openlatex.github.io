@@ -1,4 +1,4 @@
-name: deploiement backend docker VPS
+name: Deploiement backend docker VPS
 
 on:
   push:
@@ -17,18 +17,31 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
 
-      - name: Deploiement sur vps
+      - name: Deploiement sur VPS
         env:
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_USER: ${{ secrets.VPS_USER }}
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          JWT_EXPIRES_IN: ${{ secrets.JWT_EXPIRES_IN }}
         run: |
-          ssh -o StrictHostKeyChecking=no $VPS_USER@$VPS_HOST << 'EOF'
+          ssh -o StrictHostKeyChecking=no $VPS_USER@$VPS_HOST <<'EOF'
             cd /home/deployer/OpenLatex 2>/dev/null || (cd /home/deployer && git clone https://github.com/${{ github.repository }}.git OpenLatex && cd OpenLatex)
             git fetch origin develop-bapi
             git reset --hard origin/develop-bapi
             cd backend
-            docker build -t openlatex-backend .
-            docker stop openlatex-backend 2>/dev/null || true
-            docker rm openlatex-backend 2>/dev/null || true
-            docker run -d --name openlatex-backend -p 8000:8000 --restart unless-stopped openlatex-backend
+
+            cat > .env <<ENVFILE
+POSTGRES_USER=$POSTGRES_USER
+POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+POSTGRES_DB=$POSTGRES_DB
+JWT_SECRET=$JWT_SECRET
+JWT_EXPIRES_IN=$JWT_EXPIRES_IN
+ENVFILE
+
+            chmod 600 .env
+            docker compose down --remove-orphans
+            docker compose up -d --build
           EOF
