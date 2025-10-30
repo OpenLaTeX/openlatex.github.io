@@ -24,7 +24,7 @@ services:
   backend:
     build:
       context: .
-      dockerfile: ./pdflatex/Dockerfile
+      dockerfile: ./compiler/Dockerfile
     container_name: openlatex_backend
     restart: unless-stopped
     depends_on:

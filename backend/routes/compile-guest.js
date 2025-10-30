@@ -1,6 +1,6 @@
 const express = require('express');
-const FileManager = require('../services/FileManager');
-const Compiler = require('../services/Compiler');
+const FileManager = require('../compiler/FileManager');
+const Compiler = require('../compiler/Compiler');
 
 const router = express.Router();
 

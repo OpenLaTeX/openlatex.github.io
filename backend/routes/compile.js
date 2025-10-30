@@ -1,8 +1,8 @@
 const express = require('express');
 const { SQLquery } = require('../db/pool');
 const authMiddleware = require('../middleware/auth');
-const FileManager = require('../services/FileManager');
-const Compiler = require('../services/Compiler');
+const FileManager = require('../compiler/FileManager');
+const Compiler = require('../compiler/Compiler');
 
 const router = express.Router();
 
