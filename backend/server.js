@@ -33,8 +33,14 @@ app.get('/health', (req, res) => {
 
 app.use('/auth', authRoutes);
 app.use('/projects', projectsRoutes);
+//compilation d'un projet (Utilise la base SQL)
 app.use('/compile', userLimiter, compileRoutes);
-app.use('/compile-guest', guestLimiter, compileGuestRoutes);
+
+//compilation sans persistance (Fonctionne à l'upload)
+//si l'user loggé compile sans projet, on ne le limite pas comme un invité (nuance)
+app.use('/compile-guest', (req, res, next) => {
+    (req.headers.authorization?.startsWith('Bearer ') ? userLimiter : guestLimiter)(req, res, next);
+}, compileGuestRoutes);
 
 const PORT = process.env.PORT || 8000;
 

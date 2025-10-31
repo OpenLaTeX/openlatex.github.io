@@ -2,11 +2,15 @@ import AuthService from './AuthService';
 
 class ApiService {
   static async compileGuest(apiUrl, files, mainFile) {
+    const token = AuthService.getToken();
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
     const response = await fetch(`${apiUrl}/compile-guest`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers,
       body: JSON.stringify({ files, mainFile })
     });
 
