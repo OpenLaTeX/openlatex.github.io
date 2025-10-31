@@ -31,8 +31,8 @@ app.get('/health', (req, res) => {
   });
 });
 
-app.use('/auth', guestLimiter, authRoutes);
-app.use('/projects', userLimiter, projectsRoutes);
+app.use('/auth', authRoutes);
+app.use('/projects', projectsRoutes);
 app.use('/compile', userLimiter, compileRoutes);
 app.use('/compile-guest', guestLimiter, compileGuestRoutes);
 
