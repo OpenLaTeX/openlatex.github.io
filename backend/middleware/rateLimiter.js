@@ -24,11 +24,14 @@ const userLimiter = rateLimit({
             const token = authHeader.substring(7);
             try {
                 const decoded = jwt.verify(token, process.env.JWT_SECRET);
+                console.log('rate limit par userId:', decoded.userId);
                 return `user-${decoded.userId}`;
             } catch (err) {
+                console.log('token invalide, rate limit par IP:', err.message);
                 return req.ip;
             }
         }
+        console.log('pas de token, rate limit par IP:', req.ip);
         return req.ip;
     }
 });
