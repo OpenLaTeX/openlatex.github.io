@@ -12,7 +12,9 @@ class Compiler {
         const pdfFileName = mainFileName.replace(/\.tex$/, '.pdf');
         const pdfFilePath = path.join(mainFileDir, pdfFileName);
 
-        const cmd = `pdflatex -interaction=nonstopmode -no-shell-escape ${mainFileName}`;
+        //const cmd = `pdflatex -interaction=nonstopmode -no-shell-escape ${mainFileName}`;
+        const cmd = `pdflatex -interaction=nonstopmode ${mainFileName}`;
+
         console.log('lancement pdflatex...');
 
         try {

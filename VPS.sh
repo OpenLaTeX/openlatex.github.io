@@ -26,15 +26,15 @@ while true; do
             ;;
         4)
             echo "acces CLI Postgres..."
-            ssh -i -t github_deploy_key deployer@159.65.196.71 "docker exec -it openlatex_postgres psql -U openlatex -d openlatex_db"
+            ssh -i github_deploy_key -t deployer@159.65.196.71 "docker exec -it openlatex_postgres bash"
             ;;
         5)
             echo "logs du conteneur openlatex-backend..."
-            ssh -i github_deploy_key deployer@159.65.196.71 "docker logs -f openlatex-backend"
+            ssh -i github_deploy_key deployer@159.65.196.71 "docker logs -f openlatex_backend"
             ;;
         6)
             echo "acces CLI openlatex-backend..."
-            ssh -i -t github_deploy_key deployer@159.65.196.71 "docker exec -it openlatex-backend /bin/bash"
+            ssh -i github_deploy_key deployer@159.65.196.71 "docker exec -i openlatex_backend /bin/bash"
             ;;
         7)
             echo "Au revoir !"

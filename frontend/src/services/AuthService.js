@@ -1,4 +1,4 @@
-const API_URL = localStorage.getItem('apiUrl') || 'http://localhost:8000';
+const API_URL = localStorage.getItem('apiUrl') || 'http://159.65.196.71:8000';
 
 class AuthService {
     static async register(email, password) {

@@ -1,6 +1,6 @@
 import AuthService from './AuthService';
 
-const API_URL = localStorage.getItem('apiUrl') || 'http://localhost:8000';
+const API_URL = localStorage.getItem('apiUrl') || 'http://159.65.196.71:8000';
 
 class ProjectService {
     static getHeaders() {
