@@ -16,7 +16,7 @@ router.post('/', authMiddleware, async (req, res) => {
 
     try {
         const projectResult = await SQLquery(
-            'select user_id from projects where pno = $1',
+            'select uno from projects where pno = $1',
             [pno]
         );
 
@@ -24,12 +24,12 @@ router.post('/', authMiddleware, async (req, res) => {
             return res.status(404).json({ error: 'projet non trouve' });
         }
 
-        if (projectResult.rows[0].user_id !== req.userId) {
+        if (projectResult.rows[0].uno !== req.userId) {
             return res.status(403).json({ error: 'acces interdit' });
         }
 
         const filesResult = await SQLquery(
-            'select filename, content, file_type from file where project_id = $1',
+            'select filename, content, file_type from files where pno = $1',
             [pno]
         );
 

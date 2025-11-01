@@ -10,7 +10,7 @@ router.use(authMiddleware);
 router.get('/', async (req, res) => {
     try {
         const result = await SQLquery(
-            'select pno, name, description, created_at from projects where user_id = $1 order by created_at desc',
+            'select pno, name, description, created_at from projects where uno = $1 order by created_at desc',
             [req.userId]
         );
         res.json(result.rows);
@@ -30,7 +30,7 @@ router.post('/', async (req, res) => {
 
     try {
         const projectResult = await SQLquery(
-            'insert into projects (user_id, name, description) values ($1, $2, $3) returning pno',
+            'insert into projects (uno, name, description) values ($1, $2, $3) returning pno',
             [req.userId, name, description || null]
         );
 
@@ -39,7 +39,7 @@ router.post('/', async (req, res) => {
         for (const file of files) {
             const contentBuffer = Buffer.from(file.content, 'utf-8');
             await SQLquery(
-                'insert into file (project_id, filename, content, file_type) values ($1, $2, $3, $4)',
+                'insert into files (pno, filename, content, file_type) values ($1, $2, $3, $4)',
                 [projectId, file.filename, contentBuffer, file.file_type]
             );
         }
@@ -57,7 +57,7 @@ router.get('/:pno', async (req, res) => {
     const { pno } = req.params;
 
     try {
-        const projectResult = await SQLquery('select pno, user_id, name, description, created_at from projects where pno = $1',[pno]);
+        const projectResult = await SQLquery('select pno, uno, name, description, created_at from projects where pno = $1',[pno]);
 
         if (projectResult.rows.length === 0) {
             return res.status(404).json({ error: 'projet non trouve' });
@@ -65,11 +65,11 @@ router.get('/:pno', async (req, res) => {
 
         const project = projectResult.rows[0];
 
-        if (project.user_id !== req.userId) {
+        if (project.uno !== req.userId) {
             return res.status(403).json({ error: 'acces interdit (pas cense se produire)' });
         }
 
-        const filesResult = await SQLquery('select fno, filename, content, file_type, created_at from file where project_id = $1',[pno]);
+        const filesResult = await SQLquery('select fno, filename, content, file_type, created_at from files where pno = $1',[pno]);
 
         const files = filesResult.rows.map(file => ({
             fno: file.fno,
@@ -103,7 +103,7 @@ router.put('/:pno', async (req, res) => {
 
     try {
         const checkResult = await SQLquery(
-            'select user_id from projects where pno = $1',
+            'select uno from projects where pno = $1',
             [pno]
         );
 
@@ -111,7 +111,7 @@ router.put('/:pno', async (req, res) => {
             return res.status(404).json({ error: 'projet non trouve' });
         }
 
-        if (checkResult.rows[0].user_id !== req.userId) {
+        if (checkResult.rows[0].uno !== req.userId) {
             return res.status(403).json({ error: 'acces interdit' });
         }
 
@@ -120,14 +120,14 @@ router.put('/:pno', async (req, res) => {
             [name, description || null, pno]
         );
 
-        await SQLquery('delete from file where project_id = $1', [pno]);
+        await SQLquery('delete from files where pno = $1', [pno]);
 
         // insere tous les fichiers
         for (const file of files) {
             // convertit en Byte (utile pour les images)
             const contentBuffer = Buffer.from(file.content, 'utf-8');
             await SQLquery(
-                'insert into file (project_id, filename, content, file_type) values ($1, $2, $3, $4)',
+                'insert into files (pno, filename, content, file_type) values ($1, $2, $3, $4)',
                 [pno, file.filename, contentBuffer, file.file_type]
             );
         }
@@ -145,7 +145,7 @@ router.delete('/:pno', async (req, res) => {
 
     try {
         const checkResult = await SQLquery(
-            'select user_id from projects where pno = $1',
+            'select uno from projects where pno = $1',
             [pno]
         );
 
@@ -153,7 +153,7 @@ router.delete('/:pno', async (req, res) => {
             return res.status(404).json({ error: 'projet non trouve' });
         }
 
-        if (checkResult.rows[0].user_id !== req.userId) {
+        if (checkResult.rows[0].uno !== req.userId) {
             return res.status(403).json({ error: 'acces interdit' });
         }
 
