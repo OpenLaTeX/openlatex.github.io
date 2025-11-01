@@ -23,6 +23,3 @@ create table if not exists files (
     file_type text not null,
     created_at timestamp default now()
 );
-
-create index if not exists idx_projects_uno on projects(uno);
-create index if not exists idx_files_pno on files(pno);
