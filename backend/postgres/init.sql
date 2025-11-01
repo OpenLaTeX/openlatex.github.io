@@ -1,5 +1,3 @@
---- conventions nommages | syntaxe de l'IUTINFO Villeneuve d'ascq
-
 create table if not exists users (
     uno serial primary key,
     email text unique not null,
