@@ -1,0 +1,93 @@
+.file-tree {
+  display: flex;
+  flex-direction: column;
+  font-family: "Segoe UI", sans-serif;
+}
+
+.tree-node-file {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.15s ease;
+}
+
+.tree-node-file:hover {
+  background: var(--bg-hover);
+}
+
+.tree-file-name {
+  flex: 1;
+  padding: 4px 6px;
+  border-radius: 4px;
+  font-size: 13px;
+  user-select: none;
+  transition: all 0.15s ease;
+}
+
+.tree-file-name.active {
+  background: whitesmoke;
+  color: var(--bg-dark);
+  font-weight: 600;
+}
+
+.tree-file-actions {
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.tree-node-file:hover .tree-file-actions {
+  opacity: 1;
+}
+
+.tree-file-button {
+  padding: 3px 10px;
+  background: transparent;
+  color: var(--text-dim);
+  border: 1px solid transparent;
+  border-radius: 4px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.tree-file-button:hover {
+  background: var(--bg-active);
+  color: var(--text-light);
+  border-color: var(--bg-active);
+}
+
+.tree-node-folder {
+  display: flex;
+  flex-direction: column;
+}
+
+.tree-folder-header {
+  display: flex;
+  align-items: center;
+  padding: 8px 10px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.15s ease;
+}
+
+.tree-folder-header:hover {
+  background: var(--bg-hover);
+}
+
+.tree-folder-icon {
+  padding: 4px 6px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  user-select: none;
+  color: var(--text-dim);
+}
+
+.tree-folder-children {
+  padding-left: 15px;
+}

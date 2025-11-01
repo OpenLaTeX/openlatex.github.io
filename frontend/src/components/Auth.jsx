@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import AuthService from '../services/AuthService';
+import './Auth.css';
 
 function Auth({ onLogin }) {
     const [isLogin, setIsLogin] = useState(true);
@@ -30,45 +31,47 @@ function Auth({ onLogin }) {
     };
 
     return (
-        <div style={{ padding: '20px', maxWidth: '400px', margin: '50px auto' }}>
+        <div className="auth-container">
             <h2>{isLogin ? 'Connexion' : 'Inscription'}</h2>
 
-            <form onSubmit={handleSubmit}>
-                <div style={{ marginBottom: '10px' }}>
+            <form onSubmit={handleSubmit} className="auth-form">
+                <div className="auth-input-group">
                     <input
                         type="email"
                         placeholder="Email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
-                        style={{ width: '100%', padding: '8px' }}
+                        className="auth-input"
                     />
                 </div>
 
-                <div style={{ marginBottom: '10px' }}>
+                <div className="auth-input-group">
                     <input
                         type="password"
                         placeholder="Mot de passe"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
-                        style={{ width: '100%', padding: '8px' }}
+                        className="auth-input"
                     />
                 </div>
 
-                {error && <div style={{ color: 'red', marginBottom: '10px' }}>{error}</div>}
+                {error && <div className="auth-error">{error}</div>}
 
-                <button type="submit" disabled={loading} style={{ padding: '8px 16px' }}>
-                    {loading ? '...' : (isLogin ? 'Connexion' : 'Inscription')}
-                </button>
+                <div className="auth-buttons">
+                    <button type="submit" disabled={loading} className="auth-button auth-button-primary">
+                        {loading ? '...' : (isLogin ? 'Connexion' : 'Inscription')}
+                    </button>
 
-                <button
-                    type="button"
-                    onClick={() => setIsLogin(!isLogin)}
-                    style={{ marginLeft: '10px', padding: '8px 16px' }}
-                >
-                    {isLogin ? 'Creer un compte' : 'Se connecter'}
-                </button>
+                    <button
+                        type="button"
+                        onClick={() => setIsLogin(!isLogin)}
+                        className="auth-button"
+                    >
+                        {isLogin ? 'Creer un compte' : 'Se connecter'}
+                    </button>
+                </div>
             </form>
         </div>
     );

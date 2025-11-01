@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import './FileTree.css';
 
 function buildTree(files) {
   const root = { type: 'folder', name: '', children: [] };
@@ -34,34 +35,43 @@ function TreeNode({ node, level, currentFile, onSelect, onRename, onDelete }) {
 
   if (node.type === 'file') {
     return (
-      <div className="tree-file" style={{ paddingLeft: `${level * 15}px` }}>
-        <span onClick={() => onSelect(node.path)} className={currentFile === node.path ? 'active' : ''}>
+      <div className="tree-node-file" style={{ paddingLeft: `${level * 15}px` }}>
+        <span
+          onClick={() => onSelect(node.path)}
+          className={currentFile === node.path ? 'tree-file-name active' : 'tree-file-name'}
+        >
           - {node.name}
         </span>
-        <button onClick={() => onRename(node.path)}>rename</button>
-        <button onClick={() => onDelete(node.path)}>del</button>
+        <div className="tree-file-actions">
+          <button onClick={() => onRename(node.path)} className="tree-file-button">rename</button>
+          <button onClick={() => onDelete(node.path)} className="tree-file-button">del</button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="tree-folder">
-      <div style={{ paddingLeft: `${level * 15}px` }}>
-        <span onClick={() => setIsOpen(!isOpen)}>
+    <div className="tree-node-folder">
+      <div className="tree-folder-header" style={{ paddingLeft: `${level * 15}px` }}>
+        <span onClick={() => setIsOpen(!isOpen)} className="tree-folder-icon">
           {isOpen ? 'v' : '>'} {node.name}
         </span>
       </div>
-      {isOpen && node.children.map((child, i) => (
-        <TreeNode
-          key={i}
-          node={child}
-          level={level + 1}
-          currentFile={currentFile}
-          onSelect={onSelect}
-          onRename={onRename}
-          onDelete={onDelete}
-        />
-      ))}
+      {isOpen && (
+        <div className="tree-folder-children">
+          {node.children.map((child, i) => (
+            <TreeNode
+              key={i}
+              node={child}
+              level={level + 1}
+              currentFile={currentFile}
+              onSelect={onSelect}
+              onRename={onRename}
+              onDelete={onDelete}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

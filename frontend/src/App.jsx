@@ -1,5 +1,4 @@
 import { useState, useRef } from 'react';
-import Editor from '@monaco-editor/react';
 import { Project } from './models/Project';
 import ApiService from './services/ApiService';
 import AuthService from './services/AuthService';
@@ -7,6 +6,7 @@ import ProjectService from './services/ProjectService';
 import FileTree from './components/FileTree';
 import Auth from './components/Auth';
 import ProjectList from './components/ProjectList';
+import Editor from './components/Editor';
 import { ErrorPanel } from './components/ErrorPanel';
 import { parseLatexLogs } from './utils/LogParser';
 import './App.css';
@@ -279,15 +279,9 @@ export default function App() {
           <strong>edition: </strong>{currentFile?.path || 'aucun fichier'}
         </div>
         <Editor
-          height="100%"
-          language="latex"
           value={currentFile?.content || ''}
           onChange={handleContentChange}
-          theme="vs-dark"
-          options={{
-            minimap: { enabled: false },
-            fontSize: 14
-          }}
+          currentFile={currentFile}
         />
       </div>
 

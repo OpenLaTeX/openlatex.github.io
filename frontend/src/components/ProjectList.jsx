@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import ProjectService from '../services/ProjectService';
+import './ProjectList.css';
 
 function ProjectList({ onLoadProject, onNewProject }) {
     const [projects, setProjects] = useState([]);
@@ -34,32 +35,32 @@ function ProjectList({ onLoadProject, onNewProject }) {
         }
     };
 
-    if (loading) return <div style={{ padding: '20px' }}>chargement...</div>;
+    if (loading) return <div className="project-loading">chargement...</div>;
 
     return (
-        <div style={{ padding: '20px' }}>
+        <div className="project-list-container">
             <h3>Mes projets</h3>
 
-            {error && <div style={{ color: 'red' }}>{error}</div>}
+            {error && <div className="project-error">{error}</div>}
 
-            <button onClick={onNewProject} style={{ marginBottom: '10px' }}>
+            <button onClick={onNewProject} className="project-new-button">
                 Nouveau projet
             </button>
 
             {projects.length === 0 ? (
-                <p>aucun projet</p>
+                <p className="project-empty">aucun projet</p>
             ) : (
-                <ul style={{ listStyle: 'none', padding: 0 }}>
+                <ul className="project-list">
                     {projects.map(project => (
-                        <li key={project.pno} style={{ marginBottom: '10px', border: '1px solid #ccc', padding: '10px' }}>
-                            <strong>{project.name}</strong>
-                            {project.description && <p>{project.description}</p>}
-                            <small>{new Date(project.created_at).toLocaleDateString()}</small>
-                            <div style={{ marginTop: '5px' }}>
-                                <button onClick={() => onLoadProject(project.pno)} style={{ marginRight: '5px' }}>
+                        <li key={project.pno} className="project-item">
+                            <div className="project-name">{project.name}</div>
+                            {project.description && <p className="project-description">{project.description}</p>}
+                            <small className="project-date">{new Date(project.created_at).toLocaleDateString()}</small>
+                            <div className="project-actions">
+                                <button onClick={() => onLoadProject(project.pno)} className="project-action-button project-action-button-primary">
                                     Ouvrir
                                 </button>
-                                <button onClick={() => handleDelete(project.pno)}>
+                                <button onClick={() => handleDelete(project.pno)} className="project-action-button">
                                     Supprimer
                                 </button>
                             </div>
