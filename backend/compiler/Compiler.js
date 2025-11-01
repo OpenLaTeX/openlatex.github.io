@@ -37,7 +37,8 @@ class Compiler {
             return {
                 success: true,
                 pdf: pdfBuffer,
-                logs: stdout
+                logs: stdout,
+                hasErrors: false
             };
         } catch (error) {
             console.log('erreur compilation:', error.message);
@@ -56,7 +57,8 @@ class Compiler {
                 return {
                     success: true,
                     pdf: pdfBuffer,
-                    logs: error.stdout || error.stderr || ''
+                    logs: error.stdout || error.stderr || '',
+                    hasErrors: true
                 };
             }
 

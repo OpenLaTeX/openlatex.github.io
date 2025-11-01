@@ -7,6 +7,8 @@ import ProjectService from './services/ProjectService';
 import FileTree from './components/FileTree';
 import Auth from './components/Auth';
 import ProjectList from './components/ProjectList';
+import { ErrorPanel } from './components/ErrorPanel';
+import { parseLatexLogs } from './utils/LogParser';
 import './App.css';
 
 export default function App() {
@@ -20,6 +22,8 @@ export default function App() {
   const [pdfUrl, setPdfUrl] = useState(null);
   const [loading, setLoading] = useState(false);
   const [apiUrl, setApiUrl] = useState(() => localStorage.getItem('apiUrl') || 'http://159.65.196.71:8000');
+  const [compilationErrors, setCompilationErrors] = useState([]);
+  const [showErrorPanel, setShowErrorPanel] = useState(false);
   const fileInputRef = useRef(null);
   const folderInputRef = useRef(null);
 
@@ -122,18 +126,28 @@ export default function App() {
     }
 
     setLoading(true);
+    setCompilationErrors([]);
     try {
-      let blob;
+      let result;
 
       if (currentProjectId && isAuthenticated) {
-        blob = await ApiService.compileSaved(apiUrl, currentProjectId, project.currentFile);
+        result = await ApiService.compileSaved(apiUrl, currentProjectId, project.currentFile);
       } else {
         const compileRequest = project.toCompileRequest(project.currentFile);
-        blob = await ApiService.compileGuest(apiUrl, compileRequest.files, compileRequest.mainFile);
+        result = await ApiService.compileGuest(apiUrl, compileRequest.files, compileRequest.mainFile);
       }
 
-      setPdfUrl(URL.createObjectURL(blob));
+      setPdfUrl(result.pdfUrl);
+
+      if (result.hasErrors) {
+        const errors = parseLatexLogs(result.logs);
+        setCompilationErrors(errors);
+        setShowErrorPanel(true);
+      }
     } catch (err) {
+      const errors = parseLatexLogs(err.logs || '');
+      setCompilationErrors(errors);
+      setShowErrorPanel(true);
       alert('erreur: ' + err.message);
     }
     setLoading(false);
@@ -238,6 +252,12 @@ export default function App() {
           {loading ? 'compilation...' : 'compiler'}
         </button>
 
+        {compilationErrors.length > 0 && (
+          <button onClick={() => setShowErrorPanel(!showErrorPanel)}>
+            erreurs ({compilationErrors.length})
+          </button>
+        )}
+
         <input ref={fileInputRef} type="file" multiple style={{display:'none'}} onChange={handleUploadFiles} />
         <input ref={folderInputRef} type="file" webkitdirectory="true" style={{display:'none'}} onChange={handleUploadFiles} />
 
@@ -280,6 +300,12 @@ export default function App() {
           </div>
         )}
       </div>
+
+      <ErrorPanel
+        errors={compilationErrors}
+        isOpen={showErrorPanel}
+        onClose={() => setShowErrorPanel(false)}
+      />
     </div>
   );
 }

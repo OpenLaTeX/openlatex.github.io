@@ -15,11 +15,14 @@ class ApiService {
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'erreur compilation');
+      const errorData = await response.json();
+      const error = new Error(errorData.error || 'erreur compilation');
+      error.logs = errorData.logs;
+      throw error;
     }
 
-    return await response.blob();
+    const data = await response.json();
+    return { pdfUrl: `data:application/pdf;base64,${data.pdf}`, logs: data.logs, hasErrors: data.hasErrors };
   }
 
   static async compileSaved(apiUrl, pno, mainFile) {
@@ -35,11 +38,14 @@ class ApiService {
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'erreur compilation');
+      const errorData = await response.json();
+      const error = new Error(errorData.error || 'erreur compilation');
+      error.logs = errorData.logs;
+      throw error;
     }
 
-    return await response.blob();
+    const data = await response.json();
+    return { pdfUrl: `data:application/pdf;base64,${data.pdf}`, logs: data.logs, hasErrors: data.hasErrors };
   }
 
   static async health(apiUrl) {

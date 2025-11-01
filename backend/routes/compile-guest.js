@@ -23,8 +23,11 @@ router.post('/', async (req, res) => {
         const result = await Compiler.compile(workDir, mainFile);
 
         if (result.success) {
-            res.setHeader('Content-Type', 'application/pdf');
-            res.send(result.pdf);
+            res.json({
+                pdf: result.pdf.toString('base64'),
+                logs: result.logs || '',
+                hasErrors: result.hasErrors || false
+            });
         } else {
             res.status(500).json({
                 error: result.error,
