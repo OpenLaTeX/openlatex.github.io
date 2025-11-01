@@ -21,7 +21,7 @@ function Auth({ onLogin }) {
             } else {
                 await AuthService.register(email, password);
                 setIsLogin(true);
-                setError('compte cree, connectez vous');
+                setError('Compte créé avec succès, vous pouvez maintenant vous connecter');
             }
         } catch (err) {
             setError(err.message);
@@ -61,7 +61,7 @@ function Auth({ onLogin }) {
 
                 <div className="auth-buttons">
                     <button type="submit" disabled={loading} className="auth-button auth-button-primary">
-                        {loading ? '...' : (isLogin ? 'Connexion' : 'Inscription')}
+                        {loading ? 'Chargement...' : (isLogin ? 'Connexion' : 'Inscription')}
                     </button>
 
                     <button
@@ -69,7 +69,7 @@ function Auth({ onLogin }) {
                         onClick={() => setIsLogin(!isLogin)}
                         className="auth-button"
                     >
-                        {isLogin ? 'Creer un compte' : 'Se connecter'}
+                        {isLogin ? 'Créer un compte' : 'Se connecter'}
                     </button>
                 </div>
             </form>

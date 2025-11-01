@@ -1,5 +1,21 @@
 import { useState } from 'react';
+import { ChevronRight, ChevronDown, Folder, FileText, Image, FileCode, File, Edit2, Trash2 } from 'lucide-react';
 import './FileTree.css';
+
+function getFileIcon(filename) {
+  const ext = filename.split('.').pop().toLowerCase();
+
+  if (ext === 'tex' || ext === 'bib') {
+    return <FileText size={16} />;
+  }
+  if (ext === 'png' || ext === 'jpg' || ext === 'jpeg') {
+    return <Image size={16} />;
+  }
+  if (ext === 'cls' || ext === 'sty' || ext === 'bst') {
+    return <FileCode size={16} />;
+  }
+  return <File size={16} />;
+}
 
 function buildTree(files) {
   const root = { type: 'folder', name: '', children: [] };
@@ -40,11 +56,16 @@ function TreeNode({ node, level, currentFile, onSelect, onRename, onDelete }) {
           onClick={() => onSelect(node.path)}
           className={currentFile === node.path ? 'tree-file-name active' : 'tree-file-name'}
         >
-          - {node.name}
+          <span className="tree-file-icon">{getFileIcon(node.name)}</span>
+          {node.name}
         </span>
         <div className="tree-file-actions">
-          <button onClick={() => onRename(node.path)} className="tree-file-button">rename</button>
-          <button onClick={() => onDelete(node.path)} className="tree-file-button">del</button>
+          <button onClick={() => onRename(node.path)} className="tree-file-button" title="Renommer">
+            <Edit2 size={14} />
+          </button>
+          <button onClick={() => onDelete(node.path)} className="tree-file-button" title="Supprimer">
+            <Trash2 size={14} />
+          </button>
         </div>
       </div>
     );
@@ -53,9 +74,11 @@ function TreeNode({ node, level, currentFile, onSelect, onRename, onDelete }) {
   return (
     <div className="tree-node-folder">
       <div className="tree-folder-header" style={{ paddingLeft: `${level * 15}px` }}>
-        <span onClick={() => setIsOpen(!isOpen)} className="tree-folder-icon">
-          {isOpen ? 'v' : '>'} {node.name}
+        <span onClick={() => setIsOpen(!isOpen)} className="tree-folder-toggle">
+          {isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
         </span>
+        <Folder size={16} className="tree-folder-icon" />
+        <span className="tree-folder-name">{node.name}</span>
       </div>
       {isOpen && (
         <div className="tree-folder-children">

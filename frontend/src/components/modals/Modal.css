@@ -1,0 +1,117 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  transition: opacity 200ms ease-in-out;
+}
+
+.modal-overlay.ReactModal__Overlay--after-open {
+  opacity: 1;
+}
+
+.modal-overlay.ReactModal__Overlay--before-close {
+  opacity: 0;
+}
+
+.modal-content {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  overflow: auto;
+  outline: none;
+  transform: scale(0.9);
+  transition: transform 200ms ease-in-out;
+}
+
+.ReactModal__Overlay--after-open .modal-content {
+  transform: scale(1);
+}
+
+.ReactModal__Overlay--before-close .modal-content {
+  transform: scale(0.9);
+}
+
+.modal-container {
+  padding: 24px;
+}
+
+.modal-title {
+  margin: 0 0 16px 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.modal-body {
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+
+.modal-button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.modal-button-primary {
+  background: var(--accent-color);
+  color: white;
+}
+
+.modal-button-primary:hover {
+  opacity: 0.9;
+}
+
+.modal-button-secondary {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.modal-button-secondary:hover {
+  background: var(--bg-tertiary);
+}
+
+.modal-input {
+  width: 100%;
+  padding: 10px;
+  margin: 12px 0;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.modal-input:focus {
+  outline: none;
+  border-color: var(--accent-color);
+}
+
+.modal-error {
+  color: #ff6b6b;
+  font-size: 13px;
+  margin-top: 8px;
+}

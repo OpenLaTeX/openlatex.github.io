@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import ProjectService from '../services/ProjectService';
 import './ProjectList.css';
 
-function ProjectList({ onLoadProject, onNewProject }) {
+function ProjectList({ onLoadProject, onNewProject, onConfirm }) {
     const [projects, setProjects] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -18,24 +18,28 @@ function ProjectList({ onLoadProject, onNewProject }) {
             setProjects(data);
             setError('');
         } catch (err) {
-            setError(err.message);
+            setError('Impossible de charger les projets : ' + err.message);
         } finally {
             setLoading(false);
         }
     };
 
-    const handleDelete = async (pno) => {
-        if (!confirm('Supprimer ce projet ?')) return;
-
-        try {
-            await ProjectService.deleteProject(pno);
-            setProjects(projects.filter(p => p.pno !== pno));
-        } catch (err) {
-            setError(err.message);
-        }
+    const handleDelete = async (pno, projectName) => {
+        onConfirm(
+            'Supprimer le projet',
+            `Êtes-vous sûr de vouloir supprimer le projet "${projectName}" ? Cette action est irréversible.`,
+            async () => {
+                try {
+                    await ProjectService.deleteProject(pno);
+                    setProjects(projects.filter(p => p.pno !== pno));
+                } catch (err) {
+                    setError('Impossible de supprimer le projet : ' + err.message);
+                }
+            }
+        );
     };
 
-    if (loading) return <div className="project-loading">chargement...</div>;
+    if (loading) return <div className="project-loading">Chargement...</div>;
 
     return (
         <div className="project-list-container">
@@ -48,7 +52,7 @@ function ProjectList({ onLoadProject, onNewProject }) {
             </button>
 
             {projects.length === 0 ? (
-                <p className="project-empty">aucun projet</p>
+                <p className="project-empty">Aucun projet</p>
             ) : (
                 <ul className="project-list">
                     {projects.map(project => (
@@ -60,7 +64,7 @@ function ProjectList({ onLoadProject, onNewProject }) {
                                 <button onClick={() => onLoadProject(project.pno)} className="project-action-button project-action-button-primary">
                                     Ouvrir
                                 </button>
-                                <button onClick={() => handleDelete(project.pno)} className="project-action-button">
+                                <button onClick={() => handleDelete(project.pno, project.name)} className="project-action-button">
                                     Supprimer
                                 </button>
                             </div>

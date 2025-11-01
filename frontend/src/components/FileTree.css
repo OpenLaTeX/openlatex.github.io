@@ -20,6 +20,9 @@
 
 .tree-file-name {
   flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   padding: 4px 6px;
   border-radius: 4px;
   font-size: 13px;
@@ -31,6 +34,16 @@
   background: whitesmoke;
   color: var(--bg-dark);
   font-weight: 600;
+}
+
+.tree-file-icon {
+  display: flex;
+  align-items: center;
+  color: var(--text-dim);
+}
+
+.tree-file-name.active .tree-file-icon {
+  color: var(--bg-dark);
 }
 
 .tree-file-actions {
@@ -45,12 +58,14 @@
 }
 
 .tree-file-button {
-  padding: 3px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
   background: transparent;
   color: var(--text-dim);
   border: 1px solid transparent;
   border-radius: 4px;
-  font-size: 11px;
   cursor: pointer;
   transition: all 0.15s ease;
 }
@@ -79,15 +94,27 @@
   background: var(--bg-hover);
 }
 
+.tree-folder-toggle {
+  display: flex;
+  align-items: center;
+  color: var(--text-dim);
+  margin-right: 4px;
+}
+
 .tree-folder-icon {
-  padding: 4px 6px;
-  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  color: var(--text-dim);
+  margin-right: 8px;
+}
+
+.tree-folder-name {
   font-size: 13px;
   font-weight: 600;
   user-select: none;
-  color: var(--text-dim);
+  color: var(--text-secondary);
 }
 
 .tree-folder-children {
-  padding-left: 15px;
+  padding-left: 0;
 }
