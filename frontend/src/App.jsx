@@ -13,6 +13,7 @@ import AlertModal from './components/modals/AlertModal';
 import ConfirmModal from './components/modals/ConfirmModal';
 import PromptModal from './components/modals/PromptModal';
 import { validateFilename, validateProjectName } from './utils/validation';
+import { getApiUrl, setApiUrl } from './config/settings';
 import './App.css';
 
 export default function App() {
@@ -25,7 +26,7 @@ export default function App() {
   const [project, setProject] = useState(() => Project.createDefault());
   const [pdfUrl, setPdfUrl] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [apiUrl, setApiUrl] = useState(() => localStorage.getItem('apiUrl') || 'http://159.65.196.71:8000');
+  const [apiUrl, setApiUrlState] = useState(() => getApiUrl());
   const [compilationErrors, setCompilationErrors] = useState([]);
   const [showErrorPanel, setShowErrorPanel] = useState(false);
   const fileInputRef = useRef(null);
@@ -144,8 +145,8 @@ export default function App() {
   };
 
   const handleApiUrlChange = (newUrl) => {
+    setApiUrlState(newUrl);
     setApiUrl(newUrl);
-    localStorage.setItem('apiUrl', newUrl);
   };
 
   const handleFileSelect = (path) => {

@@ -1,6 +1,5 @@
 import AuthService from './AuthService';
-
-const API_URL = localStorage.getItem('apiUrl') || 'http://159.65.196.71:8000';
+import { getApiUrl } from '../config/settings';
 
 class ProjectService {
     static getHeaders() {
@@ -12,7 +11,7 @@ class ProjectService {
     }
 
     static async getProjects() {
-        const response = await fetch(`${API_URL}/projects`, {
+        const response = await fetch(`${getApiUrl()}/projects`, {
             headers: this.getHeaders()
         });
 
@@ -24,7 +23,7 @@ class ProjectService {
     }
 
     static async createProject(name, description, files) {
-        const response = await fetch(`${API_URL}/projects`, {
+        const response = await fetch(`${getApiUrl()}/projects`, {
             method: 'POST',
             headers: this.getHeaders(),
             body: JSON.stringify({ name, description, files })
@@ -40,7 +39,7 @@ class ProjectService {
     }
 
     static async getProject(pno) {
-        const response = await fetch(`${API_URL}/projects/${pno}`, {
+        const response = await fetch(`${getApiUrl()}/projects/${pno}`, {
             headers: this.getHeaders()
         });
 
@@ -52,7 +51,7 @@ class ProjectService {
     }
 
     static async updateProject(pno, name, description, files) {
-        const response = await fetch(`${API_URL}/projects/${pno}`, {
+        const response = await fetch(`${getApiUrl()}/projects/${pno}`, {
             method: 'PUT',
             headers: this.getHeaders(),
             body: JSON.stringify({ name, description, files })
@@ -68,7 +67,7 @@ class ProjectService {
     }
 
     static async deleteProject(pno) {
-        const response = await fetch(`${API_URL}/projects/${pno}`, {
+        const response = await fetch(`${getApiUrl()}/projects/${pno}`, {
             method: 'DELETE',
             headers: this.getHeaders()
         });

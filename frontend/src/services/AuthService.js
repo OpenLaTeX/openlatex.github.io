@@ -1,8 +1,8 @@
-const API_URL = localStorage.getItem('apiUrl') || 'http://159.65.196.71:8000';
+import { getApiUrl } from '../config/settings';
 
 class AuthService {
     static async register(email, password) {
-        const response = await fetch(`${API_URL}/auth/register`, {
+        const response = await fetch(`${getApiUrl()}/auth/register`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -20,7 +20,7 @@ class AuthService {
     }
 
     static async login(email, password) {
-        const response = await fetch(`${API_URL}/auth/login`, {
+        const response = await fetch(`${getApiUrl()}/auth/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
