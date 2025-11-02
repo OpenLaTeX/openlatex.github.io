@@ -173,14 +173,9 @@ export default function App() {
     setLoading(true);
     setCompilationErrors([]);
     try {
-      let result;
-
-      if (currentProjectId && isAuthenticated) {
-        result = await ApiService.compileSaved(apiUrl, currentProjectId, project.currentFile);
-      } else {
-        const compileRequest = project.toCompileRequest(project.currentFile);
-        result = await ApiService.compileGuest(apiUrl, compileRequest.files, compileRequest.mainFile);
-      }
+      // compilation où il faut toujours envoyer les fichiers (pour être à jour au maximum)
+      const compileRequest = project.toCompileRequest(project.currentFile);
+      const result = await ApiService.compile(apiUrl, compileRequest.files, compileRequest.mainFile);
 
       setPdfUrl(result.pdfUrl);
 

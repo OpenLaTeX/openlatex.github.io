@@ -6,7 +6,6 @@ require('dotenv').config();
 const authRoutes = require('./routes/auth');
 const projectsRoutes = require('./routes/projects');
 const compileRoutes = require('./routes/compile');
-const compileGuestRoutes = require('./routes/compile-guest');
 const { guestLimiter, userLimiter } = require('./middleware/rateLimiter');
 
 const app = express();
@@ -33,14 +32,11 @@ app.get('/health', (req, res) => {
 
 app.use('/auth', authRoutes);
 app.use('/projects', projectsRoutes);
-//compilation d'un projet (Utilise la base SQL)
-app.use('/compile', userLimiter, compileRoutes);
 
-//compilation sans persistance (Fonctionne à l'upload)
-//si l'user loggé compile sans projet, on ne le limite pas comme un invité (nuance)
-app.use('/compile-guest', (req, res, next) => {
+// compilation avec qui se base sur l'upload + Rate limiting: 10/min pour users authentifiés, 3/min pour invités
+app.use('/compile', (req, res, next) => {
     (req.headers.authorization?.startsWith('Bearer ') ? userLimiter : guestLimiter)(req, res, next);
-}, compileGuestRoutes);
+}, compileRoutes);
 
 const PORT = process.env.PORT || 8000;
 

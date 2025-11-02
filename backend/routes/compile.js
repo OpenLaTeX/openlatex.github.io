@@ -1,51 +1,24 @@
 const express = require('express');
-const { SQLquery } = require('../db/pool');
-const authMiddleware = require('../middleware/auth');
 const FileManager = require('../compiler/FileManager');
 const Compiler = require('../compiler/Compiler');
 
 const router = express.Router();
 
-//compile le projet
-router.post('/', authMiddleware, async (req, res) => {
-    const { pno, mainFile } = req.body;
+// compilation qui recoit les fichiers en HTTP, pas de persistance SQL (Le SQL sert à sauvegarder et ce serait moins performant de compiler avec le SQL)
+router.post('/', async (req, res) => {
+    const { files, mainFile } = req.body;
+    console.log('compilation stateless (pas de sauvegarde SQL)');
+    console.log('fichiers:', files?.length);
 
-    if (!pno || !mainFile) {
-        return res.status(400).json({ error: 'pno et mainFile requis' });
+    if (!files || !mainFile) {
+        return res.status(400).json({ error: 'files et mainFile requis' });
     }
 
+    const projectId = Date.now().toString();
+    let workDir;
+
     try {
-        const projectResult = await SQLquery(
-            'select uno from projects where pno = $1',
-            [pno]
-        );
-
-        if (projectResult.rows.length === 0) {
-            return res.status(404).json({ error: 'projet non trouve' });
-        }
-
-        if (projectResult.rows[0].uno !== req.userId) {
-            return res.status(403).json({ error: 'acces interdit' });
-        }
-
-        const filesResult = await SQLquery(
-            'select filename, content, file_type from files where pno = $1',
-            [pno]
-        );
-
-        if (filesResult.rows.length === 0) {
-            return res.status(400).json({ error: 'aucun fichier dans le projet' });
-        }
-
-        const files = filesResult.rows.map(file => ({
-            path: file.filename,
-            content: file.content.toString('utf-8')
-        }));
-
-        console.log('compilation projet', pno);
-        console.log('fichiers:', files.length);
-
-        const workDir = await FileManager.createProjectDir(pno);
+        workDir = await FileManager.createProjectDir(projectId);
         await FileManager.writeFiles(workDir, files);
 
         const result = await Compiler.compile(workDir, mainFile);
@@ -64,9 +37,12 @@ router.post('/', authMiddleware, async (req, res) => {
         }
 
         await FileManager.cleanup(workDir);
-    } catch (err) {
-        console.error('erreur compilation:', err);
-        res.status(500).json({ error: 'erreur serveur' });
+    } catch (error) {
+        console.error('erreur compilation:', error);
+        if (workDir) {
+            await FileManager.cleanup(workDir);
+        }
+        res.status(500).json({ error: error.message });
     }
 });
 

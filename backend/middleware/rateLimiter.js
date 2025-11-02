@@ -6,7 +6,7 @@ require('dotenv').config();
 const guestLimiter = rateLimit({
     windowMs: 1 * 60 * 1000,
     max: 3,
-    message: { error: '3 compilations max par minute pour les invités, reessayez plus tard ou créez un compte !' },
+    message: { error: '3 compilations max par minute pour les invités, réessayez plus tard ou créez un compte.' },
     standardHeaders: true,
     legacyHeaders: false,
 });
@@ -15,7 +15,7 @@ const guestLimiter = rateLimit({
 const userLimiter = rateLimit({
     windowMs: 1 * 60 * 1000,
     max: 10,
-    message: { error: '10 compilations max par minute pour les utilisateurs loggés, reessayez plus tard' },
+    message: { error: '10 compilations max par minute pour les utilisateurs connectés, réessayez plus tard.' },
     standardHeaders: true,
     legacyHeaders: false,
     keyGenerator: (req) => {
