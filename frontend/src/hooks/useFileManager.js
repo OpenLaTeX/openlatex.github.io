@@ -1,0 +1,83 @@
+import { useRef } from 'react';
+import { FileReaderUtil } from '../utils/FileReader';
+import { validateFilename } from '../utils/validation';
+
+export const useFileManager = (project, setProject, showPrompt, showConfirm) => {
+  const fileInputRef = useRef(null);
+  const folderInputRef = useRef(null);
+
+  const handleFileSelect = (path) => {
+    setProject(project.setCurrentFile(path));
+  };
+
+  const handleContentChange = (newContent) => {
+    if (project.currentFile) {
+      setProject(project.updateFileContent(project.currentFile, newContent));
+    }
+  };
+
+  const handleUploadFiles = async (event) => {
+    const files = Array.from(event.target.files);
+    let newProject = project;
+
+    for (const file of files) {
+      const content = await FileReaderUtil.readFile(file);
+      const type = FileReaderUtil.getFileType(file.name);
+      const path = file.webkitRelativePath || file.name;
+
+      try {
+        newProject = newProject.addEmptyFile(path, type);
+        newProject = newProject.updateFileContent(path, content);
+      } catch (err) {
+        console.error(`erreur upload ${path}:`, err);
+      }
+    }
+
+    setProject(newProject);
+    event.target.value = '';
+  };
+
+  const handleRename = (oldPath) => {
+    showPrompt(
+      'Renommer le fichier',
+      'Nouveau nom :',
+      oldPath,
+      validateFilename,
+      (newPath) => {
+        if (newPath !== oldPath) {
+          setProject(project.renameFile(oldPath, newPath));
+        }
+      }
+    );
+  };
+
+  const handleDelete = (path) => {
+    showConfirm(
+      'Supprimer le fichier',
+      `Êtes-vous sûr de vouloir supprimer "${path}" ? Cette action est irréversible.`,
+      () => {
+        setProject(project.removeFile(path));
+      }
+    );
+  };
+
+  const triggerFileUpload = () => {
+    fileInputRef.current?.click();
+  };
+
+  const triggerFolderUpload = () => {
+    folderInputRef.current?.click();
+  };
+
+  return {
+    fileInputRef,
+    folderInputRef,
+    handleFileSelect,
+    handleContentChange,
+    handleUploadFiles,
+    handleRename,
+    handleDelete,
+    triggerFileUpload,
+    triggerFolderUpload
+  };
+};

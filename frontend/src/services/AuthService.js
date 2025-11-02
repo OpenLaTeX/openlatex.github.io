@@ -1,53 +1,30 @@
-import { getApiUrl } from '../config/settings';
+import { AuthApi } from '../api/AuthApi';
+import { TokenStorage } from '../storage/TokenStorage';
+import { UserStorage } from '../storage/UserStorage';
 
 class AuthService {
     static async register(email, password) {
-        const response = await fetch(`${getApiUrl()}/auth/register`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ email, password })
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            throw new Error(data.error || 'erreur inscription');
-        }
-
+        const data = await AuthApi.register(email, password);
         return data;
     }
 
     static async login(email, password) {
-        const response = await fetch(`${getApiUrl()}/auth/login`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ email, password })
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            throw new Error(data.error || 'erreur connexion');
-        }
-
-        localStorage.setItem('token', data.token);
+        const data = await AuthApi.login(email, password);
+        TokenStorage.save(data.token);
         return data;
     }
 
     static logout() {
-        localStorage.removeItem('token');
+        TokenStorage.remove();
+        UserStorage.clear();
     }
 
     static getToken() {
-        return localStorage.getItem('token');
+        return TokenStorage.get();
     }
 
     static isAuthenticated() {
-        return !!this.getToken();
+        return TokenStorage.exists();
     }
 }
 

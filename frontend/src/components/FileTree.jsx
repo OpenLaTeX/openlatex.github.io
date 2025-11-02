@@ -1,50 +1,8 @@
-import { useState } from 'react';
-import { ChevronRight, ChevronDown, Folder, FileText, Image, FileCode, File, Edit2, Trash2 } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { ChevronRight, ChevronDown, Folder, Edit2, Trash2 } from 'lucide-react';
+import { FileTreeBuilder } from '../utils/FileTreeBuilder';
+import { FileIconMapper } from '../utils/FileIconMapper';
 import './FileTree.css';
-
-function getFileIcon(filename) {
-  const ext = filename.split('.').pop().toLowerCase();
-
-  if (ext === 'tex' || ext === 'bib') {
-    return <FileText size={16} />;
-  }
-  if (ext === 'png' || ext === 'jpg' || ext === 'jpeg') {
-    return <Image size={16} />;
-  }
-  if (ext === 'cls' || ext === 'sty' || ext === 'bst') {
-    return <FileCode size={16} />;
-  }
-  return <File size={16} />;
-}
-
-function buildTree(files) {
-  const root = { type: 'folder', name: '', children: [] };
-
-  files.forEach(file => {
-    const parts = file.path.split('/');
-    let current = root;
-
-    parts.forEach((part, index) => {
-      const isFile = index === parts.length - 1;
-      const existing = current.children.find(c => c.name === part);
-
-      if (existing) {
-        current = existing;
-      } else {
-        const node = {
-          type: isFile ? 'file' : 'folder',
-          name: part,
-          path: isFile ? file.path : null,
-          children: isFile ? null : []
-        };
-        current.children.push(node);
-        current = node;
-      }
-    });
-  });
-
-  return root.children;
-}
 
 function TreeNode({ node, level, currentFile, onSelect, onRename, onDelete }) {
   const [isOpen, setIsOpen] = useState(true);
@@ -56,7 +14,7 @@ function TreeNode({ node, level, currentFile, onSelect, onRename, onDelete }) {
           onClick={() => onSelect(node.path)}
           className={currentFile === node.path ? 'tree-file-name active' : 'tree-file-name'}
         >
-          <span className="tree-file-icon">{getFileIcon(node.name)}</span>
+          <span className="tree-file-icon">{FileIconMapper.getIcon(node.name)}</span>
           {node.name}
         </span>
         <div className="tree-file-actions">
@@ -100,7 +58,7 @@ function TreeNode({ node, level, currentFile, onSelect, onRename, onDelete }) {
 }
 
 export default function FileTree({ files, currentFile, onSelect, onRename, onDelete }) {
-  const tree = buildTree(files);
+  const tree = useMemo(() => FileTreeBuilder.buildTree(files), [files]);
 
   return (
     <div className="file-tree">
