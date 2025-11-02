@@ -67,12 +67,13 @@ body {
 .content-row {
   display: flex;
   flex: 1;
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
 .editor-container {
-  width: 600px;
-  min-width: 600px;
+  flex: 1;
+  min-width: 400px;
   display: flex;
   flex-direction: column;
   background: var(--bg-dark);
@@ -93,6 +94,7 @@ body {
 .pdf-viewer {
   width: 600px;
   min-width: 600px;
+  margin-left: auto;
   background: var(--bg-dark);
   border-left: 1px solid var(--border-color);
 }
