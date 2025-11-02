@@ -45,14 +45,14 @@ router.post('/login', async (req, res) => {
         const result = await SQLquery('select uno, password from users where email = $1', [email]);
 
         if (result.rows.length === 0) {
-            return res.status(401).json({ error: 'identifiants invalides' });
+            return res.status(401).json({ error: 'Identifiants invalides.' });
         }
 
         const user = result.rows[0];
         const isValid = await bcrypt.compare(password, user.password);
 
         if (!isValid) {
-            return res.status(401).json({ error: 'identifiants invalides' });
+            return res.status(401).json({ error: 'Identifiants invalides.' });
         }
 
         const token = jwt.sign(

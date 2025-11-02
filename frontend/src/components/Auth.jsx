@@ -21,7 +21,7 @@ function Auth({ onLogin }) {
             } else {
                 await AuthService.register(email, password);
                 setIsLogin(true);
-                setError('Compte créé avec succès, vous pouvez maintenant vous connecter');
+                setError('Compte créé avec succès, vous pouvez maintenant vous connecter !');
             }
         } catch (err) {
             setError(err.message);

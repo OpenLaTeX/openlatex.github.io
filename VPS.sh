@@ -1,22 +1,23 @@
 #!/bin/bash
 while true; do
-    echo "=== menu openlatex ==="
-    echo "1) se connecter en root sur le VPS"
-    echo "2) se connecter avec deployer"
+    clear
+    echo "=== Menu ==="
+    echo "1) Se connecter en root sur le VPS"
+    echo "2) Se connecter en deployer"
     echo "3) Voir les logs du conteneur Postgres"
-    echo "4) voir le cli Postgres"
+    echo "4) Accéder au CLI du conteneur Postgres"
     echo "5) Voir les logs du conteneur openlatex-backend"
-    echo "6) voir le cli openlatex-backend"
+    echo "6) Accéder au CLI du conteneur openlatex-backend"
     echo "7) Quitter"
     read -p "choisissez une option (1-7) : " choix
     case $choix in
         1)
-            echo "connexion root..."
+            echo "Connexion à l'utilisateur : root..."
             echo "ssh root@159.65.196.71"
             ssh root@159.65.196.71
             ;;
         2)
-            echo "connexion deployer..."
+            echo "Connexion à l'utilisateur : deployer..."
             echo "ssh -i github_deploy_key deployer@159.65.196.71"
             ssh -i github_deploy_key deployer@159.65.196.71
             ;;
@@ -26,17 +27,17 @@ while true; do
             ssh -i github_deploy_key deployer@159.65.196.71 "docker logs -f openlatex_postgres"
             ;;
         4)
-            echo "acces CLI Postgres..."
+            echo "Connexion au CLI Postgres..."
             echo "ssh -i github_deploy_key -t deployer@159.65.196.71 \"docker exec -it openlatex_postgres bash\""
             ssh -i github_deploy_key -t deployer@159.65.196.71 "docker exec -it openlatex_postgres bash"
             ;;
         5)
-            echo "logs du conteneur openlatex-backend..."
+            echo "Connexion aux logs du conteneur openlatex-backend..."
             echo "ssh -i github_deploy_key deployer@159.65.196.71 \"docker logs -f openlatex_backend\""
             ssh -i github_deploy_key deployer@159.65.196.71 "docker logs -f openlatex_backend"
             ;;
         6)
-            echo "acces CLI openlatex-backend..."
+            echo "Connexion au CLI openlatex-backend..."
             echo "ssh -i github_deploy_key deployer@159.65.196.71 \"docker exec -i openlatex_backend /bin/bash\""
             ssh -i github_deploy_key deployer@159.65.196.71 "docker exec -i openlatex_backend /bin/bash"
             ;;
@@ -46,7 +47,7 @@ while true; do
             ;;
         *)
             echo "input invalide"
-            clear
+            sleep 0.2
             ;;
     esac
     echo
