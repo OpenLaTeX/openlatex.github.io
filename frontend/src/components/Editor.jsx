@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { EditorState } from '@codemirror/state';
 import { EditorView, keymap, lineNumbers, highlightActiveLineGutter, highlightSpecialChars, drawSelection, dropCursor, rectangularSelection, crosshairCursor, highlightActiveLine } from '@codemirror/view';
 import { defaultKeymap, history, historyKeymap } from '@codemirror/commands';
@@ -59,9 +59,22 @@ const highlightStyle = syntaxHighlighting(
   ])
 );
 
-export default function Editor({ value, onChange, currentFile }) {
+const Editor = forwardRef(({ value, onChange, currentFile }, ref) => {
   const editorRef = useRef(null);
   const viewRef = useRef(null);
+
+  useImperativeHandle(ref, () => ({
+    goToLine: (lineNumber) => {
+      if (!viewRef.current) return;
+      const view = viewRef.current;
+      const line = view.state.doc.line(Math.min(lineNumber, view.state.doc.lines));
+      view.dispatch({
+        selection: { anchor: line.from },
+        scrollIntoView: true
+      });
+      view.focus();
+    }
+  }));
 
   useEffect(() => {
     if (!editorRef.current) return;
@@ -128,4 +141,6 @@ export default function Editor({ value, onChange, currentFile }) {
   }, [currentFile?.path]);
 
   return <div ref={editorRef} style={{ flex: 1, overflow: 'auto' }} />;
-}
+});
+
+export default Editor;

@@ -1,46 +1,58 @@
-import Drawer from 'react-modern-drawer';
-import 'react-modern-drawer/dist/index.css';
+import { AlertCircle, AlertTriangle, Info, X } from 'lucide-react';
 import './ErrorPanel.css';
 
-export const ErrorPanel = ({ errors, isOpen, onClose }) => {
+const getErrorIcon = (type) => {
+  if (type === 'error') return <AlertCircle size={16} />;
+  if (type === 'warning') return <AlertTriangle size={16} />;
+  return <Info size={16} />;
+};
+
+const getErrorClass = (type) => {
+  if (type === 'warning') return 'error-type-warning';
+  return 'error-type-error';
+};
+
+export const ErrorPanel = ({ errors, isOpen, onClose, onErrorClick }) => {
+  if (!isOpen) return null;
+
   return (
-    <Drawer
-      open={isOpen}
-      onClose={onClose}
-      direction="bottom"
-      size={300}
-      style={{ background: '#1e1e1e' }}
-      lockBackgroundScroll={false}
-      enableOverlay={false}
-    >
-      <div className="error-panel-content">
-        <div className="error-panel-header">
-          <h3>Erreurs de compilation ({errors.length})</h3>
-          <button onClick={onClose} className="close-btn">×</button>
-        </div>
-        <div className="error-panel-body">
-          {errors.length === 0 ? (
-            <p className="no-errors">Aucune erreur</p>
-          ) : (
-            errors.map((error, index) => (
-              <div key={index} className="error-item">
-                <div className="error-header">
-                  <span className="error-type">{error.type}</span>
-                  {error.line && <span className="error-line">Ligne {error.line}</span>}
-                </div>
-                <div className="error-message">{error.message}</div>
-                {error.context.length > 0 && (
-                  <div className="error-context">
-                    {error.context.slice(0, 2).map((ctx, i) => (
-                      <div key={i}>{ctx}</div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))
-          )}
-        </div>
+    <div className="error-panel">
+      <div className="error-panel-header">
+        <h3>Erreurs de compilation ({errors.length})</h3>
+        <button onClick={onClose} className="close-btn">
+          <X size={16} />
+        </button>
       </div>
-    </Drawer>
+      <div className="error-panel-body">
+        {errors.length === 0 ? (
+          <p className="no-errors">Aucune erreur</p>
+        ) : (
+          errors.map((error, index) => (
+            <div
+              key={index}
+              className="error-item"
+              onClick={() => error.line && onErrorClick && onErrorClick(error.line)}
+              style={{ cursor: error.line ? 'pointer' : 'default' }}
+            >
+              <div className="error-header">
+                <span className={`error-type ${getErrorClass(error.type)}`}>
+                  {getErrorIcon(error.type)}
+                  <span className="error-type-text">{error.type}</span>
+                </span>
+                {error.line && <span className="error-line">Ligne {error.line}</span>}
+              </div>
+              <div className="error-message">{error.message}</div>
+              {error.context.length > 0 && (
+                <div className="error-context">
+                  {error.context.slice(0, 2).map((ctx, i) => (
+                    <div key={i}>{ctx}</div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))
+        )}
+      </div>
+    </div>
   );
 };

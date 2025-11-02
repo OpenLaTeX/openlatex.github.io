@@ -31,6 +31,7 @@ export default function App() {
   const [showErrorPanel, setShowErrorPanel] = useState(false);
   const fileInputRef = useRef(null);
   const folderInputRef = useRef(null);
+  const editorRef = useRef(null);
 
   const [alertModal, setAlertModal] = useState({ isOpen: false, title: '', message: '' });
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', message: '', onConfirm: null });
@@ -265,6 +266,12 @@ export default function App() {
     });
   };
 
+  const handleErrorClick = (lineNumber) => {
+    if (editorRef.current) {
+      editorRef.current.goToLine(lineNumber);
+    }
+  };
+
   if (showAuth) {
     return (
       <div>
@@ -362,32 +369,38 @@ export default function App() {
         />
       </div>
 
-      <div className="editor-container">
-        <div className="editor-header">
-          <strong>Édition : </strong>{currentFile?.path || 'Aucun fichier'}
+      <div className="main-content">
+        <div className="content-row">
+          <div className="editor-container">
+            <div className="editor-header">
+              <strong>Édition : </strong>{currentFile?.path || 'Aucun fichier'}
+            </div>
+            <Editor
+              ref={editorRef}
+              value={currentFile?.content || ''}
+              onChange={handleContentChange}
+              currentFile={currentFile}
+            />
+          </div>
+
+          <div className="pdf-viewer">
+            {pdfUrl ? (
+              <iframe src={pdfUrl} />
+            ) : (
+              <div className="pdf-placeholder">
+                Cliquez sur Compiler pour générer le PDF
+              </div>
+            )}
+          </div>
         </div>
-        <Editor
-          value={currentFile?.content || ''}
-          onChange={handleContentChange}
-          currentFile={currentFile}
+
+        <ErrorPanel
+          errors={compilationErrors}
+          isOpen={showErrorPanel}
+          onClose={() => setShowErrorPanel(false)}
+          onErrorClick={handleErrorClick}
         />
       </div>
-
-      <div className="pdf-viewer">
-        {pdfUrl ? (
-          <iframe src={pdfUrl} />
-        ) : (
-          <div className="pdf-placeholder">
-            Cliquez sur Compiler pour générer le PDF
-          </div>
-        )}
-      </div>
-
-      <ErrorPanel
-        errors={compilationErrors}
-        isOpen={showErrorPanel}
-        onClose={() => setShowErrorPanel(false)}
-      />
 
       <AlertModal
         isOpen={alertModal.isOpen}
