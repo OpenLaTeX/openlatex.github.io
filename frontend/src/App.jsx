@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { User, ChevronDown } from 'lucide-react';
+import { User, ChevronDown, Download } from 'lucide-react';
 import FileTree from './components/FileTree';
 import Auth from './components/Auth';
 import ProjectList from './components/ProjectList';
@@ -57,7 +57,8 @@ export default function App() {
     handleSaveProject: saveProject,
     handleLoadProject: loadProject,
     handleNewProject: newProject,
-    resetProject
+    resetProject,
+    handleDownloadProject
   } = useProjectManager(isAuthenticated, showAlert, showPrompt);
 
   const {
@@ -246,6 +247,11 @@ export default function App() {
         {isAuthenticated && (
           <>
             <button onClick={handleSaveProject} disabled={loading}>Sauvegarder</button>
+            {currentProjectId && (
+              <button onClick={handleDownloadProject} disabled={loading}>
+                <Download size={16} /> Download
+              </button>
+            )}
             <button onClick={() => setShowProjectList(true)}>Mes projets</button>
           </>
         )}

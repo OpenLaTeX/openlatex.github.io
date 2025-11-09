@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Project } from '../models/Project';
 import ProjectService from '../services/ProjectService';
 import { validateProjectName } from '../utils/validation';
+import JSZip from 'jszip';
+import { saveAs } from 'file-saver';
 
 export const useProjectManager = (isAuthenticated, showAlert, showPrompt) => {
   const [currentProjectId, setCurrentProjectId] = useState(null);
@@ -87,6 +89,17 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt) => {
     setProjectName('Nouveau projet');
   };
 
+  const handleDownloadProject = async () => {
+    const zip = new JSZip();
+
+    project.files.forEach(file => {
+      zip.file(file.path, file.content);
+    });
+
+    const blob = await zip.generateAsync({ type: 'blob' });
+    saveAs(blob, `${projectName}.zip`);
+  };
+
   return {
     currentProjectId,
     projectName,
@@ -97,6 +110,7 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt) => {
     handleSaveProject,
     handleLoadProject,
     handleNewProject,
-    resetProject
+    resetProject,
+    handleDownloadProject
   };
 };
