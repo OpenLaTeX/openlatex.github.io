@@ -91,12 +91,22 @@ body {
   color: var(--text-light);
 }
 
+.resize-handle {
+  width: 4px;
+  background: var(--border-color);
+  cursor: col-resize;
+  flex-shrink: 0;
+}
+
+.resize-handle:hover {
+  background: var(--text-dim);
+}
+
 .pdf-viewer {
-  width: 600px;
-  min-width: 600px;
-  margin-left: auto;
+  min-width: 300px;
   background: var(--bg-dark);
   border-left: 1px solid var(--border-color);
+  flex-shrink: 0;
 }
 
 .pdf-placeholder {

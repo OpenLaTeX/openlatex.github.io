@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { User, ChevronDown } from 'lucide-react';
 import FileTree from './components/FileTree';
 import Auth from './components/Auth';
@@ -8,6 +8,7 @@ import { ErrorPanel } from './components/ErrorPanel';
 import AlertModal from './components/modals/AlertModal';
 import ConfirmModal from './components/modals/ConfirmModal';
 import PromptModal from './components/modals/PromptModal';
+import PdfViewer from './components/PdfViewer';
 import { getApiUrl, setApiUrl } from './config/settings';
 import { useAuthentication } from './hooks/useAuthentication';
 import { useModalManager } from './hooks/useModalManager';
@@ -20,7 +21,9 @@ export default function App() {
   const [showAuth, setShowAuth] = useState(false);
   const [showProjectList, setShowProjectList] = useState(false);
   const [apiUrl, setApiUrlState] = useState(() => getApiUrl());
+  const [pdfWidth, setPdfWidth] = useState(600);
   const editorRef = useRef(null);
+  const isResizing = useRef(false);
 
   const {
     alertModal,
@@ -77,6 +80,32 @@ export default function App() {
     handleCompile
   } = useCompilation(project, apiUrl, showAlert, setLoading);
 
+  const [pdfBlobUrl, setPdfBlobUrl] = useState(null);
+
+  useEffect(() => {
+    if (!pdfUrl) {
+      setPdfBlobUrl(null);
+      return;
+    }
+
+    const base64toBlob = (data) => {
+      const base64WithoutPrefix = data.substr('data:application/pdf;base64,'.length);
+      const bytes = atob(base64WithoutPrefix);
+      let length = bytes.length;
+      let out = new Uint8Array(length);
+      while (length--) {
+        out[length] = bytes.charCodeAt(length);
+      }
+      return new Blob([out], { type: 'application/pdf' });
+    };
+
+    const blob = base64toBlob(pdfUrl);
+    const url = URL.createObjectURL(blob);
+    setPdfBlobUrl(url);
+
+    return () => URL.revokeObjectURL(url);
+  }, [pdfUrl]);
+
   const currentFile = project.currentFile ? project.getFile(project.currentFile) : null;
 
   const handleLogin = (email) => {
@@ -116,6 +145,30 @@ export default function App() {
       editorRef.current.goToLine(lineNumber);
     }
   };
+
+  const handleResizeStart = () => {
+    isResizing.current = true;
+  };
+
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (!isResizing.current) return;
+      const newWidth = window.innerWidth - e.clientX;
+      setPdfWidth(Math.max(300, Math.min(1200, newWidth)));
+    };
+
+    const handleMouseUp = () => {
+      isResizing.current = false;
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, []);
 
   if (showAuth) {
     return (
@@ -237,9 +290,11 @@ export default function App() {
             />
           </div>
 
-          <div className="pdf-viewer">
-            {pdfUrl ? (
-              <iframe src={pdfUrl} />
+          <div className="resize-handle" onMouseDown={handleResizeStart} />
+
+          <div className="pdf-viewer" style={{ width: `${pdfWidth}px` }}>
+            {pdfBlobUrl ? (
+              <PdfViewer pdfUrl={pdfBlobUrl} />
             ) : (
               <div className="pdf-placeholder">
                 Cliquez sur Compiler pour générer le PDF
