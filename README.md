@@ -20,13 +20,14 @@
 
 ## Présentation
 
-Ce projet permet de déployer facilement un serveur LaTeX open-source.
+Ce projet offre un moyen simple de déployer un serveur LaTeX open-source accessible par le Web, permettant d’utiliser LaTeX sans aucune installation locale.
+Il met également à disposition une base de données intégrée pour que les utilisateurs puissent enregistrer et gérer leurs projets d'où qu'ils soient !
 
 ## Informations de production
 
 [Le site en production](https://openlatex.github.io)
 
-Le backend tourne sur un VPS Debian distant en continu (petite machine à 1 CPU, 1GB RAM) avec deux conteneurs Docker :
+Le backend tourne sur un VPS Debian distant en continu avec deux conteneurs Docker :
 
 - **Node.js** : Réception des fichiers, compilation, renvoi du PDF avec Express pour l'API REST
 - **PostgreSQL** : Comptes et projets des utilisateurs
@@ -35,7 +36,7 @@ Le conteneur Node.js communique avec le conteneur SQL afin de renvoyer les proje
 
 Le conteneur PostgreSQL stocke les données dans un volume (les données restent même après arrêt du conteneur).
 
-Le backend est hébergé à des fins de démonstration et me coûte 6$/mois. Le VPS est à Amsterdam (1 CPU, 1GB RAM) et est déployé depuis la branche `develop-bapi` en CI/CD avec SSH.
+Le backend est hébergé à des fins de démonstration et me coûte 6$/mois (DigitalOcean). Le VPS est à Amsterdam (1 CPU, 1GB RAM) et est déployé depuis la branche `develop-bapi` en CI/CD avec SSH.
 
 Des limites sont instaurées pour ne pas surcharger étant donné la puissance du VPS : 
 - 3 compilations par minute pour les invités
@@ -51,8 +52,6 @@ Les informations secrètes (clés privées) sont une priorité.
 - La clé SSH pour accéder à l'utilisateur de déploiement sur le VPS n'est pas celle de mon ordinateur mais une clé spéciale pour l'occasion
 
 Les clés n'apparaissent nulle part pour le public, que ce soit dans le code, dans l'historique git, etc.
-
-**Important** : Si les informations secrètes sont publiées ne serait-ce qu'une seule fois sur le repo en public, changez-les (et réécrivez l'historique git de préférence puisque ce n'est pas de bonne augure).
 
 ## Installation
 
@@ -105,9 +104,11 @@ Il vous faut, dans l'optique d'une infrastructure évolutive en CI/CD :
 
 Lors de l'exécution du script de déploiement, un runner GitHub Actions va alors se connecter en SSH à `deployer` et exécuter toutes les tâches de construction des images Docker et de leur exposition.
 
-Votre setup fonctionne maintenant ! Vous pouvez y accéder en utilisant l'IP du VPS (sur port 8000).
+Votre setup fonctionne maintenant ! Vous pouvez y accéder localement en utilisant l'IP du VPS (sur port 8000).
 
 Pour l'exposer publiquement, il vous faut une URL (DNS).
+
+Le DNS actif dans la démonstration est gratuit ([DuckDNS](https://www.duckdns.org/)). Il suffit, sur le VPS, de faire tourner un processus *Caddy* qui associe l'IP exposée du VPS à l'adresse créée sur DuckDNS.
 
 ## Remarque personnelle
 
@@ -142,4 +143,4 @@ En somme, une introduction très épanouissante à des pratiques modernes de dé
 
 ## Licence
 
-Ce projet est open-source et disponible sous licence MIT.
+Ce projet est open-source et disponible sous licence Apache.
