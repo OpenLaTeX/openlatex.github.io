@@ -29,7 +29,7 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt) => {
             const files = project.files.map(f => ({
               filename: f.path,
               content: f.content,
-              file_type: 'text/x-latex'
+              file_type: f.type
             }));
 
             if (currentProjectId) {
