@@ -6,6 +6,24 @@ const router = express.Router();
 
 router.use(authMiddleware);
 
+const isBinaryFileType = (fileType) => {
+    return ['png', 'jpg', 'pdf'].includes(fileType);
+};
+
+const contentToBuffer = (content, fileType) => {
+    if (isBinaryFileType(fileType)) {
+        return Buffer.from(content, 'base64');
+    }
+    return Buffer.from(content, 'utf-8');
+};
+
+const bufferToContent = (buffer, fileType) => {
+    if (isBinaryFileType(fileType)) {
+        return buffer.toString('base64');
+    }
+    return buffer.toString('utf-8');
+};
+
 // demande tous les projets de l'utilisateur
 router.get('/', async (req, res) => {
     try {
@@ -37,7 +55,7 @@ router.post('/', async (req, res) => {
         const projectId = projectResult.rows[0].pno;
 
         for (const file of files) {
-            const contentBuffer = Buffer.from(file.content, 'utf-8');
+            const contentBuffer = contentToBuffer(file.content, file.file_type);
             await SQLquery(
                 'insert into files (pno, filename, content, file_type) values ($1, $2, $3, $4)',
                 [projectId, file.filename, contentBuffer, file.file_type]
@@ -74,7 +92,7 @@ router.get('/:pno', async (req, res) => {
         const files = filesResult.rows.map(file => ({
             fno: file.fno,
             filename: file.filename,
-            content: file.content.toString('utf-8'),
+            content: bufferToContent(file.content, file.file_type),
             file_type: file.file_type,
             created_at: file.created_at
         }));
@@ -122,10 +140,8 @@ router.put('/:pno', async (req, res) => {
 
         await SQLquery('delete from files where pno = $1', [pno]);
 
-        // insere tous les fichiers
         for (const file of files) {
-            // convertit en Byte (utile pour les images)
-            const contentBuffer = Buffer.from(file.content, 'utf-8');
+            const contentBuffer = contentToBuffer(file.content, file.file_type);
             await SQLquery(
                 'insert into files (pno, filename, content, file_type) values ($1, $2, $3, $4)',
                 [pno, file.filename, contentBuffer, file.file_type]

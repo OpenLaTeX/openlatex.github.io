@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import AuthService from '../services/AuthService';
+import { UserStorage } from '../storage/UserStorage';
 import './Auth.css';
 
 function Auth({ onLogin }) {
@@ -17,7 +18,8 @@ function Auth({ onLogin }) {
         try {
             if (isLogin) {
                 await AuthService.login(email, password);
-                onLogin();
+                UserStorage.saveEmail(email);
+                onLogin(email);
             } else {
                 await AuthService.register(email, password);
                 setIsLogin(true);

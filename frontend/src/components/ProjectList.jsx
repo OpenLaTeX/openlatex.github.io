@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
 import ProjectService from '../services/ProjectService';
+import { Download } from 'lucide-react';
+import JSZip from 'jszip';
+import { saveAs } from 'file-saver';
 import './ProjectList.css';
 
 function ProjectList({ onLoadProject, onNewProject, onConfirm }) {
@@ -39,6 +42,32 @@ function ProjectList({ onLoadProject, onNewProject, onConfirm }) {
         );
     };
 
+    const handleDownload = async (pno, projectName) => {
+        try {
+            const data = await ProjectService.getProject(pno);
+
+            if (!data.files || data.files.length === 0) {
+                setError('Aucun fichier à télécharger');
+                return;
+            }
+
+            const zip = new JSZip();
+
+            data.files.forEach(file => {
+                if (file.filename && file.content !== undefined) {
+                    const isBinary = ['png', 'jpg', 'pdf'].includes(file.file_type);
+                    zip.file(file.filename, file.content, isBinary ? { base64: true } : {});
+                }
+            });
+
+            const blob = await zip.generateAsync({ type: 'blob' });
+            saveAs(blob, `${projectName}.zip`);
+            setError('');
+        } catch (err) {
+            setError('Impossible de télécharger le projet : ' + err.message);
+        }
+    };
+
     if (loading) return <div className="project-loading">Chargement...</div>;
 
     return (
@@ -63,6 +92,9 @@ function ProjectList({ onLoadProject, onNewProject, onConfirm }) {
                             <div className="project-actions">
                                 <button onClick={() => onLoadProject(project.pno)} className="project-action-button project-action-button-primary">
                                     Ouvrir
+                                </button>
+                                <button onClick={() => handleDownload(project.pno, project.name)} className="project-action-button">
+                                    <Download size={16} /> Télécharger
                                 </button>
                                 <button onClick={() => handleDelete(project.pno, project.name)} className="project-action-button">
                                     Supprimer

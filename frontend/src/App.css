@@ -6,6 +6,12 @@
   --border-color: #404040;
   --text-light: gainsboro;
   --text-dim: darkgray;
+  --bg-primary: #2a2a2a;
+  --bg-secondary: #1e1e1e;
+  --bg-tertiary: #333;
+  --text-primary: gainsboro;
+  --text-secondary: darkgray;
+  --accent-color: #4a9eff;
 }
 
 * {
@@ -61,12 +67,13 @@ body {
 .content-row {
   display: flex;
   flex: 1;
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
 .editor-container {
-  width: 600px;
-  min-width: 600px;
+  flex: 1;
+  min-width: 400px;
   display: flex;
   flex-direction: column;
   background: var(--bg-dark);
@@ -84,11 +91,22 @@ body {
   color: var(--text-light);
 }
 
+.resize-handle {
+  width: 4px;
+  background: var(--border-color);
+  cursor: col-resize;
+  flex-shrink: 0;
+}
+
+.resize-handle:hover {
+  background: var(--text-dim);
+}
+
 .pdf-viewer {
-  width: 600px;
-  min-width: 600px;
+  min-width: 300px;
   background: var(--bg-dark);
   border-left: 1px solid var(--border-color);
+  flex-shrink: 0;
 }
 
 .pdf-placeholder {
@@ -211,4 +229,66 @@ iframe {
 strong {
   font-weight: 600;
   color: white;
+}
+
+.user-dropdown-container {
+  position: relative;
+}
+
+.user-dropdown-trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: var(--bg-hover);
+  color: var(--text-light);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+.user-dropdown-trigger:hover {
+  background: var(--bg-active);
+  border-color: whitesmoke;
+}
+
+.user-dropdown-trigger svg {
+  flex-shrink: 0;
+}
+
+.user-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  background: var(--bg-medium);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  min-width: 150px;
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.user-dropdown-item {
+  width: 100%;
+  padding: 10px 14px;
+  background: transparent;
+  color: var(--text-light);
+  border: none;
+  border-radius: 0;
+  text-align: left;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.user-dropdown-item:hover {
+  background: var(--bg-hover);
+  transform: none;
 }

@@ -1,33 +1,32 @@
-import AuthService from './AuthService';
+import { HttpClient } from '../utils/HttpClient';
+import { AuthHeaders } from '../utils/AuthHeaders';
+import { PdfDataTransformer } from '../utils/PdfDataTransformer';
 
 class ApiService {
   static async compile(apiUrl, files, mainFile) {
-    const token = AuthService.getToken();
-    const headers = { 'Content-Type': 'application/json' };
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
+    const headers = AuthHeaders.create();
+
+    try {
+      const data = await HttpClient.post(
+        `${apiUrl}/compile`,
+        { files, mainFile },
+        headers
+      );
+
+      return {
+        pdfUrl: PdfDataTransformer.toDataUrl(data.pdf),
+        logs: data.logs,
+        hasErrors: data.hasErrors
+      };
+    } catch (error) {
+      const compilationError = new Error(error.message || 'erreur compilation');
+      compilationError.logs = error.data?.logs;
+      throw compilationError;
     }
-
-    const response = await fetch(`${apiUrl}/compile`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({ files, mainFile })
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      const error = new Error(errorData.error || 'erreur compilation');
-      error.logs = errorData.logs;
-      throw error;
-    }
-
-    const data = await response.json();
-    return { pdfUrl: `data:application/pdf;base64,${data.pdf}`, logs: data.logs, hasErrors: data.hasErrors };
   }
 
   static async health(apiUrl) {
-    const response = await fetch(`${apiUrl}/health`);
-    return await response.json();
+    return HttpClient.get(`${apiUrl}/health`);
   }
 }
 
