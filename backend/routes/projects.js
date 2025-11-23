@@ -47,22 +47,40 @@ router.post('/', async (req, res) => {
     }
 
     try {
-        const projectResult = await SQLquery(
-            'insert into projects (uno, name, description) values ($1, $2, $3) returning pno',
-            [req.userId, name, description || null]
-        );
-
-        const projectId = projectResult.rows[0].pno;
-
-        for (const file of files) {
-            const contentBuffer = contentToBuffer(file.content, file.file_type);
-            await SQLquery(
-                'insert into files (pno, filename, content, file_type) values ($1, $2, $3, $4)',
-                [projectId, file.filename, contentBuffer, file.file_type]
+        await SQLquery('BEGIN');
+        try {
+            const projectResult = await SQLquery(
+                'insert into projects (uno, name, description) values ($1, $2, $3) returning pno',
+                [req.userId, name, description || null]
             );
-        }
 
-        res.status(201).json({ pno: projectId, message: 'projet cree' });
+            const projectId = projectResult.rows[0].pno;
+
+            const values = [];
+            const params = [projectId];
+            let paramIndex = 2;
+
+            for (const file of files) {
+                const contentBuffer = contentToBuffer(file.content, file.file_type);
+                values.push(`($1, $${paramIndex}, $${paramIndex+1}, $${paramIndex+2})`);
+                params.push(file.filename, contentBuffer, file.file_type);
+                paramIndex += 3;
+            }
+
+            if (values.length > 0) {
+                await SQLquery(
+                    `insert into files (pno, filename, content, file_type) values ${values.join(', ')}`,
+                    params
+                );
+            }
+
+            await SQLquery('COMMIT');
+
+            res.status(201).json({ pno: projectId, message: 'projet cree' });
+        } catch (err) {
+            await SQLquery('ROLLBACK');
+            throw err;
+        }
     } catch (err) {
         console.error('erreur create project:', err);
         res.status(500).json({ error: 'erreur serveur' });
@@ -133,19 +151,37 @@ router.put('/:pno', async (req, res) => {
             return res.status(403).json({ error: 'acces interdit' });
         }
 
-        await SQLquery(
-            'update projects set name = $1, description = $2 where pno = $3',
-            [name, description || null, pno]
-        );
-
-        await SQLquery('delete from files where pno = $1', [pno]);
-
-        for (const file of files) {
-            const contentBuffer = contentToBuffer(file.content, file.file_type);
+        await SQLquery('BEGIN');
+        try {
             await SQLquery(
-                'insert into files (pno, filename, content, file_type) values ($1, $2, $3, $4)',
-                [pno, file.filename, contentBuffer, file.file_type]
+                'update projects set name = $1, description = $2 where pno = $3',
+                [name, description || null, pno]
             );
+
+            await SQLquery('delete from files where pno = $1', [pno]);
+
+            const values = [];
+            const params = [pno];
+            let paramIndex = 2;
+
+            for (const file of files) {
+                const contentBuffer = contentToBuffer(file.content, file.file_type);
+                values.push(`($1, $${paramIndex}, $${paramIndex+1}, $${paramIndex+2})`);
+                params.push(file.filename, contentBuffer, file.file_type);
+                paramIndex += 3;
+            }
+
+            if (values.length > 0) {
+                await SQLquery(
+                    `insert into files (pno, filename, content, file_type) values ${values.join(', ')}`,
+                    params
+                );
+            }
+
+            await SQLquery('COMMIT');
+        } catch (err) {
+            await SQLquery('ROLLBACK');
+            throw err;
         }
 
         res.json({ message: 'projet mis a jour' });
