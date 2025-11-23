@@ -60,7 +60,7 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt) => {
       let newProject = new Project([]);
 
       for (const file of data.files) {
-        newProject = newProject.addEmptyFile(file.filename, 'tex');
+        newProject = newProject.addEmptyFile(file.filename, file.file_type);
         newProject = newProject.updateFileContent(file.filename, file.content);
       }
 
