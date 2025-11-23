@@ -45,14 +45,24 @@ function ProjectList({ onLoadProject, onNewProject, onConfirm }) {
     const handleDownload = async (pno, projectName) => {
         try {
             const data = await ProjectService.getProject(pno);
+
+            if (!data.files || data.files.length === 0) {
+                setError('Aucun fichier à télécharger');
+                return;
+            }
+
             const zip = new JSZip();
 
             data.files.forEach(file => {
-                zip.file(file.filename, file.content);
+                if (file.filename && file.content !== undefined) {
+                    const isBinary = ['png', 'jpg', 'pdf'].includes(file.file_type);
+                    zip.file(file.filename, file.content, isBinary ? { base64: true } : {});
+                }
             });
 
             const blob = await zip.generateAsync({ type: 'blob' });
             saveAs(blob, `${projectName}.zip`);
+            setError('');
         } catch (err) {
             setError('Impossible de télécharger le projet : ' + err.message);
         }

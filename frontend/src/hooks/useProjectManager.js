@@ -90,14 +90,27 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt) => {
   };
 
   const handleDownloadProject = async () => {
-    const zip = new JSZip();
+    try {
+      if (!project.files || project.files.length === 0) {
+        showAlert('Erreur', 'Aucun fichier à télécharger');
+        return;
+      }
 
-    project.files.forEach(file => {
-      zip.file(file.path, file.content);
-    });
+      const zip = new JSZip();
 
-    const blob = await zip.generateAsync({ type: 'blob' });
-    saveAs(blob, `${projectName}.zip`);
+      project.files.forEach(file => {
+        if (file.path && file.content !== undefined) {
+          const isBinary = ['png', 'jpg', 'pdf'].includes(file.type);
+          zip.file(file.path, file.content, isBinary ? { base64: true } : {});
+        }
+      });
+
+      const blob = await zip.generateAsync({ type: 'blob' });
+      saveAs(blob, `${projectName}.zip`);
+      showAlert('Succès', 'Projet téléchargé avec succès');
+    } catch (err) {
+      showAlert('Erreur', `Impossible de télécharger le projet : ${err.message}`);
+    }
   };
 
   return {
