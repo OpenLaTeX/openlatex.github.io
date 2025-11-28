@@ -3,7 +3,7 @@ import AuthService from '../services/AuthService';
 import { UserStorage } from '../storage/UserStorage';
 
 export const useAuthentication = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(() => !!UserStorage.getEmail());
   const [userEmail, setUserEmail] = useState(UserStorage.getEmail());
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const dropdownRef = useRef(null);
