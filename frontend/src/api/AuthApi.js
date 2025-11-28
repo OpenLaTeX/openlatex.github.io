@@ -7,6 +7,7 @@ export class AuthApi {
       headers: {
         'Content-Type': 'application/json'
       },
+      credentials: 'include',
       body: JSON.stringify({ email, password })
     });
 
@@ -25,6 +26,7 @@ export class AuthApi {
       headers: {
         'Content-Type': 'application/json'
       },
+      credentials: 'include',
       body: JSON.stringify({ email, password })
     });
 
