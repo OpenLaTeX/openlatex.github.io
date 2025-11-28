@@ -6,7 +6,8 @@ export class HttpClient {
         'Content-Type': 'application/json',
         ...headers
       },
-      body: JSON.stringify(body)
+      body: JSON.stringify(body),
+      credentials: 'include'
     });
 
     if (!response.ok) {
@@ -20,7 +21,7 @@ export class HttpClient {
   }
 
   static async get(url, headers = {}) {
-    const response = await fetch(url, { headers });
+    const response = await fetch(url, { headers, credentials: 'include' });
 
     if (!response.ok) {
       throw new Error('Request failed');

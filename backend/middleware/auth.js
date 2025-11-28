@@ -2,13 +2,11 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 const authMiddleware = (req, res, next) => {
-    const authHeader = req.headers.authorization;
+    const token = req.cookies.token;
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    if (!token) {
         return res.status(401).json({ error: 'token manquant' });
     }
-
-    const token = authHeader.substring(7);
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);

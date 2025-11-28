@@ -1,6 +1,6 @@
 import { AuthApi } from '../api/AuthApi';
-import { TokenStorage } from '../storage/TokenStorage';
 import { UserStorage } from '../storage/UserStorage';
+import { getApiUrl } from '../config/settings';
 
 class AuthService {
     static async register(email, password) {
@@ -10,21 +10,19 @@ class AuthService {
 
     static async login(email, password) {
         const data = await AuthApi.login(email, password);
-        TokenStorage.save(data.token);
         return data;
     }
 
-    static logout() {
-        TokenStorage.remove();
+    static async logout() {
+        await fetch(`${getApiUrl()}/auth/logout`, {
+            method: 'POST',
+            credentials: 'include'
+        });
         UserStorage.clear();
     }
 
-    static getToken() {
-        return TokenStorage.get();
-    }
-
     static isAuthenticated() {
-        return TokenStorage.exists();
+        return false;
     }
 }
 

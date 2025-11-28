@@ -19,9 +19,8 @@ const userLimiter = rateLimit({
     standardHeaders: true,
     legacyHeaders: false,
     keyGenerator: (req) => {
-        const authHeader = req.headers.authorization;
-        if (authHeader && authHeader.startsWith('Bearer ')) {
-            const token = authHeader.substring(7);
+        const token = req.cookies.token;
+        if (token) {
             try {
                 const decoded = jwt.verify(token, process.env.JWT_SECRET);
                 console.log('rate limit par userId:', decoded.userId);

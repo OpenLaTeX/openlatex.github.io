@@ -61,11 +61,22 @@ router.post('/login', async (req, res) => {
             { expiresIn: process.env.JWT_EXPIRES_IN }
         );
 
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict'
+        });
+
         res.json({ token });
     } catch (err) {
         console.error('erreur login:', err);
         res.status(500).json({ error: 'erreur serveur suite à login' });
     }
+});
+
+router.post('/logout', (req, res) => {
+    res.clearCookie('token');
+    res.json({ message: 'deconnecte' });
 });
 
 module.exports = router;

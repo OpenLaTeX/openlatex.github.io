@@ -1,18 +1,16 @@
-import AuthService from './AuthService';
 import { getApiUrl } from '../config/settings';
 
 class ProjectService {
     static getHeaders() {
-        const token = AuthService.getToken();
         return {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
+            'Content-Type': 'application/json'
         };
     }
 
     static async getProjects() {
         const response = await fetch(`${getApiUrl()}/projects`, {
-            headers: this.getHeaders()
+            headers: this.getHeaders(),
+            credentials: 'include'
         });
 
         if (!response.ok) {
@@ -26,7 +24,8 @@ class ProjectService {
         const response = await fetch(`${getApiUrl()}/projects`, {
             method: 'POST',
             headers: this.getHeaders(),
-            body: JSON.stringify({ name, description, files })
+            body: JSON.stringify({ name, description, files }),
+            credentials: 'include'
         });
 
         const data = await response.json();
@@ -40,7 +39,8 @@ class ProjectService {
 
     static async getProject(pno) {
         const response = await fetch(`${getApiUrl()}/projects/${pno}`, {
-            headers: this.getHeaders()
+            headers: this.getHeaders(),
+            credentials: 'include'
         });
 
         if (!response.ok) {
@@ -54,7 +54,8 @@ class ProjectService {
         const response = await fetch(`${getApiUrl()}/projects/${pno}`, {
             method: 'PUT',
             headers: this.getHeaders(),
-            body: JSON.stringify({ name, description, files })
+            body: JSON.stringify({ name, description, files }),
+            credentials: 'include'
         });
 
         const data = await response.json();
@@ -69,7 +70,8 @@ class ProjectService {
     static async deleteProject(pno) {
         const response = await fetch(`${getApiUrl()}/projects/${pno}`, {
             method: 'DELETE',
-            headers: this.getHeaders()
+            headers: this.getHeaders(),
+            credentials: 'include'
         });
 
         const data = await response.json();
