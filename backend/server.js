@@ -9,7 +9,10 @@ const compileRoutes = require('./routes/compile');
 const { guestLimiter, userLimiter } = require('./middleware/rateLimiter');
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  credentials: true
+}));
 app.use(express.json({ limit: '10mb' }));
 
 app.get('/health', (req, res) => {

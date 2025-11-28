@@ -10,9 +10,18 @@ class FileManager {
 
     static async writeFiles(workDir, files) {
         for (const file of files) {
-            const filePath = path.join(workDir, file.path);
-            const fileDir = path.dirname(filePath);
+            if (file.path.includes('..') || path.isAbsolute(file.path)) {
+                throw new Error('chemin de fichier invalide');
+            }
 
+            const filePath = path.join(workDir, file.path);
+            const normalizedPath = path.normalize(filePath);
+
+            if (!normalizedPath.startsWith(path.normalize(workDir))) {
+                throw new Error('chemin de fichier en dehors du répertoire de travail');
+            }
+
+            const fileDir = path.dirname(filePath);
             await fs.mkdir(fileDir, { recursive: true });
 
             const isBinary = this.isBinaryContent(file.path);

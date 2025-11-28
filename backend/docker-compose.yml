@@ -38,6 +38,7 @@ services:
       POSTGRES_PORT: 5432
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN}
+      FRONTEND_URL: ${FRONTEND_URL}
       PORT: 8000
     ports:
       - "8000:8000"

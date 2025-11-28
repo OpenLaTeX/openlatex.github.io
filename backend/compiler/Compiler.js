@@ -9,11 +9,15 @@ class Compiler {
     static async compile(workDir, mainFile) {
         const mainFileDir = path.dirname(path.join(workDir, mainFile));
         const mainFileName = path.basename(mainFile);
+
+        if (!/^[a-zA-Z0-9_\-\.]+$/.test(mainFileName)) {
+            throw new Error('nom de fichier invalide');
+        }
+
         const pdfFileName = mainFileName.replace(/\.tex$/, '.pdf');
         const pdfFilePath = path.join(mainFileDir, pdfFileName);
 
-        //const cmd = `pdflatex -interaction=nonstopmode -no-shell-escape ${mainFileName}`;
-        const cmd = `pdflatex -interaction=nonstopmode ${mainFileName}`;
+        const cmd = `pdflatex -interaction=nonstopmode -no-shell-escape ${mainFileName}`;
 
         console.log('lancement pdflatex...');
 
