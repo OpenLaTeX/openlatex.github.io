@@ -13,6 +13,10 @@ class ProjectService {
             credentials: 'include'
         });
 
+        if (response.status === 401) {
+            throw new Error('Session expirée - reconnexion requise');
+        }
+
         if (!response.ok) {
             throw new Error('erreur chargement projets');
         }
@@ -27,6 +31,10 @@ class ProjectService {
             body: JSON.stringify({ name, description, files }),
             credentials: 'include'
         });
+
+        if (response.status === 401) {
+            throw new Error('Session expirée - reconnexion requise');
+        }
 
         const data = await response.json();
 
@@ -43,6 +51,10 @@ class ProjectService {
             credentials: 'include'
         });
 
+        if (response.status === 401) {
+            throw new Error('Session expirée - reconnexion requise');
+        }
+
         if (!response.ok) {
             throw new Error('erreur chargement projet');
         }
@@ -57,6 +69,10 @@ class ProjectService {
             body: JSON.stringify({ name, description, files }),
             credentials: 'include'
         });
+
+        if (response.status === 401) {
+            throw new Error('Session expirée - reconnexion requise');
+        }
 
         const data = await response.json();
 
@@ -73,6 +89,10 @@ class ProjectService {
             headers: this.getHeaders(),
             credentials: 'include'
         });
+
+        if (response.status === 401) {
+            throw new Error('Session expirée - reconnexion requise');
+        }
 
         const data = await response.json();
 

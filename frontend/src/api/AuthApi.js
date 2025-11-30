@@ -38,4 +38,32 @@ export class AuthApi {
 
     return data;
   }
+
+  static async verify() {
+    const response = await fetch(`${getApiUrl()}/auth/verify`, {
+      method: 'GET',
+      credentials: 'include'
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || 'Vérification de session échouée');
+    }
+
+    return data;
+  }
+
+  static async logout() {
+    const response = await fetch(`${getApiUrl()}/auth/logout`, {
+      method: 'POST',
+      credentials: 'include'
+    });
+
+    if (!response.ok) {
+      throw new Error('Erreur déconnexion');
+    }
+
+    return await response.json();
+  }
 }

@@ -3,10 +3,48 @@ import AuthService from '../services/AuthService';
 import { UserStorage } from '../storage/UserStorage';
 
 export const useAuthentication = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(() => !!UserStorage.getEmail());
-  const [userEmail, setUserEmail] = useState(UserStorage.getEmail());
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userEmail, setUserEmail] = useState('');
+  const [isVerifying, setIsVerifying] = useState(true);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
+  const [sessionExpiredCallback, setSessionExpiredCallback] = useState(null);
   const dropdownRef = useRef(null);
+  const verificationIntervalRef = useRef(null);
+
+  const verifySession = async () => {
+    try {
+      const result = await AuthService.verify();
+      setIsAuthenticated(true);
+      setUserEmail(result.email);
+      UserStorage.saveEmail(result.email);
+    } catch (err) {
+      setIsAuthenticated(false);
+      setUserEmail('');
+      UserStorage.clear();
+      if (sessionExpiredCallback) {
+        sessionExpiredCallback();
+      }
+    } finally {
+      setIsVerifying(false);
+    }
+  };
+
+  useEffect(() => {
+    verifySession();
+  }, []);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      verificationIntervalRef.current = setInterval(() => {
+        verifySession();
+      }, 10 * 60 * 1000);
+    }
+    return () => {
+      if (verificationIntervalRef.current) {
+        clearInterval(verificationIntervalRef.current);
+      }
+    };
+  }, [isAuthenticated]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -27,10 +65,11 @@ export const useAuthentication = () => {
   const handleLogin = (email) => {
     setIsAuthenticated(true);
     setUserEmail(email);
+    UserStorage.saveEmail(email);
   };
 
-  const handleLogout = () => {
-    AuthService.logout();
+  const handleLogout = async () => {
+    await AuthService.logout();
     setIsAuthenticated(false);
     setUserEmail('');
     setShowUserDropdown(false);
@@ -40,13 +79,20 @@ export const useAuthentication = () => {
     setShowUserDropdown(!showUserDropdown);
   };
 
+  const setOnSessionExpired = (callback) => {
+    setSessionExpiredCallback(() => callback);
+  };
+
   return {
     isAuthenticated,
     userEmail,
+    isVerifying,
     showUserDropdown,
     dropdownRef,
     handleLogin,
     handleLogout,
-    toggleUserDropdown
+    toggleUserDropdown,
+    setOnSessionExpired,
+    verifySession
   };
 };

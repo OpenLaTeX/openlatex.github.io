@@ -79,4 +79,29 @@ router.post('/logout', (req, res) => {
     res.json({ message: 'deconnecte' });
 });
 
+router.get('/verify', async (req, res) => {
+    const token = req.cookies.token;
+
+    if (!token) {
+        return res.status(401).json({ valid: false, error: 'Session invalide' });
+    }
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const result = await SQLquery('select uno, email from users where uno = $1', [decoded.userId]);
+
+        if (result.rows.length === 0) {
+            return res.status(401).json({ valid: false, error: 'Utilisateur non trouvé' });
+        }
+
+        res.json({
+            valid: true,
+            userId: decoded.userId,
+            email: result.rows[0].email
+        });
+    } catch (err) {
+        return res.status(401).json({ valid: false, error: 'Session invalide ou expirée' });
+    }
+});
+
 module.exports = router;

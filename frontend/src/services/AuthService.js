@@ -13,12 +13,19 @@ class AuthService {
         return data;
     }
 
+    static async verify() {
+        const result = await AuthApi.verify();
+        return result;
+    }
+
     static async logout() {
-        await fetch(`${getApiUrl()}/auth/logout`, {
-            method: 'POST',
-            credentials: 'include'
-        });
-        UserStorage.clear();
+        try {
+            await AuthApi.logout();
+            UserStorage.clear();
+        } catch (err) {
+            console.error('Erreur logout:', err);
+            UserStorage.clear();
+        }
     }
 
     static isAuthenticated() {

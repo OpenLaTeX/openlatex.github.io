@@ -41,11 +41,13 @@ export default function App() {
   const {
     isAuthenticated,
     userEmail,
+    isVerifying,
     showUserDropdown,
     dropdownRef,
     handleLogin: authLogin,
     handleLogout: authLogout,
-    toggleUserDropdown
+    toggleUserDropdown,
+    setOnSessionExpired
   } = useAuthentication();
 
   const {
@@ -171,6 +173,26 @@ export default function App() {
       document.removeEventListener('mouseup', handleMouseUp);
     };
   }, []);
+
+  useEffect(() => {
+    setOnSessionExpired(() => {
+      showAlert('Session expirée', 'Votre session a expiré. Veuillez vous reconnecter.');
+      setShowAuth(true);
+    });
+  }, []);
+
+  if (isVerifying) {
+    return (
+      <div className="app-container" style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh'
+      }}>
+        <div>Vérification de session...</div>
+      </div>
+    );
+  }
 
   if (showAuth) {
     return (
