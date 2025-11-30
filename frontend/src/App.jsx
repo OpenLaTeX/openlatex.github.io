@@ -294,6 +294,10 @@ export default function App() {
                 content={currentFile.content}
                 fileName={currentFile.path}
               />
+            ) : currentFile?.type === 'pdf' ? (
+              <PdfViewer
+                pdfUrl={`data:application/pdf;base64,${currentFile.content}`}
+              />
             ) : (
               <Editor
                 ref={editorRef}
