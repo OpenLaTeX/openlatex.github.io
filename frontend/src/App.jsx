@@ -4,6 +4,7 @@ import FileTree from './components/FileTree';
 import Auth from './components/Auth';
 import ProjectList from './components/ProjectList';
 import Editor from './components/Editor';
+import ImageViewer from './components/ImageViewer';
 import { ErrorPanel } from './components/ErrorPanel';
 import AlertModal from './components/modals/AlertModal';
 import ConfirmModal from './components/modals/ConfirmModal';
@@ -288,12 +289,19 @@ export default function App() {
             <div className="editor-header">
               <strong>Édition : </strong>{currentFile?.path || 'Aucun fichier'}
             </div>
-            <Editor
-              ref={editorRef}
-              value={currentFile?.content || ''}
-              onChange={handleContentChange}
-              currentFile={currentFile}
-            />
+            {currentFile && ['png', 'jpg', 'jpeg'].includes(currentFile.type) ? (
+              <ImageViewer
+                content={currentFile.content}
+                fileName={currentFile.path}
+              />
+            ) : (
+              <Editor
+                ref={editorRef}
+                value={currentFile?.content || ''}
+                onChange={handleContentChange}
+                currentFile={currentFile}
+              />
+            )}
           </div>
 
           <div className="resize-handle" onMouseDown={handleResizeStart} />
