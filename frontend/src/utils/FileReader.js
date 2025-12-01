@@ -32,8 +32,8 @@ export class FileReaderUtil {
   }
 
   static getFileType(filename) {
-    const ext = FileReaderUtil.getFileExtension(filename);
-    const types = ['tex', 'cls', 'sty', 'png', 'jpg', 'pdf'];
+    const ext = FileReaderUtil.getFileExtension(filename).toLowerCase();
+    const types = ['tex', 'cls', 'sty', 'png', 'jpg', 'jpeg', 'pdf'];
     return types.includes(ext) ? ext : 'tex';
   }
 }

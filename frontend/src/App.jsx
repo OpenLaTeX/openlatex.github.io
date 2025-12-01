@@ -9,6 +9,7 @@ import { ErrorPanel } from './components/ErrorPanel';
 import AlertModal from './components/modals/AlertModal';
 import ConfirmModal from './components/modals/ConfirmModal';
 import PromptModal from './components/modals/PromptModal';
+import FigureInsertModal from './components/modals/FigureInsertModal';
 import PdfViewer from './components/PdfViewer';
 import { getApiUrl, setApiUrl } from './config/settings';
 import { useAuthentication } from './hooks/useAuthentication';
@@ -16,6 +17,7 @@ import { useModalManager } from './hooks/useModalManager';
 import { useProjectManager } from './hooks/useProjectManager';
 import { useFileManager } from './hooks/useFileManager';
 import { useCompilation } from './hooks/useCompilation';
+import { useFigureManager } from './hooks/useFigureManager';
 import './App.css';
 
 export default function App() {
@@ -30,12 +32,15 @@ export default function App() {
     alertModal,
     confirmModal,
     promptModal,
+    figureModal,
     showAlert,
     closeAlert,
     showConfirm,
     closeConfirm,
     showPrompt,
-    closePrompt
+    closePrompt,
+    showFigureInsert,
+    closeFigureInsert
   } = useModalManager();
 
   const {
@@ -84,6 +89,10 @@ export default function App() {
     handleCompile
   } = useCompilation(project, apiUrl, showAlert, setLoading);
 
+  const editorViewRef = useRef(null);
+
+  const { handleFigureInsert } = useFigureManager(project, setProject, editorViewRef, showFigureInsert, showAlert);
+
   const [pdfBlobUrl, setPdfBlobUrl] = useState(null);
 
   useEffect(() => {
@@ -111,6 +120,12 @@ export default function App() {
   }, [pdfUrl]);
 
   const currentFile = project.currentFile ? project.getFile(project.currentFile) : null;
+
+  useEffect(() => {
+    if (editorRef.current) {
+      editorViewRef.current = editorRef.current.getView();
+    }
+  }, [currentFile]);
 
   const handleLogin = (email) => {
     authLogin(email);
@@ -326,6 +341,7 @@ export default function App() {
                 value={currentFile?.content || ''}
                 onChange={handleContentChange}
                 currentFile={currentFile}
+                onFigureInsert={currentFile?.type === 'tex' ? handleFigureInsert : null}
               />
             )}
           </div>
@@ -374,6 +390,15 @@ export default function App() {
         message={promptModal.message}
         defaultValue={promptModal.defaultValue}
         validate={promptModal.validate}
+      />
+
+      <FigureInsertModal
+        isOpen={figureModal.isOpen}
+        onClose={closeFigureInsert}
+        onConfirm={figureModal.onConfirm}
+        imageData={figureModal.imageData}
+        defaultLabel={figureModal.defaultLabel}
+        defaultCaption={figureModal.defaultCaption}
       />
     </div>
   );

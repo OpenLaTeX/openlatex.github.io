@@ -59,9 +59,14 @@ const highlightStyle = syntaxHighlighting(
   ])
 );
 
-const Editor = forwardRef(({ value, onChange, currentFile }, ref) => {
+const Editor = forwardRef(({ value, onChange, currentFile, onFigureInsert }, ref) => {
   const editorRef = useRef(null);
   const viewRef = useRef(null);
+  const onFigureInsertRef = useRef(onFigureInsert);
+
+  useEffect(() => {
+    onFigureInsertRef.current = onFigureInsert;
+  }, [onFigureInsert]);
 
   useImperativeHandle(ref, () => ({
     goToLine: (lineNumber) => {
@@ -73,7 +78,8 @@ const Editor = forwardRef(({ value, onChange, currentFile }, ref) => {
         scrollIntoView: true
       });
       view.focus();
-    }
+    },
+    getView: () => viewRef.current
   }));
 
   useEffect(() => {
@@ -81,6 +87,18 @@ const Editor = forwardRef(({ value, onChange, currentFile }, ref) => {
 
     if (viewRef.current) {
       viewRef.current.destroy();
+    }
+
+    const customKeymap = [];
+
+    if (onFigureInsertRef.current && currentFile?.type === 'tex') {
+      customKeymap.push({
+        key: 'Ctrl-Shift-v',
+        run: () => {
+          onFigureInsertRef.current?.();
+          return true;
+        }
+      });
     }
 
     const extensions = [
@@ -103,6 +121,7 @@ const Editor = forwardRef(({ value, onChange, currentFile }, ref) => {
       highlightSelectionMatches(),
       EditorView.lineWrapping,
       keymap.of([
+        ...customKeymap,
         ...closeBracketsKeymap,
         ...defaultKeymap,
         ...searchKeymap,

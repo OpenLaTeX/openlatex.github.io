@@ -4,6 +4,7 @@ export const useModalManager = () => {
   const [alertModal, setAlertModal] = useState({ isOpen: false, title: '', message: '' });
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', message: '', onConfirm: null });
   const [promptModal, setPromptModal] = useState({ isOpen: false, title: '', message: '', defaultValue: '', validate: null, onConfirm: null });
+  const [figureModal, setFigureModal] = useState({ isOpen: false, imageData: null, defaultLabel: '', defaultCaption: '', onConfirm: null });
 
   const showAlert = (title, message) => {
     setAlertModal({ isOpen: true, title, message });
@@ -29,15 +30,26 @@ export const useModalManager = () => {
     setPromptModal({ ...promptModal, isOpen: false });
   };
 
+  const showFigureInsert = (imageData, defaultLabel, defaultCaption, onConfirm) => {
+    setFigureModal({ isOpen: true, imageData, defaultLabel, defaultCaption, onConfirm });
+  };
+
+  const closeFigureInsert = () => {
+    setFigureModal({ ...figureModal, isOpen: false });
+  };
+
   return {
     alertModal,
     confirmModal,
     promptModal,
+    figureModal,
     showAlert,
     closeAlert,
     showConfirm,
     closeConfirm,
     showPrompt,
-    closePrompt
+    closePrompt,
+    showFigureInsert,
+    closeFigureInsert
   };
 };
