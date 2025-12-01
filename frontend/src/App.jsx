@@ -12,6 +12,7 @@ import PromptModal from './components/modals/PromptModal';
 import FigureInsertModal from './components/modals/FigureInsertModal';
 import PdfViewer from './components/PdfViewer';
 import { getApiUrl, setApiUrl } from './config/settings';
+import { UserStorage } from './storage/UserStorage';
 import { useAuthentication } from './hooks/useAuthentication';
 import { useModalManager } from './hooks/useModalManager';
 import { useProjectManager } from './hooks/useProjectManager';
@@ -24,9 +25,12 @@ export default function App() {
   const [showAuth, setShowAuth] = useState(false);
   const [showProjectList, setShowProjectList] = useState(false);
   const [apiUrl, setApiUrlState] = useState(() => getApiUrl());
-  const [pdfWidth, setPdfWidth] = useState(600);
+  const { sidebarWidth: initialSidebarWidth, pdfWidth: initialPdfWidth } = UserStorage.getPanelWidths();
+  const [sidebarWidth, setSidebarWidth] = useState(initialSidebarWidth);
+  const [pdfWidth, setPdfWidth] = useState(initialPdfWidth);
   const editorRef = useRef(null);
   const isResizing = useRef(false);
+  const isSidebarResizing = useRef(false);
 
   const {
     alertModal,
@@ -169,14 +173,27 @@ export default function App() {
     isResizing.current = true;
   };
 
+  const handleSidebarResizeStart = () => {
+    isSidebarResizing.current = true;
+  };
+
   useEffect(() => {
     const handleMouseMove = (e) => {
-      if (!isResizing.current) return;
-      const newWidth = window.innerWidth - e.clientX;
-      setPdfWidth(Math.max(300, Math.min(1200, newWidth)));
+      if (isSidebarResizing.current) {
+        const newWidth = e.clientX;
+        setSidebarWidth(Math.max(200, Math.min(500, newWidth)));
+      }
+      if (isResizing.current) {
+        const newWidth = window.innerWidth - e.clientX;
+        setPdfWidth(Math.max(300, Math.min(1200, newWidth)));
+      }
     };
 
     const handleMouseUp = () => {
+      if (isSidebarResizing.current || isResizing.current) {
+        UserStorage.savePanelWidths(sidebarWidth, pdfWidth);
+      }
+      isSidebarResizing.current = false;
       isResizing.current = false;
     };
 
@@ -187,7 +204,7 @@ export default function App() {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     };
-  }, []);
+  }, [sidebarWidth, pdfWidth]);
 
   useEffect(() => {
     setOnSessionExpired(() => {
@@ -248,7 +265,7 @@ export default function App() {
 
   return (
     <div className="app-container">
-      <div className="sidebar">
+      <div className="sidebar" style={{ width: `${sidebarWidth}px`, minWidth: `${sidebarWidth}px` }}>
         <div style={{ marginBottom: '10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <strong>{projectName}</strong>
           {isAuthenticated ? (
@@ -319,6 +336,8 @@ export default function App() {
           onDelete={handleDelete}
         />
       </div>
+
+      <div className="resize-handle-sidebar" onMouseDown={handleSidebarResizeStart} />
 
       <div className="main-content">
         <div className="content-row">

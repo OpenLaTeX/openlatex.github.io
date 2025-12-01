@@ -1,10 +1,10 @@
 import { useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { EditorState } from '@codemirror/state';
 import { EditorView, keymap, lineNumbers, highlightActiveLineGutter, highlightSpecialChars, drawSelection, dropCursor, rectangularSelection, crosshairCursor, highlightActiveLine } from '@codemirror/view';
-import { defaultKeymap, history, historyKeymap } from '@codemirror/commands';
+import { defaultKeymap, history, historyKeymap, insertNewline } from '@codemirror/commands';
 import { searchKeymap, highlightSelectionMatches } from '@codemirror/search';
 import { autocompletion, completionKeymap, closeBrackets, closeBracketsKeymap } from '@codemirror/autocomplete';
-import { foldGutter, indentOnInput, syntaxHighlighting, HighlightStyle, bracketMatching, foldKeymap } from '@codemirror/language';
+import { foldGutter, syntaxHighlighting, HighlightStyle, bracketMatching, foldKeymap } from '@codemirror/language';
 import { tags } from '@lezer/highlight';
 import { lintKeymap } from '@codemirror/lint';
 import { latex } from 'codemirror-lang-latex';
@@ -101,6 +101,10 @@ const Editor = forwardRef(({ value, onChange, currentFile, onFigureInsert }, ref
       });
     }
 
+    const filteredDefaultKeymap = defaultKeymap.filter(
+      binding => binding.key !== 'Enter' && binding.key !== 'Shift-Enter'
+    );
+
     const extensions = [
       lineNumbers(),
       highlightActiveLineGutter(),
@@ -110,7 +114,6 @@ const Editor = forwardRef(({ value, onChange, currentFile, onFigureInsert }, ref
       drawSelection(),
       dropCursor(),
       EditorState.allowMultipleSelections.of(true),
-      indentOnInput(),
       highlightStyle,
       bracketMatching(),
       closeBrackets(),
@@ -123,12 +126,14 @@ const Editor = forwardRef(({ value, onChange, currentFile, onFigureInsert }, ref
       keymap.of([
         ...customKeymap,
         ...closeBracketsKeymap,
-        ...defaultKeymap,
+        ...filteredDefaultKeymap,
         ...searchKeymap,
         ...historyKeymap,
         ...foldKeymap,
         ...completionKeymap,
-        ...lintKeymap
+        ...lintKeymap,
+        { key: 'Enter', run: insertNewline },
+        { key: 'Shift-Enter', run: insertNewline }
       ]),
       editorTheme,
       latex({

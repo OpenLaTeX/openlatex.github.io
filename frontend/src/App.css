@@ -36,8 +36,6 @@ body {
 }
 
 .sidebar {
-  width: 280px;
-  min-width: 280px;
   padding: 20px;
   background: var(--bg-medium);
   border-right: 1px solid var(--border-color);
@@ -99,6 +97,17 @@ body {
 }
 
 .resize-handle:hover {
+  background: var(--text-dim);
+}
+
+.resize-handle-sidebar {
+  width: 4px;
+  background: var(--border-color);
+  cursor: col-resize;
+  flex-shrink: 0;
+}
+
+.resize-handle-sidebar:hover {
   background: var(--text-dim);
 }
 

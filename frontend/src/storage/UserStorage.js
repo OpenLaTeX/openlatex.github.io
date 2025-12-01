@@ -24,4 +24,22 @@ export class UserStorage {
       console.error('Failed to clear email:', error);
     }
   }
+
+  static savePanelWidths(sidebarWidth, pdfWidth) {
+    try {
+      localStorage.setItem('panelWidths', JSON.stringify({ sidebarWidth, pdfWidth }));
+    } catch (error) {
+      console.error('Failed to save panel widths:', error);
+    }
+  }
+
+  static getPanelWidths() {
+    try {
+      const stored = localStorage.getItem('panelWidths');
+      return stored ? JSON.parse(stored) : { sidebarWidth: 280, pdfWidth: 600 };
+    } catch (error) {
+      console.error('Failed to get panel widths:', error);
+      return { sidebarWidth: 280, pdfWidth: 600 };
+    }
+  }
 }
