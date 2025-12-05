@@ -136,7 +136,17 @@ export default function App() {
     setShowAuth(false);
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    const hasUnsavedFiles = project.files.length > 0 && !currentProjectId;
+
+    if (hasUnsavedFiles) {
+      const confirmed = await showConfirm(
+        'Déconnexion',
+        'Vous avez des fichiers non sauvegardés. Continuer ?'
+      );
+      if (!confirmed) return;
+    }
+
     authLogout();
     resetProject();
   };
@@ -149,11 +159,31 @@ export default function App() {
   };
 
   const handleLoadProject = async (pno) => {
+    const hasUnsavedChanges = project.files.length > 0 && !currentProjectId;
+
+    if (hasUnsavedChanges) {
+      const confirmed = await showConfirm(
+        'Charger projet',
+        'Vous avez des fichiers non sauvegardés. Continuer ?'
+      );
+      if (!confirmed) return;
+    }
+
     await loadProject(pno);
     setShowProjectList(false);
   };
 
-  const handleNewProject = () => {
+  const handleNewProject = async () => {
+    const hasUnsavedFiles = project.files.length > 0 && !currentProjectId;
+
+    if (hasUnsavedFiles) {
+      const confirmed = await showConfirm(
+        'Nouveau projet',
+        'Vous avez des fichiers non sauvegardés. Continuer ?'
+      );
+      if (!confirmed) return;
+    }
+
     newProject();
     setShowProjectList(false);
   };

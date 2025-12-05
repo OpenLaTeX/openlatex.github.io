@@ -42,4 +42,35 @@ export class UserStorage {
       return { sidebarWidth: 280, pdfWidth: 600 };
     }
   }
+
+  static saveProjectDraft(project) {
+    try {
+      localStorage.setItem('projectDraft', JSON.stringify({
+        name: project.name,
+        files: project.files,
+        currentFile: project.currentFile,
+        timestamp: Date.now()
+      }));
+    } catch (error) {
+      console.error('Failed to save project draft:', error);
+    }
+  }
+
+  static getProjectDraft() {
+    try {
+      const stored = localStorage.getItem('projectDraft');
+      return stored ? JSON.parse(stored) : null;
+    } catch (error) {
+      console.error('Failed to get project draft:', error);
+      return null;
+    }
+  }
+
+  static clearProjectDraft() {
+    try {
+      localStorage.removeItem('projectDraft');
+    } catch (error) {
+      console.error('Failed to clear project draft:', error);
+    }
+  }
 }

@@ -1,15 +1,39 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Project } from '../models/Project';
 import ProjectService from '../services/ProjectService';
 import { validateProjectName } from '../utils/validation';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
+import { UserStorage } from '../storage/UserStorage';
 
 export const useProjectManager = (isAuthenticated, showAlert, showPrompt) => {
   const [currentProjectId, setCurrentProjectId] = useState(null);
-  const [projectName, setProjectName] = useState('Nouveau projet');
-  const [project, setProject] = useState(() => Project.createDefault());
+  const [projectName, setProjectName] = useState(() => {
+    const draft = UserStorage.getProjectDraft();
+    return (draft && draft.name) || 'Nouveau projet';
+  });
+  const [project, setProject] = useState(() => {
+    const draft = UserStorage.getProjectDraft();
+    if (draft && draft.files && draft.files.length > 0) {
+      let restoredProject = Project.createEmpty();
+      for (const file of draft.files) {
+        restoredProject = restoredProject.addEmptyFile(file.path, file.type);
+        restoredProject = restoredProject.updateFileContent(file.path, file.content);
+      }
+      if (draft.currentFile) {
+        restoredProject.currentFile = draft.currentFile;
+      }
+      return restoredProject;
+    }
+    return Project.createDefault();
+  });
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (project.files.length > 0) {
+      UserStorage.saveProjectDraft(project);
+    }
+  }, [project]);
 
   const handleSaveProject = async () => {
     if (!isAuthenticated) {
@@ -35,11 +59,13 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt) => {
             if (currentProjectId) {
               await ProjectService.updateProject(currentProjectId, name, null, files);
               setProjectName(name);
+              UserStorage.clearProjectDraft();
               showAlert('Succès', 'Le projet a été mis à jour avec succès.');
             } else {
               const result = await ProjectService.createProject(name, null, files);
               setCurrentProjectId(result.pno);
               setProjectName(name);
+              UserStorage.clearProjectDraft();
               showAlert('Succès', 'Le projet a été créé avec succès.');
             }
             resolve({ success: true });
@@ -67,6 +93,7 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt) => {
       setProject(newProject);
       setCurrentProjectId(data.pno);
       setProjectName(data.name);
+      UserStorage.clearProjectDraft();
       showAlert('Succès', 'Le projet a été chargé avec succès.');
       return { success: true };
     } catch (err) {
