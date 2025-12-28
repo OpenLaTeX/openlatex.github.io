@@ -51,29 +51,26 @@ export const useFileManager = (project, setProject, showPrompt, showConfirm) => 
     );
   };
 
-  const handleDelete = (path) => {
-    showConfirm(
+  const handleDelete = async (path) => {
+    const confirmed = await showConfirm(
       'Supprimer le fichier',
-      `Êtes-vous sûr de vouloir supprimer "${path}" ? Cette action est irréversible.`,
-      () => {
-        setProject(p => p.removeFile(path));
-      }
+      `Êtes-vous sûr de vouloir supprimer "${path}" ? Cette action est irréversible.`
     );
+    if (confirmed) {
+      setProject(p => p.removeFile(path));
+    }
   };
 
-  const handleDeleteFolder = (folderPath) => {
+  const handleDeleteFolder = async (folderPath) => {
     const prefix = folderPath.endsWith('/') ? folderPath : folderPath + '/';
     const filesToDelete = project.files.filter(f => f.path.startsWith(prefix));
     const fileList = filesToDelete.map(f => f.path).join('\n• ');
     const message = `Êtes-vous sûr de vouloir supprimer le dossier "${folderPath}" ?\n\nFichiers qui seront supprimés (${filesToDelete.length}) :\n• ${fileList}\n\nCette action est irréversible.`;
 
-    showConfirm(
-      'Supprimer le dossier',
-      message,
-      () => {
-        setProject(p => p.removeFolder(folderPath));
-      }
-    );
+    const confirmed = await showConfirm('Supprimer le dossier', message);
+    if (confirmed) {
+      setProject(p => p.removeFolder(folderPath));
+    }
   };
 
   const triggerFileUpload = () => {
