@@ -4,7 +4,7 @@ import { FileTreeBuilder } from '../utils/FileTreeBuilder';
 import { FileIconMapper } from '../utils/FileIconMapper';
 import './FileTree.css';
 
-function TreeNode({ node, level, currentFile, onSelect, onRename, onDelete }) {
+function TreeNode({ node, level, currentFile, onSelect, onRename, onDelete, onDeleteFolder }) {
   const [isOpen, setIsOpen] = useState(true);
 
   if (node.type === 'file') {
@@ -37,6 +37,9 @@ function TreeNode({ node, level, currentFile, onSelect, onRename, onDelete }) {
         </span>
         <Folder size={16} className="tree-folder-icon" />
         <span className="tree-folder-name">{node.name}</span>
+        <button onClick={() => onDeleteFolder(node.path)} className="tree-folder-button" title="Supprimer le dossier">
+          <Trash2 size={14} />
+        </button>
       </div>
       {isOpen && (
         <div className="tree-folder-children">
@@ -49,6 +52,7 @@ function TreeNode({ node, level, currentFile, onSelect, onRename, onDelete }) {
               onSelect={onSelect}
               onRename={onRename}
               onDelete={onDelete}
+              onDeleteFolder={onDeleteFolder}
             />
           ))}
         </div>
@@ -57,7 +61,7 @@ function TreeNode({ node, level, currentFile, onSelect, onRename, onDelete }) {
   );
 }
 
-export default function FileTree({ files, currentFile, onSelect, onRename, onDelete }) {
+export default function FileTree({ files, currentFile, onSelect, onRename, onDelete, onDeleteFolder }) {
   const tree = useMemo(() => FileTreeBuilder.buildTree(files), [files]);
 
   return (
@@ -71,6 +75,7 @@ export default function FileTree({ files, currentFile, onSelect, onRename, onDel
           onSelect={onSelect}
           onRename={onRename}
           onDelete={onDelete}
+          onDeleteFolder={onDeleteFolder}
         />
       ))}
     </div>

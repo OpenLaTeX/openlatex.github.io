@@ -36,6 +36,16 @@ export class Project implements IProject {
         return newProject;
     }
 
+    removeFolder(folderPath: string): Project {
+        const newProject = this.clone();
+        const prefix = folderPath.endsWith('/') ? folderPath : folderPath + '/';
+        newProject.files = newProject.files.filter(f => !f.path.startsWith(prefix));
+        if (newProject.currentFile && newProject.currentFile.startsWith(prefix)) {
+            newProject.currentFile = newProject.files[0]?.path || null;
+        }
+        return newProject;
+    }
+
     getFile(path: string): IFile | undefined {
         return this.files.find(f => f.path === path);
     }

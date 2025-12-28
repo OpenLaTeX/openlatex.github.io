@@ -108,10 +108,35 @@
 }
 
 .tree-folder-name {
+  flex: 1;
   font-size: 13px;
   font-weight: 600;
   user-select: none;
   color: var(--text-secondary);
+}
+
+.tree-folder-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  background: transparent;
+  color: var(--text-dim);
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  opacity: 0;
+}
+
+.tree-folder-header:hover .tree-folder-button {
+  opacity: 1;
+}
+
+.tree-folder-button:hover {
+  background: var(--bg-active);
+  color: var(--text-light);
+  border-color: var(--bg-active);
 }
 
 .tree-folder-children {

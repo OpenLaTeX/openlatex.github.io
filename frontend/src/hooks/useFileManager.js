@@ -61,6 +61,21 @@ export const useFileManager = (project, setProject, showPrompt, showConfirm) => 
     );
   };
 
+  const handleDeleteFolder = (folderPath) => {
+    const prefix = folderPath.endsWith('/') ? folderPath : folderPath + '/';
+    const filesToDelete = project.files.filter(f => f.path.startsWith(prefix));
+    const fileList = filesToDelete.map(f => f.path).join('\n• ');
+    const message = `Êtes-vous sûr de vouloir supprimer le dossier "${folderPath}" ?\n\nFichiers qui seront supprimés (${filesToDelete.length}) :\n• ${fileList}\n\nCette action est irréversible.`;
+
+    showConfirm(
+      'Supprimer le dossier',
+      message,
+      () => {
+        setProject(project.removeFolder(folderPath));
+      }
+    );
+  };
+
   const triggerFileUpload = () => {
     fileInputRef.current?.click();
   };
@@ -77,6 +92,7 @@ export const useFileManager = (project, setProject, showPrompt, showConfirm) => 
     handleUploadFiles,
     handleRename,
     handleDelete,
+    handleDeleteFolder,
     triggerFileUpload,
     triggerFolderUpload
   };

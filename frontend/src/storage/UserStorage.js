@@ -51,8 +51,10 @@ export class UserStorage {
         currentFile: project.currentFile,
         timestamp: Date.now()
       }));
+      return true;
     } catch (error) {
       console.error('Failed to save project draft:', error);
+      return false;
     }
   }
 

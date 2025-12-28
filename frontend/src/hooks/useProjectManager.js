@@ -31,9 +31,12 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt) => {
 
   useEffect(() => {
     if (project.files.length > 0) {
-      UserStorage.saveProjectDraft(project);
+      const success = UserStorage.saveProjectDraft(project);
+      if (!success) {
+        showAlert('Erreur localStorage', 'Impossible de sauvegarder le brouillon localement (quota dépassé). Sauvegardez votre projet sur le serveur pour ne pas perdre vos modifications.');
+      }
     }
-  }, [project]);
+  }, [project, showAlert]);
 
   const handleSaveProject = async () => {
     if (!isAuthenticated) {
