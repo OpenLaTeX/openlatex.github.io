@@ -56,7 +56,7 @@ export const useFileManager = (project, setProject, showPrompt, showConfirm) => 
       'Supprimer le fichier',
       `Êtes-vous sûr de vouloir supprimer "${path}" ? Cette action est irréversible.`,
       () => {
-        setProject(project.removeFile(path));
+        setProject(p => p.removeFile(path));
       }
     );
   };
@@ -71,7 +71,7 @@ export const useFileManager = (project, setProject, showPrompt, showConfirm) => 
       'Supprimer le dossier',
       message,
       () => {
-        setProject(project.removeFolder(folderPath));
+        setProject(p => p.removeFolder(folderPath));
       }
     );
   };
