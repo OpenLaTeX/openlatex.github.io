@@ -4,7 +4,6 @@ import Modal from './Modal';
 const ConfirmModal = ({ isOpen, onClose, onConfirm, title, message }) => {
   const handleConfirm = () => {
     onConfirm();
-    onClose();
   };
 
   return (

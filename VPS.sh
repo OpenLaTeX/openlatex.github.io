@@ -1,6 +1,5 @@
 #!/bin/bash
 while true; do
-    clear
     echo "=== Menu ==="
     echo "1) Se connecter en root sur le VPS"
     echo "2) Se connecter en deployer"

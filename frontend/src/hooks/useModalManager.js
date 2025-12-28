@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 export const useModalManager = () => {
   const [alertModal, setAlertModal] = useState({ isOpen: false, title: '', message: '' });
-  const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', message: '', onConfirm: null });
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', message: '', onConfirm: null, resolver: null });
   const [promptModal, setPromptModal] = useState({ isOpen: false, title: '', message: '', defaultValue: '', validate: null, onConfirm: null });
   const [figureModal, setFigureModal] = useState({ isOpen: false, imageData: null, defaultLabel: '', defaultCaption: '', onConfirm: null });
 
@@ -14,11 +14,23 @@ export const useModalManager = () => {
     setAlertModal({ ...alertModal, isOpen: false });
   };
 
-  const showConfirm = (title, message, onConfirm) => {
-    setConfirmModal({ isOpen: true, title, message, onConfirm });
+  const showConfirm = (title, message) => {
+    return new Promise((resolve) => {
+      setConfirmModal({
+        isOpen: true,
+        title,
+        message,
+        onConfirm: () => {
+          resolve(true);
+          setConfirmModal({ isOpen: false, title: '', message: '', onConfirm: null, resolver: null });
+        },
+        resolver: resolve
+      });
+    });
   };
 
   const closeConfirm = () => {
+    if (confirmModal.resolver) confirmModal.resolver(false);
     setConfirmModal({ ...confirmModal, isOpen: false });
   };
 
