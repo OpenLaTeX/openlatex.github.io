@@ -81,6 +81,12 @@ export const useFileManager = (project, setProject, showPrompt, showConfirm) => 
     folderInputRef.current?.click();
   };
 
+  const handleCreateItem = ({ type, fileName, folderName }) => {
+    const ext = fileName.split('.').pop();
+    const path = type === 'folder' ? `${folderName}/${fileName}` : fileName;
+    setProject(project.addEmptyFile(path, ext));
+  };
+
   return {
     fileInputRef,
     folderInputRef,
@@ -91,6 +97,7 @@ export const useFileManager = (project, setProject, showPrompt, showConfirm) => 
     handleDelete,
     handleDeleteFolder,
     triggerFileUpload,
-    triggerFolderUpload
+    triggerFolderUpload,
+    handleCreateItem
   };
 };
