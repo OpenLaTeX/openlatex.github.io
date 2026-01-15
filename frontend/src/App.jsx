@@ -10,6 +10,7 @@ import AlertModal from './components/modals/AlertModal';
 import ConfirmModal from './components/modals/ConfirmModal';
 import PromptModal from './components/modals/PromptModal';
 import FigureInsertModal from './components/modals/FigureInsertModal';
+import CreateItemModal from './components/modals/CreateItemModal';
 import PdfViewer from './components/PdfViewer';
 import SettingsModal from './components/SettingsModal';
 import { getApiUrl, setApiUrl } from './config/settings';
@@ -27,7 +28,7 @@ export default function App() {
   const [showProjectList, setShowProjectList] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [apiUrl, setApiUrlState] = useState(() => getApiUrl());
-  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
+  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark');
   const { sidebarWidth: initialSidebarWidth, pdfWidth: initialPdfWidth } = UserStorage.getPanelWidths();
   const [sidebarWidth, setSidebarWidth] = useState(initialSidebarWidth);
   const [pdfWidth, setPdfWidth] = useState(initialPdfWidth);
@@ -40,6 +41,7 @@ export default function App() {
     confirmModal,
     promptModal,
     figureModal,
+    createItemModal,
     showAlert,
     closeAlert,
     showConfirm,
@@ -47,7 +49,9 @@ export default function App() {
     showPrompt,
     closePrompt,
     showFigureInsert,
-    closeFigureInsert
+    closeFigureInsert,
+    showCreateItem,
+    closeCreateItem
   } = useModalManager();
 
   const {
@@ -86,7 +90,8 @@ export default function App() {
     handleDelete,
     handleDeleteFolder,
     triggerFileUpload,
-    triggerFolderUpload
+    triggerFolderUpload,
+    handleCreateItem
   } = useFileManager(project, setProject, showPrompt, showConfirm);
 
   const {
@@ -398,6 +403,9 @@ export default function App() {
                 <button onClick={triggerFolderUpload} className="btn-ghost" title="Ajouter dossier" style={{ padding: '4px' }}>
                   <FolderUp size={14} />
                 </button>
+                <button onClick={() => showCreateItem(handleCreateItem)} className="btn-ghost" title="Nouveau" style={{ padding: '4px' }}>
+                  <Plus size={14} />
+                </button>
               </div>
             </div>
             
@@ -515,6 +523,12 @@ export default function App() {
         imageData={figureModal.imageData}
         defaultLabel={figureModal.defaultLabel}
         defaultCaption={figureModal.defaultCaption}
+      />
+
+      <CreateItemModal
+        isOpen={createItemModal.isOpen}
+        onClose={closeCreateItem}
+        onConfirm={createItemModal.onConfirm}
       />
 
       <SettingsModal
