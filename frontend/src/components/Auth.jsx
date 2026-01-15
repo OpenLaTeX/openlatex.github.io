@@ -5,7 +5,7 @@ import './Auth.css';
 
 function Auth({ onLogin }) {
     const [isLogin, setIsLogin] = useState(true);
-    const [email, setEmail] = useState('');
+    const [email, setEmail] = useState(() => UserStorage.getEmail());
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
