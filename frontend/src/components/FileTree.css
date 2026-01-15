@@ -30,19 +30,19 @@
 }
 
 .tree-file-name.active {
-  background: whitesmoke;
-  color: var(--bg-dark);
+  background: var(--accent-primary);
+  color: var(--accent-text);
   font-weight: 600;
 }
 
 .tree-file-icon {
   display: flex;
   align-items: center;
-  color: var(--text-dim);
+  color: var(--text-muted);
 }
 
 .tree-file-name.active .tree-file-icon {
-  color: var(--bg-dark);
+  color: var(--accent-text);
 }
 
 .tree-file-actions {
@@ -62,7 +62,7 @@
   justify-content: center;
   padding: 4px;
   background: transparent;
-  color: var(--text-dim);
+  color: var(--text-muted);
   border: 1px solid transparent;
   border-radius: 4px;
   cursor: pointer;
@@ -71,7 +71,7 @@
 
 .tree-file-button:hover {
   background: var(--bg-active);
-  color: var(--text-light);
+  color: var(--text-main);
   border-color: var(--bg-active);
 }
 
@@ -96,14 +96,14 @@
 .tree-folder-toggle {
   display: flex;
   align-items: center;
-  color: var(--text-dim);
+  color: var(--text-muted);
   margin-right: 4px;
 }
 
 .tree-folder-icon {
   display: flex;
   align-items: center;
-  color: var(--text-dim);
+  color: var(--text-muted);
   margin-right: 8px;
 }
 
@@ -112,7 +112,7 @@
   font-size: 13px;
   font-weight: 600;
   user-select: none;
-  color: var(--text-secondary);
+  color: var(--text-muted);
 }
 
 .tree-folder-button {
@@ -121,7 +121,7 @@
   justify-content: center;
   padding: 4px;
   background: transparent;
-  color: var(--text-dim);
+  color: var(--text-muted);
   border: 1px solid transparent;
   border-radius: 4px;
   cursor: pointer;
@@ -135,7 +135,7 @@
 
 .tree-folder-button:hover {
   background: var(--bg-active);
-  color: var(--text-light);
+  color: var(--text-main);
   border-color: var(--bg-active);
 }
 

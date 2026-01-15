@@ -1,14 +1,19 @@
 .auth-container {
-  padding: 40px 20px;
-  max-width: 420px;
-  margin: 60px auto;
+  padding: 40px;
+  max-width: 400px;
+  margin: 100px auto;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  box-shadow: var(--shadow-md);
 }
 
 .auth-container h2 {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 600;
-  color: white;
-  margin-bottom: 28px;
+  color: var(--text-main);
+  margin-bottom: 24px;
+  text-align: center;
 }
 
 .auth-form {
@@ -25,10 +30,10 @@
 
 .auth-input {
   width: 100%;
-  padding: 12px 14px;
-  background: var(--bg-medium);
-  color: var(--text-light);
-  border: 1px solid var(--border-color);
+  padding: 10px 12px;
+  background: var(--bg-input);
+  color: var(--text-main);
+  border: 1px solid var(--border-subtle);
   border-radius: 6px;
   font-size: 14px;
   transition: all 0.2s ease;
@@ -36,63 +41,64 @@
 
 .auth-input:focus {
   outline: none;
-  border-color: whitesmoke;
-  background: var(--bg-hover);
+  border-color: var(--text-muted);
+  box-shadow: 0 0 0 2px var(--bg-active);
 }
 
 .auth-input::placeholder {
-  color: var(--text-dim);
+  color: var(--text-faint);
 }
 
 .auth-error {
-  padding: 12px 14px;
-  background: maroon;
-  color: lightcoral;
-  border: 1px solid brown;
+  padding: 10px 12px;
+  background: var(--danger-bg);
+  color: var(--danger);
+  border: 1px solid var(--danger);
   border-radius: 6px;
   font-size: 13px;
+  text-align: center;
 }
 
 .auth-buttons {
   display: flex;
-  gap: 10px;
+  flex-direction: column;
+  gap: 12px;
   margin-top: 8px;
 }
 
 .auth-button {
-  flex: 1;
-  padding: 12px 16px;
-  background: var(--bg-hover);
-  color: var(--text-light);
-  border: 1px solid var(--border-color);
+  width: 100%;
+  padding: 10px 16px;
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid transparent;
   border-radius: 6px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
+  text-align: center;
 }
 
-.auth-button:hover:not(:disabled) {
-  background: var(--bg-active);
-  border-color: whitesmoke;
-}
-
-.auth-button:active:not(:disabled) {
-  transform: scale(0.98);
-}
-
-.auth-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+.auth-button:hover {
+  color: var(--text-main);
+  text-decoration: underline;
 }
 
 .auth-button-primary {
-  background: whitesmoke;
-  color: var(--bg-dark);
-  font-weight: 600;
+  background: var(--accent-primary);
+  color: var(--accent-text);
+  border-color: var(--accent-primary);
 }
 
 .auth-button-primary:hover:not(:disabled) {
-  background: white;
-  border-color: white;
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+  text-decoration: none;
+  color: var(--accent-text);
+}
+
+.auth-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }

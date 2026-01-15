@@ -2,9 +2,9 @@
   height: 200px;
   display: flex;
   flex-direction: column;
-  background: var(--bg-dark);
-  color: var(--text-light);
-  border-top: 1px solid var(--border-color);
+  background: var(--bg-panel);
+  color: var(--text-main);
+  border-top: 1px solid var(--border-subtle);
 }
 
 .error-panel-header {
@@ -12,15 +12,15 @@
   justify-content: space-between;
   align-items: center;
   padding: 10px 16px;
-  background: var(--bg-medium);
-  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-sidebar);
+  border-bottom: 1px solid var(--border-subtle);
   min-height: 40px;
 }
 
 .error-panel-header h3 {
   font-size: 13px;
   font-weight: 600;
-  color: white;
+  color: var(--text-main);
   margin: 0;
 }
 
@@ -32,7 +32,7 @@
   height: 28px;
   padding: 0;
   background: transparent;
-  color: var(--text-dim);
+  color: var(--text-muted);
   border: 1px solid transparent;
   border-radius: 4px;
   cursor: pointer;
@@ -41,8 +41,8 @@
 
 .close-btn:hover {
   background: var(--bg-hover);
-  color: white;
-  border-color: var(--border-color);
+  color: var(--text-main);
+  border-color: var(--border-subtle);
 }
 
 .error-panel-body {
@@ -59,15 +59,15 @@
 .no-errors {
   padding: 20px;
   text-align: center;
-  color: var(--text-dim);
+  color: var(--text-muted);
   font-size: 13px;
   width: 100%;
 }
 
 .error-item {
   padding: 10px 12px;
-  background: var(--bg-medium);
-  border: 1px solid var(--border-color);
+  background: var(--bg-sidebar);
+  border: 1px solid var(--border-subtle);
   border-radius: 4px;
   transition: all 0.2s ease;
   min-width: 300px;
@@ -75,7 +75,7 @@
 }
 
 .error-item:hover {
-  border-color: dimgray;
+  border-color: var(--accent-primary);
   background: var(--bg-hover);
 }
 
@@ -103,19 +103,19 @@
 }
 
 .error-type-error {
-  background: firebrick;
+  background: #b22222;
   color: white;
 }
 
 .error-type-warning {
-  background: orange;
-  color: black;
+  background: #d4785a;
+  color: white;
 }
 
 .error-line {
   padding: 3px 8px;
   background: var(--bg-hover);
-  color: var(--text-light);
+  color: var(--text-main);
   border-radius: 3px;
   font-size: 10px;
   font-weight: 500;
@@ -123,7 +123,7 @@
 
 .error-message {
   padding: 4px 0;
-  color: var(--text-light);
+  color: var(--text-main);
   font-size: 12px;
   line-height: 1.5;
 }
@@ -131,12 +131,12 @@
 .error-context {
   margin-top: 6px;
   padding: 8px;
-  background: var(--bg-dark);
-  border-left: 2px solid var(--border-color);
+  background: var(--bg-panel);
+  border-left: 2px solid var(--border-subtle);
   border-radius: 3px;
   font-family: monospace;
   font-size: 11px;
-  color: var(--text-dim);
+  color: var(--text-muted);
   line-height: 1.4;
 }
 

@@ -9,57 +9,113 @@ import { tags } from '@lezer/highlight';
 import { lintKeymap } from '@codemirror/lint';
 import { latex } from 'codemirror-lang-latex';
 
-// wrapper de https://github.com/texlyre/codemirror-lang-latex
-// configuration de couleurs à la VSCODE
-const editorTheme = EditorView.theme({
+const lightTheme = EditorView.theme({
   '&': {
-    color: '#d4d4d4',
-    backgroundColor: '#2d2d2d'
+    color: '#0f172a',
+    backgroundColor: '#ffffff'
   },
   '.cm-content': {
-    caretColor: '#d4d4d4',
-    fontFamily: 'Consolas, Monaco, monospace',
-    fontSize: '18px'
+    caretColor: '#0f172a',
+    fontFamily: '"JetBrains Mono", "Fira Code", Consolas, Monaco, monospace',
+    fontSize: '14px'
   },
-  '.cm-cursor, .cm-dropCursor': { borderLeftColor: '#d4d4d4' },
+  '.cm-cursor, .cm-dropCursor': { borderLeftColor: '#0f172a' },
   '&.cm-focused .cm-selectionBackground': {
-    backgroundColor: '#264f78 !important'
+    backgroundColor: '#e2e8f0 !important'
   },
   '.cm-selectionBackground, .cm-content ::selection': {
-    backgroundColor: '#3a3d41'
+    backgroundColor: '#f1f3f5'
   },
-  '.cm-activeLine': { backgroundColor: '#282828 !important' },
-  '.cm-selectionMatch': { backgroundColor: '#3a3a3a' },
+  '.cm-activeLine': { backgroundColor: '#f8fafc !important' },
+  '.cm-selectionMatch': { backgroundColor: '#e2e8f0' },
   '.cm-gutters': {
-    backgroundColor: '#252525',
-    color: '#858585',
-    border: 'none'
+    backgroundColor: '#ffffff',
+    color: '#94a3b8',
+    borderRight: '1px solid #f1f3f5'
   },
   '.cm-activeLineGutter': {
-    backgroundColor: '#2d2d2d'
+    backgroundColor: '#f8fafc',
+    color: '#0f172a'
+  },
+  '.cm-lineNumbers .cm-gutterElement': {
+    paddingLeft: '12px',
+    paddingRight: '12px'
+  }
+}, { dark: false });
+
+const darkTheme = EditorView.theme({
+  '&': {
+    color: '#f8fafc',
+    backgroundColor: '#0f172a'
+  },
+  '.cm-content': {
+    caretColor: '#f8fafc',
+    fontFamily: '"JetBrains Mono", "Fira Code", Consolas, Monaco, monospace',
+    fontSize: '14px'
+  },
+  '.cm-cursor, .cm-dropCursor': { borderLeftColor: '#f8fafc' },
+  '&.cm-focused .cm-selectionBackground': {
+    backgroundColor: '#334155 !important'
+  },
+  '.cm-selectionBackground, .cm-content ::selection': {
+    backgroundColor: '#1e293b'
+  },
+  '.cm-activeLine': { backgroundColor: '#1e293b !important' },
+  '.cm-selectionMatch': { backgroundColor: '#334155' },
+  '.cm-gutters': {
+    backgroundColor: '#0f172a',
+    color: '#64748b',
+    borderRight: '1px solid #1e293b'
+  },
+  '.cm-activeLineGutter': {
+    backgroundColor: '#1e293b',
+    color: '#f8fafc'
+  },
+  '.cm-lineNumbers .cm-gutterElement': {
+    paddingLeft: '12px',
+    paddingRight: '12px'
   }
 }, { dark: true });
 
-const highlightStyle = syntaxHighlighting(
+const lightHighlightStyle = syntaxHighlighting(
   HighlightStyle.define([
-    { tag: tags.keyword, color: '#5eb3e0' },
-    { tag: tags.controlKeyword, color: '#5eb3e0' },
-    { tag: tags.typeName, color: '#5eb3e0' },
-    { tag: tags.tagName, color: '#5eb3e0' },
-    { tag: tags.macroName, color: '#5eb3e0' },
-    { tag: tags.comment, color: '#6a9955' },
-    { tag: tags.string, color: '#d4d4d4' },
-    { tag: tags.number, color: '#b5cea8' },
-    { tag: tags.operator, color: '#d4d4d4' },
-    { tag: tags.punctuation, color: '#d4d4d4' },
-    { tag: tags.bracket, color: '#d4d4d4' },
-    { tag: tags.heading, color: '#5eb3e0', fontWeight: 'bold' },
+    { tag: tags.keyword, color: '#7c3aed' },
+    { tag: tags.controlKeyword, color: '#7c3aed' },
+    { tag: tags.typeName, color: '#059669' },
+    { tag: tags.tagName, color: '#2563eb' },
+    { tag: tags.macroName, color: '#2563eb' },
+    { tag: tags.comment, color: '#94a3b8', fontStyle: 'italic' },
+    { tag: tags.string, color: '#059669' },
+    { tag: tags.number, color: '#d97706' },
+    { tag: tags.operator, color: '#64748b' },
+    { tag: tags.punctuation, color: '#64748b' },
+    { tag: tags.bracket, color: '#0f172a' },
+    { tag: tags.heading, color: '#7c3aed', fontWeight: 'bold' },
     { tag: tags.emphasis, fontStyle: 'italic' },
     { tag: tags.strong, fontWeight: 'bold' }
   ])
 );
 
-const Editor = forwardRef(({ value, onChange, currentFile, onFigureInsert }, ref) => {
+const darkHighlightStyle = syntaxHighlighting(
+  HighlightStyle.define([
+    { tag: tags.keyword, color: '#a78bfa' },
+    { tag: tags.controlKeyword, color: '#a78bfa' },
+    { tag: tags.typeName, color: '#34d399' },
+    { tag: tags.tagName, color: '#60a5fa' },
+    { tag: tags.macroName, color: '#60a5fa' },
+    { tag: tags.comment, color: '#64748b', fontStyle: 'italic' },
+    { tag: tags.string, color: '#34d399' },
+    { tag: tags.number, color: '#fbbf24' },
+    { tag: tags.operator, color: '#94a3b8' },
+    { tag: tags.punctuation, color: '#94a3b8' },
+    { tag: tags.bracket, color: '#f8fafc' },
+    { tag: tags.heading, color: '#a78bfa', fontWeight: 'bold' },
+    { tag: tags.emphasis, fontStyle: 'italic' },
+    { tag: tags.strong, fontWeight: 'bold' }
+  ])
+);
+
+const Editor = forwardRef(({ value, onChange, currentFile, onFigureInsert, theme }, ref) => {
   const editorRef = useRef(null);
   const viewRef = useRef(null);
   const onFigureInsertRef = useRef(onFigureInsert);
@@ -105,6 +161,10 @@ const Editor = forwardRef(({ value, onChange, currentFile, onFigureInsert }, ref
       binding => binding.key !== 'Enter' && binding.key !== 'Shift-Enter'
     );
 
+    const isDark = theme === 'dark';
+    const currentTheme = isDark ? darkTheme : lightTheme;
+    const currentHighlightStyle = isDark ? darkHighlightStyle : lightHighlightStyle;
+
     const extensions = [
       lineNumbers(),
       highlightActiveLineGutter(),
@@ -114,7 +174,7 @@ const Editor = forwardRef(({ value, onChange, currentFile, onFigureInsert }, ref
       drawSelection(),
       dropCursor(),
       EditorState.allowMultipleSelections.of(true),
-      highlightStyle,
+      currentHighlightStyle,
       bracketMatching(),
       closeBrackets(),
       autocompletion(),
@@ -135,7 +195,7 @@ const Editor = forwardRef(({ value, onChange, currentFile, onFigureInsert }, ref
         { key: 'Enter', run: insertNewline },
         { key: 'Shift-Enter', run: insertNewline }
       ]),
-      editorTheme,
+      currentTheme,
       latex({
         autoCloseTags: true,
         enableLinting: true,
@@ -162,7 +222,7 @@ const Editor = forwardRef(({ value, onChange, currentFile, onFigureInsert }, ref
       view.destroy();
       viewRef.current = null;
     };
-  }, [currentFile?.path]);
+  }, [currentFile?.path, theme]);
 
   return <div ref={editorRef} style={{ flex: 1, overflow: 'auto' }} />;
 });

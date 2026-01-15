@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { User, ChevronDown, Download } from 'lucide-react';
+import { User, ChevronDown, Download, Save, FolderOpen, Play, AlertCircle, FileUp, FolderUp, Settings, FileText, LogOut, Plus } from 'lucide-react';
 import FileTree from './components/FileTree';
 import Auth from './components/Auth';
 import ProjectList from './components/ProjectList';
@@ -11,6 +11,7 @@ import ConfirmModal from './components/modals/ConfirmModal';
 import PromptModal from './components/modals/PromptModal';
 import FigureInsertModal from './components/modals/FigureInsertModal';
 import PdfViewer from './components/PdfViewer';
+import SettingsModal from './components/SettingsModal';
 import { getApiUrl, setApiUrl } from './config/settings';
 import { UserStorage } from './storage/UserStorage';
 import { useAuthentication } from './hooks/useAuthentication';
@@ -24,7 +25,9 @@ import './App.css';
 export default function App() {
   const [showAuth, setShowAuth] = useState(false);
   const [showProjectList, setShowProjectList] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const [apiUrl, setApiUrlState] = useState(() => getApiUrl());
+  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
   const { sidebarWidth: initialSidebarWidth, pdfWidth: initialPdfWidth } = UserStorage.getPanelWidths();
   const [sidebarWidth, setSidebarWidth] = useState(initialSidebarWidth);
   const [pdfWidth, setPdfWidth] = useState(initialPdfWidth);
@@ -124,6 +127,11 @@ export default function App() {
     return () => URL.revokeObjectURL(url);
   }, [pdfUrl]);
 
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
   const currentFile = project.currentFile ? project.getFile(project.currentFile) : null;
 
   useEffect(() => {
@@ -211,30 +219,28 @@ export default function App() {
   useEffect(() => {
     const handleMouseMove = (e) => {
       if (isSidebarResizing.current) {
-        const newWidth = e.clientX;
-        setSidebarWidth(Math.max(200, Math.min(500, newWidth)));
+        setSidebarWidth(Math.max(200, Math.min(500, e.clientX)));
       }
       if (isResizing.current) {
-        const newWidth = window.innerWidth - e.clientX;
-        setPdfWidth(Math.max(300, Math.min(1200, newWidth)));
+        setPdfWidth(Math.max(300, Math.min(1200, window.innerWidth - e.clientX)));
       }
     };
 
     const handleMouseUp = () => {
-      if (isSidebarResizing.current || isResizing.current) {
-        UserStorage.savePanelWidths(sidebarWidth, pdfWidth);
-      }
       isSidebarResizing.current = false;
       isResizing.current = false;
     };
 
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
-
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     };
+  }, []);
+
+  useEffect(() => {
+    UserStorage.savePanelWidths(sidebarWidth, pdfWidth);
   }, [sidebarWidth, pdfWidth]);
 
   useEffect(() => {
@@ -259,8 +265,10 @@ export default function App() {
 
   if (showAuth) {
     return (
-      <div>
-        <button onClick={() => setShowAuth(false)}>Retour à l'éditeur</button>
+      <div style={{ padding: '20px', maxWidth: '400px', margin: '0 auto' }}>
+        <button onClick={() => setShowAuth(false)} className="btn-icon" style={{marginBottom: '20px'}}>
+          ← Retour
+        </button>
         <Auth onLogin={handleLogin} />
       </div>
     );
@@ -268,21 +276,21 @@ export default function App() {
 
   if (showProjectList) {
     return (
-      <div>
-        <button onClick={() => setShowProjectList(false)}>Retour à l'éditeur</button>
+      <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
+        <button onClick={() => setShowProjectList(false)} className="btn-icon" style={{marginBottom: '20px'}}>
+          ← Retour
+        </button>
         <ProjectList
           onLoadProject={handleLoadProject}
           onNewProject={handleNewProject}
           onConfirm={showConfirm}
         />
-
         <AlertModal
           isOpen={alertModal.isOpen}
           onClose={closeAlert}
           title={alertModal.title}
           message={alertModal.message}
         />
-
         <ConfirmModal
           isOpen={confirmModal.isOpen}
           onClose={closeConfirm}
@@ -297,76 +305,122 @@ export default function App() {
   return (
     <div className="app-container">
       <div className="sidebar" style={{ width: `${sidebarWidth}px`, minWidth: `${sidebarWidth}px` }}>
-        <div style={{ marginBottom: '10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <strong>{projectName}</strong>
+        <div className="sidebar-header">
+          <div className="app-logo">
+            <FileText size={20} strokeWidth={1.5} />
+            <span>OpenLatex</span>
+          </div>
+
           {isAuthenticated ? (
-            <div className="user-dropdown-container" ref={dropdownRef}>
-              <button
-                className="user-dropdown-trigger"
-                onClick={toggleUserDropdown}
-              >
-                <User size={16} />
-                <span>{userEmail}</span>
-                <ChevronDown size={14} />
-              </button>
+            <div style={{ position: 'relative', width: '100%' }} ref={dropdownRef}>
+              <div className="user-profile-badge" onClick={toggleUserDropdown}>
+                <div className="user-avatar">
+                  {userEmail.charAt(0).toUpperCase()}
+                </div>
+                <div className="user-info">
+                  <span className="user-email">{userEmail}</span>
+                  <span className="user-role">Développeur</span>
+                </div>
+                <ChevronDown size={14} className="text-muted" />
+              </div>
+              
               {showUserDropdown && (
                 <div className="user-dropdown-menu">
                   <button className="user-dropdown-item" onClick={handleLogout}>
+                    <LogOut size={14} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
                     Déconnexion
                   </button>
                 </div>
               )}
             </div>
           ) : (
-            <button onClick={() => setShowAuth(true)} style={{ float: 'right' }}>Connexion</button>
+            <div className="user-profile-badge" onClick={() => setShowAuth(true)}>
+               <div className="user-avatar" style={{ background: 'var(--bg-active)', color: 'var(--text-muted)' }}>
+                  <User size={14} />
+               </div>
+               <div className="user-info">
+                  <span className="user-email">Invité</span>
+                  <span className="user-role">Connexion requise</span>
+               </div>
+            </div>
           )}
         </div>
 
-        <input
-          className="api-url-input"
-          type="text"
-          value={apiUrl}
-          onChange={(e) => handleApiUrlChange(e.target.value)}
-          placeholder="URL API"
-        />
-
-        {isAuthenticated && (
-          <>
-            <button onClick={handleSaveProject} disabled={loading}>Sauvegarder</button>
-            {currentProjectId && (
-              <button onClick={handleDownloadProject} disabled={loading}>
-                <Download size={16} /> Download
+        <div className="file-tree-container">
+          <div className="sidebar-section">
+            <h3>Actions</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+              <button onClick={handleCompile} disabled={loading} className="btn-icon btn-primary" title="Compiler (Ctrl+Enter)">
+                <Play size={14} />
+                <span>Compile</span>
+              </button>
+              <button onClick={handleSaveProject} disabled={loading || !isAuthenticated} className="btn-icon" title="Sauvegarder">
+                <Save size={14} />
+                <span>Save</span>
+              </button>
+            </div>
+            {compilationErrors.length > 0 && (
+              <button onClick={() => setShowErrorPanel(!showErrorPanel)} className="btn-icon" style={{ color: 'var(--danger)', borderColor: 'var(--danger)', marginTop: '8px', width: '100%' }}>
+                <AlertCircle size={14} />
+                <span>{compilationErrors.length} Erreurs</span>
               </button>
             )}
-            <button onClick={() => setShowProjectList(true)}>Mes projets</button>
-          </>
-        )}
+          </div>
 
-        <button onClick={handleCompile} disabled={loading}>
-          {loading ? 'Compilation...' : 'Compiler'}
-        </button>
+          <div className="sidebar-section">
+            <div style={{ fontSize: '13px', fontWeight: '600', marginBottom: '8px', padding: '0 4px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              {projectName}
+            </div>
 
-        {compilationErrors.length > 0 && (
-          <button onClick={() => setShowErrorPanel(!showErrorPanel)}>
-            Erreurs ({compilationErrors.length})
+            {isAuthenticated && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <button onClick={() => setShowProjectList(true)} className="btn-icon btn-ghost" style={{ justifyContent: 'flex-start' }}>
+                  <FolderOpen size={14} />
+                  <span>Ouvrir...</span>
+                </button>
+                {currentProjectId && (
+                  <button onClick={handleDownloadProject} disabled={loading} className="btn-icon btn-ghost" style={{ justifyContent: 'flex-start' }}>
+                    <Download size={14} />
+                    <span>Exporter ZIP</span>
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+
+          <div className="sidebar-section" style={{ borderBottom: 'none' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+              <h3>Fichiers</h3>
+              <div style={{ display: 'flex', gap: '4px' }}>
+                <button onClick={triggerFileUpload} className="btn-ghost" title="Ajouter fichier" style={{ padding: '4px' }}>
+                  <FileUp size={14} />
+                </button>
+                <button onClick={triggerFolderUpload} className="btn-ghost" title="Ajouter dossier" style={{ padding: '4px' }}>
+                  <FolderUp size={14} />
+                </button>
+              </div>
+            </div>
+            
+            <input ref={fileInputRef} type="file" multiple style={{display:'none'}} onChange={handleUploadFiles} />
+            <input ref={folderInputRef} type="file" webkitdirectory="true" style={{display:'none'}} onChange={handleUploadFiles} />
+
+            <FileTree
+              files={project.files}
+              currentFile={project.currentFile}
+              onSelect={handleFileSelect}
+              onRename={handleRename}
+              onDelete={handleDelete}
+              onDeleteFolder={handleDeleteFolder}
+            />
+          </div>
+        </div>
+
+        <div className="sidebar-footer">
+          <button className="btn-icon btn-ghost" onClick={() => setShowSettings(true)} style={{ justifyContent: 'flex-start', width: '100%', marginBottom: '8px' }}>
+            <Settings size={14} />
+            <span>Paramètres</span>
           </button>
-        )}
-
-        <input ref={fileInputRef} type="file" multiple style={{display:'none'}} onChange={handleUploadFiles} />
-        <input ref={folderInputRef} type="file" webkitdirectory="true" style={{display:'none'}} onChange={handleUploadFiles} />
-
-        <button onClick={triggerFileUpload}>Importer fichiers</button>
-        <button onClick={triggerFolderUpload}>Importer dossier</button>
-
-        <h3>Fichiers</h3>
-        <FileTree
-          files={project.files}
-          currentFile={project.currentFile}
-          onSelect={handleFileSelect}
-          onRename={handleRename}
-          onDelete={handleDelete}
-          onDeleteFolder={handleDeleteFolder}
-        />
+        </div>
       </div>
 
       <div className="resize-handle-sidebar" onMouseDown={handleSidebarResizeStart} />
@@ -375,8 +429,13 @@ export default function App() {
         <div className="content-row">
           <div className="editor-container">
             <div className="editor-header">
-              <strong>Édition : </strong>{currentFile?.path || 'Aucun fichier'}
+              <div className="file-path-breadcrumb">
+                <FileText size={14} />
+                <span>/</span>
+                <span className="file-name-active">{currentFile?.path || 'Sans titre'}</span>
+              </div>
             </div>
+
             {currentFile && ['png', 'jpg', 'jpeg'].includes(currentFile.type) ? (
               <ImageViewer
                 content={currentFile.content}
@@ -393,6 +452,7 @@ export default function App() {
                 onChange={handleContentChange}
                 currentFile={currentFile}
                 onFigureInsert={currentFile?.type === 'tex' ? handleFigureInsert : null}
+                theme={theme}
               />
             )}
           </div>
@@ -404,7 +464,12 @@ export default function App() {
               <PdfViewer pdfUrl={pdfBlobUrl} />
             ) : (
               <div className="pdf-placeholder">
-                Cliquez sur Compiler pour générer le PDF
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ marginBottom: '16px', opacity: 0.5 }}>
+                    <FileText size={48} />
+                  </div>
+                  <p>Le document compilé apparaîtra ici.</p>
+                </div>
               </div>
             )}
           </div>
@@ -450,6 +515,15 @@ export default function App() {
         imageData={figureModal.imageData}
         defaultLabel={figureModal.defaultLabel}
         defaultCaption={figureModal.defaultCaption}
+      />
+
+      <SettingsModal
+        isOpen={showSettings}
+        onClose={() => setShowSettings(false)}
+        theme={theme}
+        onThemeChange={setTheme}
+        apiUrl={apiUrl}
+        onApiUrlChange={handleApiUrlChange}
       />
     </div>
   );
