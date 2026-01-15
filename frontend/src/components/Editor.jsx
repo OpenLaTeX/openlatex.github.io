@@ -11,31 +11,31 @@ import { latex } from 'codemirror-lang-latex';
 
 const lightTheme = EditorView.theme({
   '&': {
-    color: '#0f172a',
-    backgroundColor: '#ffffff'
+    color: '#1a1a1a',
+    backgroundColor: '#fafafa'
   },
   '.cm-content': {
-    caretColor: '#0f172a',
+    caretColor: '#1a1a1a',
     fontFamily: '"JetBrains Mono", "Fira Code", Consolas, Monaco, monospace',
     fontSize: '14px'
   },
-  '.cm-cursor, .cm-dropCursor': { borderLeftColor: '#0f172a' },
+  '.cm-cursor, .cm-dropCursor': { borderLeftColor: '#1a1a1a' },
   '&.cm-focused .cm-selectionBackground': {
-    backgroundColor: '#e2e8f0 !important'
+    backgroundColor: '#e0e0e0 !important'
   },
   '.cm-selectionBackground, .cm-content ::selection': {
-    backgroundColor: '#f1f3f5'
+    backgroundColor: '#eeeeee'
   },
-  '.cm-activeLine': { backgroundColor: '#f8fafc !important' },
-  '.cm-selectionMatch': { backgroundColor: '#e2e8f0' },
+  '.cm-activeLine': { backgroundColor: '#e8f5e9 !important' },
+  '.cm-selectionMatch': { backgroundColor: '#e0e0e0' },
   '.cm-gutters': {
-    backgroundColor: '#ffffff',
-    color: '#94a3b8',
-    borderRight: '1px solid #f1f3f5'
+    backgroundColor: '#fafafa',
+    color: '#999999',
+    borderRight: '1px solid #eeeeee'
   },
   '.cm-activeLineGutter': {
-    backgroundColor: '#f8fafc',
-    color: '#0f172a'
+    backgroundColor: '#f5f5f5',
+    color: '#1a1a1a'
   },
   '.cm-lineNumbers .cm-gutterElement': {
     paddingLeft: '12px',
@@ -45,31 +45,31 @@ const lightTheme = EditorView.theme({
 
 const darkTheme = EditorView.theme({
   '&': {
-    color: '#f8fafc',
-    backgroundColor: '#0f172a'
+    color: '#d4d4d4',
+    backgroundColor: '#141414'
   },
   '.cm-content': {
-    caretColor: '#f8fafc',
+    caretColor: '#d4d4d4',
     fontFamily: '"JetBrains Mono", "Fira Code", Consolas, Monaco, monospace',
     fontSize: '14px'
   },
-  '.cm-cursor, .cm-dropCursor': { borderLeftColor: '#f8fafc' },
+  '.cm-cursor, .cm-dropCursor': { borderLeftColor: '#d4d4d4' },
   '&.cm-focused .cm-selectionBackground': {
-    backgroundColor: '#334155 !important'
+    backgroundColor: '#2a2a2a !important'
   },
   '.cm-selectionBackground, .cm-content ::selection': {
-    backgroundColor: '#1e293b'
+    backgroundColor: '#1e1e1e'
   },
-  '.cm-activeLine': { backgroundColor: '#1e293b !important' },
-  '.cm-selectionMatch': { backgroundColor: '#334155' },
+  '.cm-activeLine': { backgroundColor: '#1e1e1e !important' },
+  '.cm-selectionMatch': { backgroundColor: '#2a2a2a' },
   '.cm-gutters': {
-    backgroundColor: '#0f172a',
-    color: '#64748b',
-    borderRight: '1px solid #1e293b'
+    backgroundColor: '#141414',
+    color: '#858585',
+    borderRight: '1px solid #1e1e1e'
   },
   '.cm-activeLineGutter': {
-    backgroundColor: '#1e293b',
-    color: '#f8fafc'
+    backgroundColor: '#1e1e1e',
+    color: '#d4d4d4'
   },
   '.cm-lineNumbers .cm-gutterElement': {
     paddingLeft: '12px',
