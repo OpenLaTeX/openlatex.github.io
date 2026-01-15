@@ -91,7 +91,9 @@ export default function App() {
     handleDeleteFolder,
     triggerFileUpload,
     triggerFolderUpload,
-    handleCreateItem
+    handleCreateItem,
+    handleMoveFile,
+    handleMoveToRoot
   } = useFileManager(project, setProject, showPrompt, showConfirm);
 
   const {
@@ -419,6 +421,8 @@ export default function App() {
               onRename={handleRename}
               onDelete={handleDelete}
               onDeleteFolder={handleDeleteFolder}
+              onMove={handleMoveFile}
+              onMoveToRoot={handleMoveToRoot}
             />
           </div>
         </div>

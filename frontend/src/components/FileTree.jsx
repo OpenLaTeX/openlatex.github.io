@@ -4,12 +4,21 @@ import { FileTreeBuilder } from '../utils/FileTreeBuilder';
 import { FileIconMapper } from '../utils/FileIconMapper';
 import './FileTree.css';
 
-function TreeNode({ node, level, currentFile, onSelect, onRename, onDelete, onDeleteFolder }) {
+function TreeNode({ node, level, currentFile, onSelect, onRename, onDelete, onDeleteFolder, onMove }) {
   const [isOpen, setIsOpen] = useState(true);
+  const [isDragOver, setIsDragOver] = useState(false);
 
   if (node.type === 'file') {
     return (
-      <div className="tree-node-file" style={{ paddingLeft: `${level * 15}px` }}>
+      <div
+        className="tree-node-file"
+        style={{ paddingLeft: `${level * 15}px` }}
+        draggable
+        onDragStart={(e) => {
+          e.dataTransfer.setData('text/plain', node.path);
+          e.dataTransfer.effectAllowed = 'move';
+        }}
+      >
         <span
           onClick={() => onSelect(node.path)}
           className={currentFile === node.path ? 'tree-file-name active' : 'tree-file-name'}
@@ -31,7 +40,34 @@ function TreeNode({ node, level, currentFile, onSelect, onRename, onDelete, onDe
 
   return (
     <div className="tree-node-folder">
-      <div className="tree-folder-header" style={{ paddingLeft: `${level * 15}px` }}>
+      <div
+        className={`tree-folder-header${isDragOver ? ' drag-over' : ''}`}
+        style={{ paddingLeft: `${level * 15}px` }}
+        onDragOver={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          e.dataTransfer.dropEffect = 'move';
+        }}
+        onDragEnter={(e) => {
+          e.stopPropagation();
+          setIsDragOver(true);
+        }}
+        onDragLeave={(e) => {
+          e.stopPropagation();
+          if (!e.currentTarget.contains(e.relatedTarget)) {
+            setIsDragOver(false);
+          }
+        }}
+        onDrop={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setIsDragOver(false);
+          const sourcePath = e.dataTransfer.getData('text/plain');
+          if (sourcePath && onMove) {
+            onMove(sourcePath, node.path);
+          }
+        }}
+      >
         <span onClick={() => setIsOpen(!isOpen)} className="tree-folder-toggle">
           {isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
         </span>
@@ -53,6 +89,7 @@ function TreeNode({ node, level, currentFile, onSelect, onRename, onDelete, onDe
               onRename={onRename}
               onDelete={onDelete}
               onDeleteFolder={onDeleteFolder}
+              onMove={onMove}
             />
           ))}
         </div>
@@ -61,11 +98,32 @@ function TreeNode({ node, level, currentFile, onSelect, onRename, onDelete, onDe
   );
 }
 
-export default function FileTree({ files, currentFile, onSelect, onRename, onDelete, onDeleteFolder }) {
+export default function FileTree({ files, currentFile, onSelect, onRename, onDelete, onDeleteFolder, onMove, onMoveToRoot }) {
   const tree = useMemo(() => FileTreeBuilder.buildTree(files), [files]);
+  const [isRootDragOver, setIsRootDragOver] = useState(false);
 
   return (
-    <div className="file-tree">
+    <div
+      className={`file-tree${isRootDragOver ? ' drag-over' : ''}`}
+      onDragOver={(e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+      }}
+      onDragEnter={() => setIsRootDragOver(true)}
+      onDragLeave={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget)) {
+          setIsRootDragOver(false);
+        }
+      }}
+      onDrop={(e) => {
+        e.preventDefault();
+        setIsRootDragOver(false);
+        const sourcePath = e.dataTransfer.getData('text/plain');
+        if (sourcePath && onMoveToRoot) {
+          onMoveToRoot(sourcePath);
+        }
+      }}
+    >
       {tree.map((node, i) => (
         <TreeNode
           key={i}
@@ -76,6 +134,7 @@ export default function FileTree({ files, currentFile, onSelect, onRename, onDel
           onRename={onRename}
           onDelete={onDelete}
           onDeleteFolder={onDeleteFolder}
+          onMove={onMove}
         />
       ))}
     </div>

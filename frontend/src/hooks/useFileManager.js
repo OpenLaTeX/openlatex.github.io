@@ -87,6 +87,21 @@ export const useFileManager = (project, setProject, showPrompt, showConfirm) => 
     setProject(project.addEmptyFile(path, ext));
   };
 
+  const handleMoveFile = (sourcePath, targetFolderPath) => {
+    const fileName = sourcePath.split('/').pop();
+    const newPath = `${targetFolderPath}/${fileName}`;
+    if (sourcePath !== newPath && !project.getFile(newPath)) {
+      setProject(project.renameFile(sourcePath, newPath));
+    }
+  };
+
+  const handleMoveToRoot = (sourcePath) => {
+    const fileName = sourcePath.split('/').pop();
+    if (sourcePath !== fileName && !project.getFile(fileName)) {
+      setProject(project.renameFile(sourcePath, fileName));
+    }
+  };
+
   return {
     fileInputRef,
     folderInputRef,
@@ -98,6 +113,8 @@ export const useFileManager = (project, setProject, showPrompt, showConfirm) => 
     handleDeleteFolder,
     triggerFileUpload,
     triggerFolderUpload,
-    handleCreateItem
+    handleCreateItem,
+    handleMoveFile,
+    handleMoveToRoot
   };
 };

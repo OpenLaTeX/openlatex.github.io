@@ -3,6 +3,11 @@
   flex-direction: column;
 }
 
+.file-tree.drag-over {
+  outline: 1px dashed var(--accent-primary);
+  outline-offset: -2px;
+}
+
 .tree-node-file {
   display: flex;
   align-items: center;
@@ -91,6 +96,11 @@
 
 .tree-folder-header:hover {
   background: var(--bg-hover);
+}
+
+.tree-folder-header.drag-over {
+  background: var(--bg-hover);
+  outline: 1px dashed var(--accent-primary);
 }
 
 .tree-folder-toggle {
