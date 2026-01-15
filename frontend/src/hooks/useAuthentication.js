@@ -7,22 +7,28 @@ export const useAuthentication = () => {
   const [userEmail, setUserEmail] = useState('');
   const [isVerifying, setIsVerifying] = useState(true);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
-  const [sessionExpiredCallback, setSessionExpiredCallback] = useState(null);
+  const sessionExpiredCallbackRef = useRef(null);
   const dropdownRef = useRef(null);
   const verificationIntervalRef = useRef(null);
 
   const verifySession = async () => {
+    if (!UserStorage.getEmail()) {
+      setIsVerifying(false);
+      return;
+    }
+
     try {
       const result = await AuthService.verify();
       setIsAuthenticated(true);
       setUserEmail(result.email);
       UserStorage.saveEmail(result.email);
     } catch (err) {
+      const wasLoggedIn = UserStorage.getEmail() !== '';
       setIsAuthenticated(false);
       setUserEmail('');
       UserStorage.clear();
-      if (sessionExpiredCallback) {
-        sessionExpiredCallback();
+      if (sessionExpiredCallbackRef.current && wasLoggedIn) {
+        sessionExpiredCallbackRef.current();
       }
     } finally {
       setIsVerifying(false);
@@ -80,7 +86,7 @@ export const useAuthentication = () => {
   };
 
   const setOnSessionExpired = (callback) => {
-    setSessionExpiredCallback(() => callback);
+    sessionExpiredCallbackRef.current = callback;
   };
 
   return {

@@ -257,19 +257,6 @@ export default function App() {
     });
   }, []);
 
-  if (isVerifying) {
-    return (
-      <div className="app-container" style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh'
-      }}>
-        <div>Vérification de session...</div>
-      </div>
-    );
-  }
-
   if (showAuth) {
     return (
       <div style={{ padding: '20px', maxWidth: '400px', margin: '0 auto' }}>
@@ -326,7 +313,7 @@ export default function App() {
                 </div>
                 <div className="user-info">
                   <span className="user-email">{userEmail}</span>
-                  <span className="user-role">Développeur</span>
+                  <span className="user-role">Connecté</span>
                 </div>
                 <ChevronDown size={14} className="text-muted" />
               </div>
