@@ -1,9 +1,5 @@
 const INVALID_FILENAME_CHARS = /[<>:"/\\|?*\x00-\x1F]/;
 
-const ALLOWED_EXTENSIONS = [
-  '.tex', '.png', '.jpg', '.jpeg', '.pdf',
-  '.bib', '.cls', '.sty', '.bst', '.txt'
-];
 
 export const validateFilePath = (filepath) => {
   if (!filepath || filepath.trim() === '') {
@@ -36,11 +32,6 @@ export const validateFilename = (filename) => {
 
   if (trimmed.length > 255) {
     return 'Le nom de fichier est trop long';
-  }
-
-  const extension = trimmed.substring(trimmed.lastIndexOf('.')).toLowerCase();
-  if (extension && !ALLOWED_EXTENSIONS.includes(extension)) {
-    return `Extension non autorisée. Extensions valides : ${ALLOWED_EXTENSIONS.join(', ')}`;
   }
 
   return null;
