@@ -5,6 +5,20 @@ const ALLOWED_EXTENSIONS = [
   '.bib', '.cls', '.sty', '.bst', '.txt'
 ];
 
+export const validateFilePath = (filepath) => {
+  if (!filepath || filepath.trim() === '') {
+    return 'Le chemin ne peut pas être vide';
+  }
+
+  const segments = filepath.trim().split('/');
+  for (const segment of segments) {
+    const error = validateFilename(segment);
+    if (error) return error;
+  }
+
+  return null;
+};
+
 export const validateFilename = (filename) => {
   if (!filename || filename.trim() === '') {
     return 'Le nom de fichier ne peut pas être vide';

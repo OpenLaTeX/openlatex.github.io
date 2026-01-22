@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import { FileReaderUtil } from '../utils/FileReader';
-import { validateFilename } from '../utils/validation';
+import { validateFilePath } from '../utils/validation';
 
 export const useFileManager = (project, setProject, showPrompt, showConfirm) => {
   const fileInputRef = useRef(null);
@@ -42,7 +42,7 @@ export const useFileManager = (project, setProject, showPrompt, showConfirm) => 
       'Renommer le fichier',
       'Nouveau nom :',
       oldPath,
-      validateFilename,
+      validateFilePath,
       (newPath) => {
         if (newPath !== oldPath) {
           setProject(p => p.renameFile(oldPath, newPath));
