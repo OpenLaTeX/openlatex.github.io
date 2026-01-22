@@ -139,8 +139,8 @@ body {
 }
 
 .app-logo-image {
-  width: 20px;
-  height: 20px;
+  height: 36px;
+  width: auto;
   object-fit: contain;
 }
 
