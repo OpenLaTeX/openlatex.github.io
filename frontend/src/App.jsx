@@ -300,10 +300,10 @@ export default function App() {
     <div className="app-container">
       <div className="sidebar" style={{ width: `${sidebarWidth}px`, minWidth: `${sidebarWidth}px` }}>
         <div className="sidebar-header">
-          <div className="app-logo">
-            <FileText size={20} strokeWidth={1.5} />
+          <a href="https://openlatex.github.io" target="_blank" rel="noopener noreferrer" className="app-logo">
+            <img src="/assets/logo.png" alt="OpenLatex" className="app-logo-image" />
             <span>OpenLatex</span>
-          </div>
+          </a>
 
           {isAuthenticated ? (
             <div style={{ position: 'relative', width: '100%' }} ref={dropdownRef}>

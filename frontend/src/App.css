@@ -131,6 +131,17 @@ body {
   color: var(--accent-primary);
   font-weight: 600;
   font-size: 14px;
+  text-decoration: none;
+}
+
+.app-logo:hover {
+  opacity: 0.8;
+}
+
+.app-logo-image {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
 }
 
 .sidebar-footer {

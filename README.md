@@ -1,3 +1,5 @@
+<img src="assets/logo.png" alt="OpenLatex" width="64" />
+
 # OpenLatex - Éditeur LaTeX web avec API Rest
 
 ## Sommaire
