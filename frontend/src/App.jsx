@@ -302,7 +302,6 @@ export default function App() {
         <div className="sidebar-header">
           <a href="https://openlatex.github.io" target="_blank" rel="noopener noreferrer" className="app-logo">
             <img src="/assets/logo.png" alt="OpenLatex" className="app-logo-image" />
-            <span>OpenLatex</span>
           </a>
 
           {isAuthenticated ? (
