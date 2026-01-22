@@ -7,12 +7,12 @@ export const useFileManager = (project, setProject, showPrompt, showConfirm) => 
   const folderInputRef = useRef(null);
 
   const handleFileSelect = (path) => {
-    setProject(project.setCurrentFile(path));
+    setProject(p => p.setCurrentFile(path));
   };
 
   const handleContentChange = (newContent) => {
     if (project.currentFile) {
-      setProject(project.updateFileContent(project.currentFile, newContent));
+      setProject(p => p.updateFileContent(p.currentFile, newContent));
     }
   };
 
@@ -45,7 +45,7 @@ export const useFileManager = (project, setProject, showPrompt, showConfirm) => 
       validateFilename,
       (newPath) => {
         if (newPath !== oldPath) {
-          setProject(project.renameFile(oldPath, newPath));
+          setProject(p => p.renameFile(oldPath, newPath));
         }
       }
     );
@@ -84,21 +84,21 @@ export const useFileManager = (project, setProject, showPrompt, showConfirm) => 
   const handleCreateItem = ({ type, fileName, folderName }) => {
     const ext = fileName.split('.').pop();
     const path = type === 'folder' ? `${folderName}/${fileName}` : fileName;
-    setProject(project.addEmptyFile(path, ext));
+    setProject(p => p.addEmptyFile(path, ext));
   };
 
   const handleMoveFile = (sourcePath, targetFolderPath) => {
     const fileName = sourcePath.split('/').pop();
     const newPath = `${targetFolderPath}/${fileName}`;
     if (sourcePath !== newPath && !project.getFile(newPath)) {
-      setProject(project.renameFile(sourcePath, newPath));
+      setProject(p => p.renameFile(sourcePath, newPath));
     }
   };
 
   const handleMoveToRoot = (sourcePath) => {
     const fileName = sourcePath.split('/').pop();
     if (sourcePath !== fileName && !project.getFile(fileName)) {
-      setProject(project.renameFile(sourcePath, fileName));
+      setProject(p => p.renameFile(sourcePath, fileName));
     }
   };
 
