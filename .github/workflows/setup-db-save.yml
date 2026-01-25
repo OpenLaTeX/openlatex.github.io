@@ -24,11 +24,10 @@ jobs:
 
             chmod +x /home/deployer/OpenLatex/backend/autosave/dump_db.sh
 
-            # config le cron (2h et 15h) (pour tester on peut mettre * * * * *)
-            sudo tee /etc/cron.d/openlatex-backup << 'CRON'
-0 2 * * * deployer /home/deployer/OpenLatex/backend/autosave/dump_db.sh
-* * * * * deployer /home/deployer/OpenLatex/backend/autosave/dump_db.sh
-CRON
+            # config le cron (pour tester: * * * * *)
+            printf '%s\n' \
+              '* * * * * deployer /home/deployer/OpenLatex/backend/autosave/dump_db.sh' \
+              | sudo tee /etc/cron.d/openlatex-backup
 
             # verif
             echo "Cron configuré :"
