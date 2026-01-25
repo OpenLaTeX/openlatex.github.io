@@ -20,20 +20,17 @@ jobs:
           VPS_USER: ${{ secrets.VPS_USER }}
         run: |
           ssh -o StrictHostKeyChecking=no $VPS_USER@$VPS_HOST <<'EOF'
-            # dossier de backup
-            sudo mkdir -p /var/backups/postgresql
-            sudo chown deployer:deployer /var/backups/postgresql
+            # dossier de backup (dans home, pas besoin de sudo)
+            mkdir -p /home/deployer/backups
 
-            chmod +x /home/deployer/OpenLatex/backend/autosave/dump_db.sh
+            chmod +x /home/deployer/OpenLatex/backend/db-save/dump_db.sh
 
-            # config le cron (pour tester: * * * * *)
-            printf '%s\n' \
-              '* * * * * deployer /home/deployer/OpenLatex/backend/autosave/dump_db.sh' \
-              | sudo tee /etc/cron.d/openlatex-backup
+            # config le cron via crontab utilisateur (pour tester: * * * * *)
+            (crontab -l 2>/dev/null | grep -v 'dump_db.sh'; echo '* * * * * /home/deployer/OpenLatex/backend/db-save/dump_db.sh') | crontab -
 
             # verif
-            echo "Cron configuré :"
-            cat /etc/cron.d/openlatex-backup
+            echo "Crontab configuré :"
+            crontab -l
             echo "Script présent :"
-            ls -la /home/deployer/OpenLatex/backend/autosave/dump_db.sh
+            ls -la /home/deployer/OpenLatex/backend/db-save/dump_db.sh
           EOF

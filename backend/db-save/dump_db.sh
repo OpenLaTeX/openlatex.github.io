@@ -7,7 +7,7 @@ SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
 source "$SCRIPT_DIR/../.env"
 
 # config
-BACKUP_DIR="/var/backups/postgresql"
+BACKUP_DIR="/home/deployer/backups"
 RETENTION_DAYS=7
 CONTAINER_NAME="openlatex_postgres"
 
