@@ -18,7 +18,7 @@
 **Réalisé par** : Baptiste Lavogiez  
 **Contact** :  
 - Mail : [baptiste.lavogiez@proton.me](mailto:baptiste.lavogiez@proton.me)  
-- Page GitHub : [blavogiez](https://github.com/blavogiez) | [OpenLatex (hosting GitHub Pages)](https://github.com/OpenLatex)
+- Page GitHub : [blavogiez](https://github.com/blavogiez) | [OpenLaTeX (hosting GitHub Pages)](https://github.com/OpenLaTeX)
 
 ## Présentation
 
@@ -55,7 +55,7 @@ Le frontend est hébergé sur GitHub Pages et se redéploie depuis la branche `r
 
 Les informations secrètes (clés privées) sont une priorité.
 
-- La clé JWT (tokens d'authentification) est reconstruite via les secrets GitHub Actions ([Script de déploiement](https://github.com/OpenLatex/OpenLatex.github.io/blob/release/.github/workflows/deploy.yml))
+- La clé JWT (tokens d'authentification) est reconstruite via les secrets GitHub Actions ([Script de déploiement](https://github.com/OpenLaTeX/openlatex.github.io/blob/release/.github/workflows/deploy.yml))
 - La clé SSH pour accéder à l'utilisateur de déploiement sur le VPS n'est pas celle de mon ordinateur mais une clé spéciale pour l'occasion
 
 Les clés n'apparaissent nulle part pour le public, que ce soit dans le code, dans l'historique git, etc.
@@ -85,7 +85,7 @@ cd backend
 cp .env.example .env
 ```
 
-2. Remplissez les variables d'environnement nécessaires (voir [.env.example](https://github.com/OpenLatex/OpenLatex.github.io/blob/release/backend/.env.example))
+2. Remplissez les variables d'environnement nécessaires (voir [.env.example](https://github.com/OpenLaTeX/openlatex.github.io/blob/release/backend/.env.example))
 
 3. Lancez les conteneurs :
 ```bash
@@ -99,7 +99,7 @@ Le backend sera accessible sur `http://localhost:8000`.
 Il vous faut, dans l'optique d'une infrastructure évolutive en CI/CD : 
 
 **Sur votre machine / repo GitHub :**
-- Créer vos informations secrètes ([.env.example](https://github.com/OpenLatex/OpenLatex.github.io/blob/release/backend/.env.example))
+- Créer vos informations secrètes ([.env.example](https://github.com/OpenLaTeX/openlatex.github.io/blob/release/backend/.env.example))
 - Placer les fichiers secrets dans le `.gitignore`
 - Les placer dans les secrets de déploiement GitHub Actions
 - Générer une paire de clés SSH appelée `github_deploy_key`
