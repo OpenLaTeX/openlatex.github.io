@@ -1,6 +1,6 @@
 ## template repris
 
-name: Deploy to GitHub Pages
+name: (FRONTEND) - Déploiement GitHub Pages
 
 on:
   push:

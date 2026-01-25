@@ -1,4 +1,4 @@
-name: Setup sauvegarde idempotent automatique PostgreSQL (cron qui utilise dump-db.sh)
+name: (DB) - Setup sauvegarde PostgreSQL
 
 on:
   push:
