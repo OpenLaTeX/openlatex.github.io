@@ -1,0 +1,38 @@
+name: Setup sauvegarde idempotent automatique PostgreSQL (cron qui utilise dump-db.sh)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  setup-backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: config ssh
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
+
+      - name: configuration backup sur VPS
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+        run: |
+          ssh -o StrictHostKeyChecking=no $VPS_USER@$VPS_HOST <<'EOF'
+            # dossier de backup
+            sudo mkdir -p /var/backups/postgresql
+            sudo chown deployer:deployer /var/backups/postgresql
+
+            chmod +x /home/deployer/OpenLatex/backend/autosave/dump_db.sh
+
+            # config le cron (2h et 15h) (pour tester on peut mettre * * * * *)
+            sudo tee /etc/cron.d/openlatex-backup << 'CRON'
+0 2 * * * deployer /home/deployer/OpenLatex/backend/autosave/dump_db.sh
+* * * * * deployer /home/deployer/OpenLatex/backend/autosave/dump_db.sh
+CRON
+
+            # verif
+            echo "Cron configuré :"
+            cat /etc/cron.d/openlatex-backup
+            echo "Script présent :"
+            ls -la /home/deployer/OpenLatex/backend/autosave/dump_db.sh
+          EOF
