@@ -29,6 +29,7 @@ jobs:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           JWT_EXPIRES_IN: ${{ secrets.JWT_EXPIRES_IN }}
           FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
         run: |
           ssh -o StrictHostKeyChecking=no $VPS_USER@$VPS_HOST <<EOF
             cd /home/deployer/OpenLatex 2>/dev/null || (cd /home/deployer && git clone https://github.com/${{ github.repository }}.git OpenLatex && cd OpenLatex)
@@ -42,6 +43,7 @@ jobs:
             echo "JWT_SECRET=$JWT_SECRET" >> .env
             echo "JWT_EXPIRES_IN=$JWT_EXPIRES_IN" >> .env
             echo "FRONTEND_URL=$FRONTEND_URL" >> .env
+            echo "RESEND_API_KEY=$RESEND_API_KEY" >> .env
 
             chmod 600 .env
             docker compose down
