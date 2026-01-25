@@ -1,6 +1,8 @@
 name: Setup sauvegarde idempotent automatique PostgreSQL (cron qui utilise dump-db.sh)
 
 on:
+  push:
+    branches: [develop-bapi]
   workflow_dispatch:
 
 jobs:
