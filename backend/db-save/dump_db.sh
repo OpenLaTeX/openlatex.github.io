@@ -20,26 +20,34 @@ log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >> "$LOG_FILE"
 }
 
-# mail en cas d'echec avec resend (api d'envoi de mail, secret à définir dans GitHub secrets + script backend-deploy pour le .env)
+# diagnostic en cas d'échec
+diagnostic() {
+    echo "Docker: $(systemctl is-active docker)"
+    echo "Container: $(docker ps --format '{{.Names}}' | grep -c "^${CONTAINER_NAME}$") running"
+    echo "PostgreSQL: $(docker exec "$CONTAINER_NAME" pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB" 2>&1 || echo 'down')"
+    echo "Disque: $(df -h "$BACKUP_DIR" | tail -1 | awk '{print $4 " dispo"}')"
+}
+
+# envoi mail en cas d'erreur (awk remplace les retours à la ligne par \n pour JSON)
 send_alert() {
     [ -z "$RESEND_API_KEY" ] && return
-    LOGS=$(tail -10 "$LOG_FILE" 2>/dev/null | tr '\n' ' | ')
-    MSG="$1 -- Logs: $LOGS"
+    DIAG=$(diagnostic | awk '{printf "%s\\n", $0}')
+    LOGS=$(tail -5 "$LOG_FILE" | awk '{printf "%s\\n", $0}')
     curl -s -X POST 'https://api.resend.com/emails' \
       -H "Authorization: Bearer $RESEND_API_KEY" \
       -H 'Content-Type: application/json' \
-      -d '{"from":"OpenLaTeX <onboarding@resend.dev>","to":"'"$ALERT_EMAIL"'","subject":"[OpenLaTeX] Echec backup DB","text":"'"$MSG"'"}' \
+      -d '{"from":"OpenLaTeX <onboarding@resend.dev>","to":"'"$ALERT_EMAIL"'","subject":"[OpenLaTeX] Echec backup DB","text":"'"$1"'\\n\\nDiagnostic:\\n'"$DIAG"'\\n\\nLogs:\\n'"$LOGS"'"}' \
       > /dev/null && log "Alerte envoyee"
 }
 
-log "Debut de la sauvegarde"
+log "=== Debut sauvegarde ==="
 log "Base : $POSTGRES_DB -> $BACKUP_FILE"
 
-if docker exec "$CONTAINER_NAME" pg_dump -U "trucmuche" -d "$POSTGRES_DB" -Fc > "$BACKUP_FILE"; then
+if docker exec "$CONTAINER_NAME" pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Fc > "$BACKUP_FILE"; then
     log "Sauvegarde reussie ($(du -h "$BACKUP_FILE" | cut -f1))"
 else
     log "ERR : Echec de la sauvegarde"
-    send_alert "Échec du backup PostgreSQL OpenLaTeX le $(date '+%Y-%m-%d %H:%M:%S')"
+    send_alert "Echec du backup PostgreSQL"
     exit 1
 fi
 
