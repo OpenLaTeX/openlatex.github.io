@@ -28,15 +28,17 @@ diagnostic() {
     echo "Disque: $(df -h "$BACKUP_DIR" | tail -1 | awk '{print $4 " dispo"}')"
 }
 
-# envoi mail en cas d'erreur (awk remplace les retours à la ligne par \n pour JSON)
+# envoi mail en cas d'erreur
 send_alert() {
     [ -z "$RESEND_API_KEY" ] && return
+    NL=$'\n'
     DIAG=$(diagnostic | awk '{printf "%s\\n", $0}')
     LOGS=$(tail -5 "$LOG_FILE" | awk '{printf "%s\\n", $0}')
+    MSG="[OpenLaTeX] Echec backup DB\n\n=== Diagnostic ===\n${DIAG}\n=== Logs ===\n${LOGS}"
     curl -s -X POST 'https://api.resend.com/emails' \
       -H "Authorization: Bearer $RESEND_API_KEY" \
       -H 'Content-Type: application/json' \
-      -d '{"from":"OpenLaTeX <onboarding@resend.dev>","to":"'"$ALERT_EMAIL"'","subject":"[OpenLaTeX] Echec backup DB","text":"'"$1"'\\n\\nDiagnostic:\\n'"$DIAG"'\\n\\nLogs:\\n'"$LOGS"'"}' \
+      -d '{"from":"OpenLaTeX <onboarding@resend.dev>","to":"'"$ALERT_EMAIL"'","subject":"[OpenLaTeX] Echec backup DB","text":"'"$MSG"'"}' \
       > /dev/null && log "Alerte envoyee"
 }
 
