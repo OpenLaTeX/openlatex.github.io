@@ -23,10 +23,12 @@ log() {
 # mail en cas d'echec avec resend (api d'envoi de mail, secret à définir dans GitHub secrets + script backend-deploy pour le .env)
 send_alert() {
     [ -z "$RESEND_API_KEY" ] && return
+    LOGS=$(tail -10 "$LOG_FILE" 2>/dev/null | tr '\n' ' | ')
+    MSG="$1 -- Logs: $LOGS"
     curl -s -X POST 'https://api.resend.com/emails' \
       -H "Authorization: Bearer $RESEND_API_KEY" \
       -H 'Content-Type: application/json' \
-      -d '{"from":"OpenLaTeX <onboarding@resend.dev>","to":"'"$ALERT_EMAIL"'","subject":"[OpenLaTeX] Echec backup DB","text":"'"$1"'"}' \
+      -d '{"from":"OpenLaTeX <onboarding@resend.dev>","to":"'"$ALERT_EMAIL"'","subject":"[OpenLaTeX] Echec backup DB","text":"'"$MSG"'"}' \
       > /dev/null && log "Alerte envoyee"
 }
 
