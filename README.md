@@ -25,6 +25,11 @@
 Ce projet offre un moyen simple de déployer un serveur LaTeX open-source accessible par le Web, permettant d’utiliser LaTeX sans aucune installation locale.
 Il met également à disposition une base de données intégrée pour que les utilisateurs puissent enregistrer et gérer leurs projets d'où qu'ils soient !
 
+## Améliorations à venir 
+
+- Sauvegarde automatique de la BDD avec `cron` et `pg_dump` avec stockage distant
+- Collaboration d'écriture de documents (Yjs) grâce à l'éditeur CodeMirror
+
 ## Informations de production
 
 [Le site en production](https://openlatex.github.io)
@@ -146,3 +151,4 @@ En somme, une introduction très épanouissante à des pratiques modernes de dé
 ## Licence
 
 Ce projet est open-source et disponible sous licence Apache.
+
