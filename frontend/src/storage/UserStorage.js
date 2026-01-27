@@ -20,8 +20,34 @@ export class UserStorage {
   static clear() {
     try {
       localStorage.removeItem('userEmail');
+      localStorage.removeItem('authToken');
     } catch (error) {
-      console.error('Failed to clear email:', error);
+      console.error('Failed to clear storage:', error);
+    }
+  }
+
+  static saveToken(token) {
+    try {
+      localStorage.setItem('authToken', token);
+    } catch (error) {
+      console.error('Failed to save token:', error);
+    }
+  }
+
+  static getToken() {
+    try {
+      return localStorage.getItem('authToken') || null;
+    } catch (error) {
+      console.error('Failed to get token:', error);
+      return null;
+    }
+  }
+
+  static clearToken() {
+    try {
+      localStorage.removeItem('authToken');
+    } catch (error) {
+      console.error('Failed to clear token:', error);
     }
   }
 

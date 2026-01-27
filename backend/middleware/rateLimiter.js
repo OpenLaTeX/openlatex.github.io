@@ -19,7 +19,8 @@ const userLimiter = rateLimit({
     standardHeaders: true,
     legacyHeaders: false,
     keyGenerator: (req) => {
-        const token = req.cookies.token;
+        const authHeader = req.headers.authorization;
+        const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
         if (token) {
             try {
                 const decoded = jwt.verify(token, process.env.JWT_SECRET);

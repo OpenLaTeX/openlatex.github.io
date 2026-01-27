@@ -29,7 +29,7 @@ class AuthService {
     }
 
     static isAuthenticated() {
-        return false;
+        return !!UserStorage.getToken();
     }
 }
 

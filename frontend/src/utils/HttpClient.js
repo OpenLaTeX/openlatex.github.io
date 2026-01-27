@@ -1,13 +1,15 @@
+import { AuthHeaders } from './AuthHeaders';
+
 export class HttpClient {
   static async post(url, body, headers = {}) {
     const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        ...AuthHeaders.create(),
         ...headers
       },
-      body: JSON.stringify(body),
-      credentials: 'include'
+      body: JSON.stringify(body)
     });
 
     if (!response.ok) {
@@ -21,7 +23,12 @@ export class HttpClient {
   }
 
   static async get(url, headers = {}) {
-    const response = await fetch(url, { headers, credentials: 'include' });
+    const response = await fetch(url, {
+      headers: {
+        ...AuthHeaders.create(),
+        ...headers
+      }
+    });
 
     if (!response.ok) {
       throw new Error('Request failed');
