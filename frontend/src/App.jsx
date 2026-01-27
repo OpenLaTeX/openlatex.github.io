@@ -333,7 +333,7 @@ export default function App() {
                </div>
                <div className="user-info">
                   <span className="user-email">Invité</span>
-                  <span className="user-role">Connexion requise</span>
+                  <span className="user-role">Se connecter</span>
                </div>
             </div>
           )}
@@ -345,11 +345,11 @@ export default function App() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
               <button onClick={handleCompile} disabled={loading} className="btn-icon btn-primary" title="Compiler (Ctrl+Enter)">
                 <Play size={14} />
-                <span>Compile</span>
+                <span>Compiler</span>
               </button>
               <button onClick={handleSaveProject} disabled={loading || !isAuthenticated} className="btn-icon" title="Sauvegarder">
                 <Save size={14} />
-                <span>Save</span>
+                <span>Sauvegarder</span>
               </button>
             </div>
             {compilationErrors.length > 0 && (

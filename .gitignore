@@ -5,3 +5,4 @@ dist
 .DS_Store
 github_deploy_key
 github_deploy_key.pub
+backup-public.key

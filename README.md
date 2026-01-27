@@ -1,6 +1,7 @@
 <img src="assets/logo_transparent.png" alt="OpenLatex" width="300" />
 
-# OpenLaTeX - Éditeur LaTeX web avec API Rest
+# [OpenLaTeX - Éditeur LaTeX web avec API Rest](https://openlatex.github.io)
+
 
 ## Sommaire
 
@@ -27,7 +28,9 @@ Il met également à disposition une base de données intégrée pour que les ut
 
 ## Améliorations à venir 
 
-- Sauvegarde automatique de la BDD avec `cron` et `pg_dump` avec stockage distant
+### Réalisées récemment
+
+- Sauvegarde automatique distante avec chiffrement GPG
 - Collaboration d'écriture de documents (Yjs) grâce à l'éditeur CodeMirror
 
 ## Informations de production
@@ -41,7 +44,16 @@ Le backend tourne sur un VPS Debian distant en continu avec deux conteneurs Dock
 
 Le conteneur Node.js communique avec le conteneur SQL afin de renvoyer les projets lorsque l'utilisateur le demande. Ce conteneur est exposé en HTTPS par un DNS simple (DuckDNS).
 
-Le conteneur PostgreSQL stocke les données dans un volume (les données restent même après arrêt du conteneur).
+Le conteneur PostgreSQL stocke les données dans un volume (les données restent même après arrêt du conteneur). 
+
+> La base de données est sauvegardée tous les jours à 2h00 du matin, puis chiffrée et stockée à distance.
+> En cas d'échec de la sauvegarde, le script envoie automatiquement un email à l'admin désigné.
+> <details>
+> <summary>Exemple d'email de notification automatique </summary>
+>
+> ![Exemple d'email](assets/mail-example.png)
+>
+> </details>
 
 Le backend est hébergé à des fins de démonstration et me coûte 6$/mois (DigitalOcean). Le VPS est à Amsterdam (1 CPU, 1GB RAM) et est déployé depuis la branche `develop-bapi` en CI/CD avec SSH.
 
@@ -59,6 +71,8 @@ Les informations secrètes (clés privées) sont une priorité.
 - La clé SSH pour accéder à l'utilisateur de déploiement sur le VPS n'est pas celle de mon ordinateur mais une clé spéciale pour l'occasion
 
 Les clés n'apparaissent nulle part pour le public, que ce soit dans le code, dans l'historique git, etc.
+
+Enfin, les sauvegardes sont chiffrées en GPG (RSA x2 4096 bits).
 
 ## Installation
 

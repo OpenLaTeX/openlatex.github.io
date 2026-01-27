@@ -2,6 +2,21 @@
 # Script de sauvegarde automatique PostgreSQL pour OpenLatex (Docker)
 # adapté de la SAÉ matrix-scripts (https://github.com/blavogiez/matrix-scripts)
 
+# Exemple de logs typiques
+# [2026-01-26 02:00:01] === Début sauvegarde ===
+# [2026-01-26 02:00:01] Base : openlatex_db -> /home/deployer/backups/openlatex_20260126_020001.dump
+# [2026-01-26 02:00:06] Sauvegarde réussie (3.6M)
+# [2026-01-26 02:00:06] Nettoyage des sauvegardes de plus de 7 jours
+# [2026-01-26 02:00:06] Sauvegardes conservées : 16
+# [2026-01-26 02:00:06] Sauvegarde terminée
+# [2026-01-27 02:00:02] === Début sauvegarde ===
+# [2026-01-27 02:00:02] Base : openlatex_db -> /home/deployer/backups/openlatex_20260127_020002.dump
+# [2026-01-27 02:00:04] Sauvegarde réussie (3.6M)
+# [2026-01-27 02:00:04] Nettoyage des sauvegardes de plus de 7 jours
+# [2026-01-27 02:00:04] Sauvegardes conservées : 17
+# [2026-01-27 02:00:04] Sauvegarde terminée
+
+
 # Charger les variables depuis .env
 SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
 source "$SCRIPT_DIR/../.env"
@@ -11,6 +26,11 @@ BACKUP_DIR="/home/deployer/backups"
 RETENTION_DAYS=7
 CONTAINER_NAME="openlatex_postgres"
 ALERT_EMAIL="baptiste.lavogiez@proton.me"
+
+# config chiffrement + stockage distant
+GPG_RECIPIENT="baptiste.lavogiez@proton.me"
+B2_BUCKET_NAME="openlatex-backups"
+REMOTE_RETENTION_DAYS=365  # 365 pour test
 
 DATE=$(date +%Y%m%d_%H%M%S)
 BACKUP_FILE="${BACKUP_DIR}/openlatex_${DATE}.dump"
@@ -39,24 +59,47 @@ send_alert() {
       -H "Authorization: Bearer $RESEND_API_KEY" \
       -H 'Content-Type: application/json' \
       -d '{"from":"OpenLaTeX <onboarding@resend.dev>","to":"'"$ALERT_EMAIL"'","subject":"[OpenLaTeX] Echec backup DB","text":"'"$MSG"'"}' \
-      > /dev/null && log "Alerte envoyee"
+      > /dev/null && log "Alerte envoyée"
 }
 
-log "=== Debut sauvegarde ==="
+log "=== Début sauvegarde ==="
 log "Base : $POSTGRES_DB -> $BACKUP_FILE"
 
 if docker exec "$CONTAINER_NAME" pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Fc > "$BACKUP_FILE"; then
-    log "Sauvegarde reussie ($(du -h "$BACKUP_FILE" | cut -f1))"
+    log "Sauvegarde réussie ($(du -h "$BACKUP_FILE" | cut -f1))"
 else
-    log "ERR : Echec de la sauvegarde"
+    log "ERR : Échec de la sauvegarde"
     send_alert "Echec du backup PostgreSQL"
     exit 1
 fi
 
-# Nettoyage des anciennes sauvegardes
-log "Nettoyage des sauvegardes de plus de $RETENTION_DAYS jours"
-find "$BACKUP_DIR" -name "openlatex_*.dump" -mtime +$RETENTION_DAYS -delete
+# chiffrement gpg par clé publique du .env reconstruit par secrets
+log "Chiffrement GPG..."
+if gpg --encrypt --recipient "$GPG_RECIPIENT" --trust-model always --batch --yes "$BACKUP_FILE"; then
+    ENCRYPTED_FILE="${BACKUP_FILE}.gpg"
+    log "Chiffrement réussi ($(du -h "$ENCRYPTED_FILE" | cut -f1))"
+    rm -f "$BACKUP_FILE"  # supprimer le dump non chiffré
+else
+    log "ERR : Échec du chiffrement GPG"
+    send_alert "Echec chiffrement GPG"
+    exit 1
+fi
 
-REMAINING=$(find "$BACKUP_DIR" -name "openlatex_*.dump" | wc -l)
-log "Sauvegardes conservees : $REMAINING"
-log "Sauvegarde terminee"
+# upload vers backblaze b2
+log "Upload vers B2..."
+REMOTE_PATH="backups/$(date +%Y/%m)/$(basename "$ENCRYPTED_FILE")"
+if b2 upload-file "$B2_BUCKET_NAME" "$ENCRYPTED_FILE" "$REMOTE_PATH" > /dev/null 2>&1; then
+    log "Upload B2 réussi: $REMOTE_PATH"
+else
+    log "ERR : Échec upload B2"
+    send_alert "Echec upload B2"
+    exit 1
+fi
+
+# nettoyage des anciennes sauvegardes
+log "Nettoyage des sauvegardes locales de plus de $RETENTION_DAYS jours"
+find "$BACKUP_DIR" -name "openlatex_*.dump.gpg" -mtime +$RETENTION_DAYS -delete
+
+REMAINING=$(find "$BACKUP_DIR" -name "openlatex_*.dump.gpg" | wc -l)
+log "Sauvegardes conservées : $REMAINING"
+log "Sauvegarde terminée"
