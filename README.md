@@ -26,12 +26,15 @@
 Ce projet offre un moyen simple de déployer un serveur LaTeX open-source accessible par le Web, permettant d’utiliser LaTeX sans aucune installation locale.
 Il met également à disposition une base de données intégrée pour que les utilisateurs puissent enregistrer et gérer leurs projets d'où qu'ils soient !
 
-## Améliorations à venir 
+## Améliorations
 
-### Réalisées récemment
+### Récemment réalisées 
 
-- Sauvegarde automatique distante avec chiffrement GPG
-- Collaboration d'écriture de documents (Yjs) grâce à l'éditeur CodeMirror
+- Sauvegarde automatique chiffrée GPG (RSA x2) vers cloud storage (BackBlaze)
+
+### À venir
+
+- Collaboration d'écriture de documents (Yjs) grâce à l'éditeur JS CodeMirror
 
 ## Informations de production
 
@@ -46,22 +49,22 @@ Le conteneur Node.js communique avec le conteneur SQL afin de renvoyer les proje
 
 Le conteneur PostgreSQL stocke les données dans un volume (les données restent même après arrêt du conteneur). 
 
-> La base de données est sauvegardée tous les jours à 2h00 du matin, puis chiffrée et stockée à distance.
+> La base de données est sauvegardée tous les jours à 2h00 du matin, puis la sauvegarde est chiffrée et stockée à distance (BackBlaze). Toutes les sauvegardes des sept derniers jours sont conservées.
 > En cas d'échec de la sauvegarde, le script envoie automatiquement un email à l'admin désigné.
 > <details>
-> <summary>Exemple d'email de notification automatique </summary>
+> <summary>Exemple d'email de notification automatique :</summary>
 >
 > ![Exemple d'email](assets/mail-example.png)
 >
 > </details>
 
-Le backend est hébergé à des fins de démonstration et me coûte 6$/mois (DigitalOcean). Le VPS est à Amsterdam (1 CPU, 1GB RAM) et est déployé depuis la branche `develop-bapi` en CI/CD avec SSH.
+Le backend est hébergé à des fins de démonstration et me coûte 6$/mois (DigitalOcean). Le VPS est à Amsterdam (1 CPU, 1GB RAM) et est déployé depuis la branche `backend/release` en CI/CD avec SSH.
 
 Des limites sont instaurées pour ne pas surcharger étant donné la puissance du VPS : 
 - 3 compilations par minute pour les invités
 - 10 compilations par minute pour les personnes connectées
 
-Le frontend est hébergé sur GitHub Pages et se redéploie depuis la branche `release`.
+Le frontend est hébergé sur GitHub Pages et se redéploie depuis la branche `frontend/release`.
 
 ## Informations de sécurité
 
@@ -72,7 +75,7 @@ Les informations secrètes (clés privées) sont une priorité.
 
 Les clés n'apparaissent nulle part pour le public, que ce soit dans le code, dans l'historique git, etc.
 
-Enfin, les sauvegardes sont chiffrées en GPG (RSA x2 4096 bits).
+Enfin, les sauvegardes sont toujours chiffrées en GPG (RSA x2 4096 bits) avec la clé publique. La base ne peut être reproduite que par l'administrateur possédant la clé privée. De ce fait, aucune information présente sur le VPS / Cloud storage ne permet de déchiffrer les sauvegardes.
 
 ## Installation
 
@@ -147,7 +150,7 @@ La deuxième raison, et la plus importante, ce sont les compétences apprises !
 
 **Docker** est incontournable dans un monde dominé par le cloud computing. La conteneurisation permet d'isoler les services, de garantir la reproductibilité des environnements et de simplifier énormément le déploiement. J'ai pu apprendre à orchestrer plusieurs conteneurs avec Docker Compose, gérer les volumes persistants pour la base de données, et configurer les réseaux entre conteneurs. C'est particulièrement utile pour ce projet : le conteneur Node.js et le conteneur PostgreSQL communiquent ensemble tout en restant isolés, et je peux reconstruire l'infrastructure complète en quelques commandes. 
 
-Pour **PostgreSQL**, j'ai déjà pu connaître la partie modélisation / requêtes grâce au BUT Informatique, et j'ai pu ici plus approfondir la partie Administration / DBA côté serveur. 
+Pour **PostgreSQL**, j'ai déjà pu connaître la partie modélisation / requêtes grâce au BUT Informatique, et j'ai pu ici plus approfondir la partie Administration / DBA côté serveur. La **gestion de la sécurité** est un point particulièrement important pour moi et j'ai beaucoup aimé travailler sur le chiffrement et stockage distant des sauvegardes.
 
 La **CI/CD avec GitHub Actions** est la cerise sur le gâteau, permettant de simplifier énormément le redéploiement. J'ai configuré un workflow complet qui se déclenche automatiquement à chaque push sur la branche de développement : connexion SSH sécurisée au VPS, reconstruction des images Docker, arrêt des anciens conteneurs et démarrage des nouveaux, le tout sans intervention manuelle. Cela m'a permis de comprendre l'importance de l'automatisation dans le cycle de développement moderne et d'apprendre à gérer les secrets de manière sécurisée dans un pipeline CI/CD. Chaque modification est en production en quelques dizaines de secondes !
 

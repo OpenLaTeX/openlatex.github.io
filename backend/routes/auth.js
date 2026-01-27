@@ -66,8 +66,6 @@ router.post('/login', async (req, res) => {
             secure: true,
             sameSite: 'none'
         });
-
-        res.json({ token });
     } catch (err) {
         console.error('erreur login:', err);
         res.status(500).json({ error: 'erreur serveur suite à login' });
