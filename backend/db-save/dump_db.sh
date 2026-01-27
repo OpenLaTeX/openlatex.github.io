@@ -53,7 +53,7 @@ send_alert() {
     [ -z "$RESEND_API_KEY" ] && return
     NL=$'\n'
     DIAG=$(diagnostic | awk '{printf "%s\\n", $0}')
-    LOGS=$(tail -5 "$LOG_FILE" | awk '{printf "%s\\n", $0}')
+    LOGS=$(tail -50 "$LOG_FILE" | awk '{printf "%s\\n", $0}')
     MSG="[OpenLaTeX] Echec backup DB\n\n=== Diagnostic ===\n${DIAG}\n=== Logs ===\n${LOGS}"
     curl -s -X POST 'https://api.resend.com/emails' \
       -H "Authorization: Bearer $RESEND_API_KEY" \
