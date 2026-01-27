@@ -147,7 +147,7 @@ La deuxième raison, et la plus importante, ce sont les compétences apprises !
 
 **Docker** est incontournable dans un monde dominé par le cloud computing. La conteneurisation permet d'isoler les services, de garantir la reproductibilité des environnements et de simplifier énormément le déploiement. J'ai pu apprendre à orchestrer plusieurs conteneurs avec Docker Compose, gérer les volumes persistants pour la base de données, et configurer les réseaux entre conteneurs. C'est particulièrement utile pour ce projet : le conteneur Node.js et le conteneur PostgreSQL communiquent ensemble tout en restant isolés, et je peux reconstruire l'infrastructure complète en quelques commandes. 
 
-Pour **PostgreSQL**, je connais déjà très bien la partie modélisation / requêtes grâce au BUT Informatique, et j'ai pu ici plus approfondir la partie Administration / DBA côté serveur. 
+Pour **PostgreSQL**, j'ai déjà pu connaître la partie modélisation / requêtes grâce au BUT Informatique, et j'ai pu ici plus approfondir la partie Administration / DBA côté serveur. 
 
 La **CI/CD avec GitHub Actions** est la cerise sur le gâteau, permettant de simplifier énormément le redéploiement. J'ai configuré un workflow complet qui se déclenche automatiquement à chaque push sur la branche de développement : connexion SSH sécurisée au VPS, reconstruction des images Docker, arrêt des anciens conteneurs et démarrage des nouveaux, le tout sans intervention manuelle. Cela m'a permis de comprendre l'importance de l'automatisation dans le cycle de développement moderne et d'apprendre à gérer les secrets de manière sécurisée dans un pipeline CI/CD. Chaque modification est en production en quelques dizaines de secondes !
 
