@@ -3,7 +3,7 @@ name: (DB) - Setup sauvegarde PostgreSQL
 on:
   workflow_run:
     workflows: ["(BACKEND) - Déploiement backend Docker VPS"]
-    branches: [develop-bapi, backend/*]
+    branches: [backend/*]
     types: [completed]
   workflow_dispatch:
 

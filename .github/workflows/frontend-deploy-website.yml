@@ -4,7 +4,7 @@ name: (FRONTEND) - Déploiement GitHub Pages
 
 on:
   push:
-    branches: [release]
+    branches: [frontend/*]
   workflow_dispatch:
 
 permissions:

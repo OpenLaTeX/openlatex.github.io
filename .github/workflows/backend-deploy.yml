@@ -2,7 +2,7 @@ name: (BACKEND) - Déploiement backend Docker VPS
 
 on:
   push:
-    branches: [develop-bapi, backend/*]
+    branches: [backend/*]
   workflow_dispatch:
 
 jobs:
