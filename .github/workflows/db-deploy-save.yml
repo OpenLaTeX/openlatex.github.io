@@ -2,8 +2,7 @@ name: (DB) - Setup sauvegarde PostgreSQL
 # se lance après deploy-backend car le clone est fait dedans
 on:
   workflow_run:
-    workflows: ["(BACKEND) - Déploiement backend Docker VPS"]
-    branches: [backend/*]
+    workflows: ["(BACKEND) - Deploiement backend Docker VPS"]
     types: [completed]
   workflow_dispatch:
 

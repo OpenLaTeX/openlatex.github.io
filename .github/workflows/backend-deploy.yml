@@ -1,4 +1,4 @@
-name: (BACKEND) - Déploiement backend Docker VPS
+name: (BACKEND) - Deploiement backend Docker VPS
 
 on:
   push:
