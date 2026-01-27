@@ -2,7 +2,7 @@ name: (BACKEND) - Déploiement backend Docker VPS
 
 on:
   push:
-    branches: [develop-bapi]
+    branches: [develop-bapi, backend/*]
   workflow_dispatch:
 
 jobs:
@@ -33,8 +33,8 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no $VPS_USER@$VPS_HOST <<EOF
             cd /home/deployer/OpenLatex 2>/dev/null || (cd /home/deployer && git clone https://github.com/${{ github.repository }}.git OpenLatex && cd OpenLatex)
-            git fetch origin develop-bapi
-            git reset --hard origin/develop-bapi
+            git fetch origin ${{ github.ref_name }}
+            git reset --hard origin/${{ github.ref_name }}
             cd backend
 
             echo "POSTGRES_USER=$POSTGRES_USER" > .env
