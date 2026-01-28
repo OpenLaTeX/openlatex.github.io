@@ -1,4 +1,3 @@
-deployer@debian-backend-latex:~/OpenLatex/backend/db-save$ cat dump_db.sh 
 #!/bin/bash
 # Script de sauvegarde automatique PostgreSQL pour OpenLatex (Docker)
 # adapté de la SAÉ matrix-scripts (https://github.com/blavogiez/matrix-scripts)
