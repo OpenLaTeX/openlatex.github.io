@@ -1,20 +1,30 @@
+deployer@debian-backend-latex:~/OpenLatex/backend/db-save$ cat dump_db.sh 
 #!/bin/bash
 # Script de sauvegarde automatique PostgreSQL pour OpenLatex (Docker)
 # adapté de la SAÉ matrix-scripts (https://github.com/blavogiez/matrix-scripts)
-
+#
 # Exemple de logs typiques
-# [2026-01-26 02:00:01] === Début sauvegarde ===
-# [2026-01-26 02:00:01] Base : openlatex_db -> /home/deployer/backups/openlatex_20260126_020001.dump
-# [2026-01-26 02:00:06] Sauvegarde réussie (3.6M)
-# [2026-01-26 02:00:06] Nettoyage des sauvegardes de plus de 7 jours
-# [2026-01-26 02:00:06] Sauvegardes conservées : 16
-# [2026-01-26 02:00:06] Sauvegarde terminée
-# [2026-01-27 02:00:02] === Début sauvegarde ===
-# [2026-01-27 02:00:02] Base : openlatex_db -> /home/deployer/backups/openlatex_20260127_020002.dump
-# [2026-01-27 02:00:04] Sauvegarde réussie (3.6M)
-# [2026-01-27 02:00:04] Nettoyage des sauvegardes de plus de 7 jours
-# [2026-01-27 02:00:04] Sauvegardes conservées : 17
-# [2026-01-27 02:00:04] Sauvegarde terminée
+# [2026-01-28 22:21:01] === Début sauvegarde ===
+# [2026-01-28 22:21:01] Base : openlatex_db -> /home/deployer/backups/openlatex_20260128_222101.dump
+# [2026-01-28 22:21:03] Sauvegarde réussie (3.8M)
+# [2026-01-28 22:21:03] Chiffrement GPG...
+# [2026-01-28 22:21:03] Chiffrement réussi (3.8M)
+# [2026-01-28 22:21:03] Upload vers B2...
+# [2026-01-28 22:21:05] Upload B2 réussi: backups/2026/01/openlatex_20260128_222101.dump.gpg
+# [2026-01-28 22:21:05] Nettoyage des sauvegardes locales de plus de 7 jours
+# [2026-01-28 22:21:05] Sauvegardes conservées : 9
+# [2026-01-28 22:21:05] Sauvegarde terminée
+# [2026-01-28 22:22:01] === Début sauvegarde ===
+# [2026-01-28 22:22:01] Base : openlatex_db -> /home/deployer/backups/openlatex_20260128_222201.dump
+# [2026-01-28 22:22:02] Sauvegarde réussie (3.8M)
+# [2026-01-28 22:22:02] Chiffrement GPG...
+# [2026-01-28 22:22:02] Chiffrement réussi (3.8M)
+# [2026-01-28 22:22:02] Upload vers B2...
+# [2026-01-28 22:22:04] Upload B2 réussi: backups/2026/01/openlatex_20260128_222201.dump.gpg
+# [2026-01-28 22:22:04] Nettoyage des sauvegardes locales de plus de 7 jours
+# [2026-01-28 22:22:04] Sauvegardes conservées : 10
+# [2026-01-28 22:22:04] Sauvegarde terminée
+
 
 
 # Charger les variables depuis .env
@@ -35,6 +45,11 @@ REMOTE_RETENTION_DAYS=365  # 365 pour test
 DATE=$(date +%Y%m%d_%H%M%S)
 BACKUP_FILE="${BACKUP_DIR}/openlatex_${DATE}.dump"
 LOG_FILE="${BACKUP_DIR}/backup.log"
+
+# config pour lancement sous cron
+export PATH="/home/deployer/.local/bin:$PATH" #chemin pour trouver b2
+export HOME=/home/deployer
+export GNUPGHOME=/home/deployer/.gnupg
 
 log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >> "$LOG_FILE"
@@ -88,7 +103,7 @@ fi
 # upload vers backblaze b2
 log "Upload vers B2..."
 REMOTE_PATH="backups/$(date +%Y/%m)/$(basename "$ENCRYPTED_FILE")"
-if b2 upload-file "$B2_BUCKET_NAME" "$ENCRYPTED_FILE" "$REMOTE_PATH" > /dev/null 2>&1; then
+if b2 upload-file "$B2_BUCKET_NAME" "$ENCRYPTED_FILE" "$REMOTE_PATH" ; then
     log "Upload B2 réussi: $REMOTE_PATH"
 else
     log "ERR : Échec upload B2"
