@@ -44,7 +44,8 @@ jobs:
             chmod +x /home/deployer/OpenLatex/backend/db-save/dump_db.sh
 
             # config le cron via crontab utilisateur (pour tester on peut mettre : * * * * *)
-            (crontab -l 2>/dev/null | grep -v 'dump_db.sh'; echo '0 2 * * * /home/deployer/OpenLatex/backend/db-save/dump_db.sh') | crontab -
+            (crontab -l 2>/dev/null | grep -v 'dump_db.sh' | grep -v 'CRON_TIMEZONE'; echo 'CRON_TIMEZONE=Europe/Paris
+0 2,11,20 * * * /home/deployer/OpenLatex/backend/db-save/dump_db.sh') | crontab -
 
             # verif
             echo "Crontab configuré :"
