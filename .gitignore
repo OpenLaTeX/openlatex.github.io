@@ -1,7 +1,8 @@
 restore-sandbox/
 node_modules
 dist
-.claude
+.c*
+C*.md
 .env
 .DS_Store
 github_deploy_key
