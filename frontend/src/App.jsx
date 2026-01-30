@@ -300,8 +300,8 @@ export default function App() {
     <div className="app-container">
       <div className="sidebar" style={{ width: `${sidebarWidth}px`, minWidth: `${sidebarWidth}px` }}>
         <div className="sidebar-header">
-          <a href="https://openlatex.github.io" target="_blank" rel="noopener noreferrer" className="app-logo">
-            <img src="/assets/logo.png" alt="OpenLatex" className="app-logo-image" />
+          <a href="https://github.com/OpenLaTeX/openlatex.github.io" target="_blank" rel="noopener noreferrer" className="app-logo">
+            <img src="/assets/logo_transparent.svg" alt="OpenLatex" className="app-logo-image" />
           </a>
 
           {isAuthenticated ? (
