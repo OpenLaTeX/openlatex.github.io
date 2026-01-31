@@ -152,3 +152,19 @@
 .tree-folder-children {
   padding-left: 0;
 }
+
+@media (max-width: 768px) {
+  .tree-node-file,
+  .tree-folder-header {
+    min-height: 44px;
+    padding: 12px 10px;
+  }
+
+  .tree-file-actions {
+    opacity: 1;
+  }
+
+  .tree-folder-button {
+    opacity: 1;
+  }
+}

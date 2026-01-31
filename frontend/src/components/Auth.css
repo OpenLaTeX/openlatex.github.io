@@ -102,3 +102,19 @@
   opacity: 0.7;
   cursor: not-allowed;
 }
+
+@media (max-width: 480px) {
+  .auth-container {
+    margin: 40px auto;
+    padding: 24px 20px;
+  }
+
+  .auth-input {
+    min-height: 44px;
+    font-size: 16px;
+  }
+
+  .auth-button {
+    min-height: 44px;
+  }
+}
