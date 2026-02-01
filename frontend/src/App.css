@@ -590,3 +590,19 @@ input::placeholder {
     min-width: 100% !important;
   }
 }
+
+.login-link {
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-sidebar);
+  color: var(--text-main);
+  cursor: pointer;
+}
+
+.login-link:hover {
+  background: var(--bg-hover);
+  border-color: var(--border-strong);
+}

@@ -353,15 +353,9 @@ export default function App() {
               )}
             </div>
           ) : (
-            <div className="user-profile-badge" onClick={() => setShowAuth(true)}>
-               <div className="user-avatar" style={{ background: 'var(--bg-active)', color: 'var(--text-muted)' }}>
-                  <User size={14} />
-               </div>
-               <div className="user-info">
-                  <span className="user-email">Invité</span>
-                  <span className="user-role">Se connecter</span>
-               </div>
-            </div>
+            <button className="login-link" onClick={() => setShowAuth(true)}>
+              Se connecter
+            </button>
           )}
         </div>
 
