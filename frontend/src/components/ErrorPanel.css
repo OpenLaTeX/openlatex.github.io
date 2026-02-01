@@ -70,7 +70,7 @@
   border: 1px solid var(--border-subtle);
   border-radius: 4px;
   transition: all 0.2s ease;
-  min-width: 300px;
+  min-width: 0;
   max-width: 500px;
 }
 
@@ -142,4 +142,14 @@
 
 .error-context div {
   padding: 1px 0;
+}
+
+@media (max-width: 480px) {
+  .error-panel {
+    height: 150px;
+  }
+
+  .error-message {
+    font-size: 11px;
+  }
 }

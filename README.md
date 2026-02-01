@@ -1,5 +1,3 @@
-<img src="assets/logo_transparent.png" alt="OpenLatex" width="300" />
-
 # [OpenLaTeX - Éditeur LaTeX web avec API Rest](https://openlatex.github.io)
 
 

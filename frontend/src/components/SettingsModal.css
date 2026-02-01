@@ -193,3 +193,12 @@
 .input-with-icon input::placeholder {
   color: var(--text-muted);
 }
+
+@media (max-width: 480px) {
+  .settings-modal-content {
+    width: 100%;
+    height: 100vh;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+}

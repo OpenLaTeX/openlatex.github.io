@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { User, ChevronDown, Download, Save, FolderOpen, Play, AlertCircle, FileUp, FolderUp, Settings, FileText, LogOut, Plus } from 'lucide-react';
+import { User, ChevronDown, Download, Save, FolderOpen, Play, AlertCircle, FileUp, FolderUp, Settings, FileText, LogOut, Plus, Menu, X } from 'lucide-react';
 import FileTree from './components/FileTree';
 import Auth from './components/Auth';
 import ProjectList from './components/ProjectList';
@@ -35,6 +35,8 @@ export default function App() {
   const editorRef = useRef(null);
   const isResizing = useRef(false);
   const isSidebarResizing = useRef(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
   const {
     alertModal,
@@ -138,6 +140,16 @@ export default function App() {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('theme', theme);
   }, [theme]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth <= 768;
+      setIsMobile(mobile);
+      if (!mobile) setSidebarOpen(false);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const currentFile = project.currentFile ? project.getFile(project.currentFile) : null;
 
@@ -298,10 +310,24 @@ export default function App() {
 
   return (
     <div className="app-container">
-      <div className="sidebar" style={{ width: `${sidebarWidth}px`, minWidth: `${sidebarWidth}px` }}>
+      {isMobile && (
+        <>
+          <div className="mobile-header">
+            <button className="hamburger-btn" onClick={() => setSidebarOpen(!sidebarOpen)}>
+              {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+            <span>{currentFile?.path || 'OpenLatex'}</span>
+            <button className="hamburger-btn" onClick={handleCompile} disabled={loading}>
+              <Play size={20} />
+            </button>
+          </div>
+          <div className={`sidebar-overlay ${sidebarOpen ? 'visible' : ''}`} onClick={() => setSidebarOpen(false)} />
+        </>
+      )}
+      <div className={`sidebar ${sidebarOpen ? 'open' : ''}`} style={isMobile ? {} : { width: `${sidebarWidth}px`, minWidth: `${sidebarWidth}px` }}>
         <div className="sidebar-header">
-          <a href="https://openlatex.github.io" target="_blank" rel="noopener noreferrer" className="app-logo">
-            <img src="/assets/logo.png" alt="OpenLatex" className="app-logo-image" />
+          <a href="https://github.com/OpenLaTeX/openlatex.github.io" target="_blank" rel="noopener noreferrer" className="app-logo">
+            <img src="/assets/logo_transparent.svg" alt="OpenLatex" className="app-logo-image" />
           </a>
 
           {isAuthenticated ? (
