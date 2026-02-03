@@ -1,3 +1,6 @@
+![Logo OpenLaTeX](assets/logo.png)
+
+
 # [OpenLaTeX - Éditeur LaTeX web avec API Rest](https://openlatex.github.io)
 
 

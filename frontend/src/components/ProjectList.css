@@ -87,7 +87,7 @@
 }
 
 .project-id-icon {
-  color: white;
+  color: var(--text-muted);
   cursor: help;
   flex-shrink: 0;
 }

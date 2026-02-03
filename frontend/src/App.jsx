@@ -28,7 +28,7 @@ export default function App() {
   const [showProjectList, setShowProjectList] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [apiUrl, setApiUrlState] = useState(() => getApiUrl());
-  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark');
+  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
   const { sidebarWidth: initialSidebarWidth, pdfWidth: initialPdfWidth } = UserStorage.getPanelWidths();
   const [sidebarWidth, setSidebarWidth] = useState(initialSidebarWidth);
   const [pdfWidth, setPdfWidth] = useState(initialPdfWidth);
@@ -283,9 +283,11 @@ export default function App() {
   if (showProjectList) {
     return (
       <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
-        <button onClick={() => setShowProjectList(false)} className="btn-icon" style={{marginBottom: '20px'}}>
-          ← Retour
-        </button>
+        {currentProjectId && (
+          <button onClick={() => setShowProjectList(false)} className="btn-icon" style={{marginBottom: '20px'}}>
+            ← Retour
+          </button>
+        )}
         <ProjectList
           onLoadProject={handleLoadProject}
           onNewProject={handleNewProject}
@@ -327,7 +329,7 @@ export default function App() {
       <div className={`sidebar ${sidebarOpen ? 'open' : ''}`} style={isMobile ? {} : { width: `${sidebarWidth}px`, minWidth: `${sidebarWidth}px` }}>
         <div className="sidebar-header">
           <a href="https://github.com/OpenLaTeX/openlatex.github.io" target="_blank" rel="noopener noreferrer" className="app-logo">
-            <img src="/assets/logo_transparent.svg" alt="OpenLatex" className="app-logo-image" />
+            <img src="/assets/logo.png" alt="OpenLatex" className="app-logo-image" />
           </a>
 
           {isAuthenticated ? (

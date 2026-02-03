@@ -143,10 +143,12 @@ body {
 }
 
 .app-logo-image {
-  height: 72px;
-  width: auto;
+  max-height: 72px;
+  width: 100%;
+  max-width: 2500px;
   object-fit: contain;
-  margin-top: -20px;
+  margin-top: 0px;
+  margin-bottom: 10px ;
 }
 
 .sidebar-footer {
