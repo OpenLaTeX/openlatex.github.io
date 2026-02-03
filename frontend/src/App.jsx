@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { User, ChevronDown, Download, Save, FolderOpen, Play, AlertCircle, FileUp, FolderUp, Settings, FileText, LogOut, Plus, Menu, X } from 'lucide-react';
+import { User, ChevronDown, Download, Save, FolderOpen, Play, AlertCircle, FileUp, FolderUp, Settings, FileText, LogOut, Plus, Menu, X, HelpCircle } from 'lucide-react';
 import FileTree from './components/FileTree';
 import Auth from './components/Auth';
 import ProjectList from './components/ProjectList';
@@ -383,8 +383,13 @@ export default function App() {
           </div>
 
           <div className="sidebar-section">
-            <div style={{ fontSize: '13px', fontWeight: '600', marginBottom: '8px', padding: '0 4px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            <div style={{ fontSize: '13px', fontWeight: '600', marginBottom: '8px', padding: '0 4px', overflow: 'hidden', textOverflow: 'ellipsis', display: 'flex', alignItems: 'center', gap: '6px' }}>
               {projectName}
+              {currentProjectId && (
+                <span title={`ID: ${currentProjectId}`}>
+                  <HelpCircle size={14} style={{ color: 'var(--text-muted)', cursor: 'help', flexShrink: 0 }} />
+                </span>
+              )}
             </div>
 
             {isAuthenticated && (
