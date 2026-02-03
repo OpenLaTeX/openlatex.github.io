@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Project } from '../models/Project';
 import ProjectService from '../services/ProjectService';
 import { validateProjectName } from '../utils/validation';
@@ -28,15 +28,19 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt) => {
     return Project.createDefault();
   });
   const [loading, setLoading] = useState(false);
+  const quotaErrorShown = useRef(false);
 
   useEffect(() => {
     if (project.files.length > 0) {
       const success = UserStorage.saveProjectDraft(project);
-      if (!success) {
+      if (!success && !quotaErrorShown.current) {
+        quotaErrorShown.current = true;
         showAlert('Erreur localStorage', 'Impossible de sauvegarder le brouillon localement (quota dépassé). Sauvegardez votre projet sur le serveur pour ne pas perdre vos modifications.');
+      } else if (success) {
+        quotaErrorShown.current = false;
       }
     }
-  }, [project, showAlert]);
+  }, [project]);
 
   const handleSaveProject = async () => {
     if (!isAuthenticated) {
