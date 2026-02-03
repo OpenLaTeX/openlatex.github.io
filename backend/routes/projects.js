@@ -102,7 +102,7 @@ router.get('/:pno', async (req, res) => {
         const project = projectResult.rows[0];
 
         if (project.uno !== req.userId) {
-            return res.status(403).json({ error: 'acces interdit (pas cense se produire)' });
+            return res.status(403).json({ error: "Accès interdit car le token de l'utilisateur de la requête ne correspond pas à celui du propriétaire du projet" });
         }
 
         const filesResult = await SQLquery('select fno, filename, content, file_type, created_at from files where pno = $1',[pno]);

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import ProjectService from '../services/ProjectService';
-import { Download } from 'lucide-react';
+import { Download, HelpCircle } from 'lucide-react';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import './ProjectList.css';
@@ -86,7 +86,10 @@ function ProjectList({ onLoadProject, onNewProject, onConfirm }) {
                 <ul className="project-list">
                     {projects.map(project => (
                         <li key={project.pno} className="project-item">
-                            <div className="project-name">{project.name}</div>
+                            <div className="project-name">
+                                {project.name}
+                                <HelpCircle size={14} className="project-id-icon" title={project.pno} />
+                            </div>
                             {project.description && <p className="project-description">{project.description}</p>}
                             <small className="project-date">{new Date(project.created_at).toLocaleDateString()}</small>
                             <div className="project-actions">
