@@ -81,6 +81,15 @@
   font-weight: 600;
   color: var(--text-main);
   margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.project-id-icon {
+  color: var(--text-muted);
+  cursor: help;
+  flex-shrink: 0;
 }
 
 .project-description {

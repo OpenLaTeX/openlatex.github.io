@@ -143,10 +143,12 @@ body {
 }
 
 .app-logo-image {
-  height: 72px;
-  width: auto;
+  max-height: 72px;
+  width: 100%;
+  max-width: 2500px;
   object-fit: contain;
-  margin-top: -20px;
+  margin-top: 0px;
+  margin-bottom: 10px ;
 }
 
 .sidebar-footer {
@@ -589,4 +591,20 @@ input::placeholder {
     width: 100% !important;
     min-width: 100% !important;
   }
+}
+
+.login-link {
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-sidebar);
+  color: var(--text-main);
+  cursor: pointer;
+}
+
+.login-link:hover {
+  background: var(--bg-hover);
+  border-color: var(--border-strong);
 }

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { User, ChevronDown, Download, Save, FolderOpen, Play, AlertCircle, FileUp, FolderUp, Settings, FileText, LogOut, Plus, Menu, X } from 'lucide-react';
+import { User, ChevronDown, Download, Save, FolderOpen, Play, AlertCircle, FileUp, FolderUp, Settings, FileText, LogOut, Plus, Menu, X, HelpCircle } from 'lucide-react';
 import FileTree from './components/FileTree';
 import Auth from './components/Auth';
 import ProjectList from './components/ProjectList';
@@ -28,7 +28,7 @@ export default function App() {
   const [showProjectList, setShowProjectList] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [apiUrl, setApiUrlState] = useState(() => getApiUrl());
-  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark');
+  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
   const { sidebarWidth: initialSidebarWidth, pdfWidth: initialPdfWidth } = UserStorage.getPanelWidths();
   const [sidebarWidth, setSidebarWidth] = useState(initialSidebarWidth);
   const [pdfWidth, setPdfWidth] = useState(initialPdfWidth);
@@ -283,9 +283,11 @@ export default function App() {
   if (showProjectList) {
     return (
       <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
-        <button onClick={() => setShowProjectList(false)} className="btn-icon" style={{marginBottom: '20px'}}>
-          ← Retour
-        </button>
+        {currentProjectId && (
+          <button onClick={() => setShowProjectList(false)} className="btn-icon" style={{marginBottom: '20px'}}>
+            ← Retour
+          </button>
+        )}
         <ProjectList
           onLoadProject={handleLoadProject}
           onNewProject={handleNewProject}
@@ -327,7 +329,7 @@ export default function App() {
       <div className={`sidebar ${sidebarOpen ? 'open' : ''}`} style={isMobile ? {} : { width: `${sidebarWidth}px`, minWidth: `${sidebarWidth}px` }}>
         <div className="sidebar-header">
           <a href="https://github.com/OpenLaTeX/openlatex.github.io" target="_blank" rel="noopener noreferrer" className="app-logo">
-            <img src="/assets/logo_transparent.svg" alt="OpenLatex" className="app-logo-image" />
+            <img src="/assets/logo.png" alt="OpenLatex" className="app-logo-image" />
           </a>
 
           {isAuthenticated ? (
@@ -353,15 +355,9 @@ export default function App() {
               )}
             </div>
           ) : (
-            <div className="user-profile-badge" onClick={() => setShowAuth(true)}>
-               <div className="user-avatar" style={{ background: 'var(--bg-active)', color: 'var(--text-muted)' }}>
-                  <User size={14} />
-               </div>
-               <div className="user-info">
-                  <span className="user-email">Invité</span>
-                  <span className="user-role">Se connecter</span>
-               </div>
-            </div>
+            <button className="login-link" onClick={() => setShowAuth(true)}>
+              Se connecter
+            </button>
           )}
         </div>
 
@@ -387,8 +383,13 @@ export default function App() {
           </div>
 
           <div className="sidebar-section">
-            <div style={{ fontSize: '13px', fontWeight: '600', marginBottom: '8px', padding: '0 4px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            <div style={{ fontSize: '13px', fontWeight: '600', marginBottom: '8px', padding: '0 4px', overflow: 'hidden', textOverflow: 'ellipsis', display: 'flex', alignItems: 'center', gap: '6px' }}>
               {projectName}
+              {currentProjectId && (
+                <span title={`ID: ${currentProjectId}`}>
+                  <HelpCircle size={14} style={{ color: 'var(--text-muted)', cursor: 'help', flexShrink: 0 }} />
+                </span>
+              )}
             </div>
 
             {isAuthenticated && (
