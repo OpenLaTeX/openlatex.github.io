@@ -1,3 +1,4 @@
+# image docker du backend Node.js (compilateur + gestion des comptes)
 FROM node:22-slim
 
 
