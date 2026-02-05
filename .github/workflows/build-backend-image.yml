@@ -1,5 +1,5 @@
 name: (DOCKER) - Construction de l'image 
-# Construit l'image docker du Node.js (compilateur + gestion des comptes)
+# Construit l'image docker du Node.js (compilateur + gestion des comptes). 
 
 on:
   push:
