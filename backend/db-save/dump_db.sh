@@ -7,7 +7,7 @@ SCRIPT_VERSION="1.1.0"
 
 # Charger les variables depuis .env
 SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
-source "$SCRIPT_DIR/../.env"
+source "$SCRIPT_DIR/../.env" 
 
 # config
 BACKUP_DIR="/home/admin/backups"
