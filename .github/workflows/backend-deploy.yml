@@ -32,7 +32,7 @@ jobs:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
         run: |
           ssh -o StrictHostKeyChecking=no $VPS_USER@$VPS_HOST <<EOF
-            cd /home/deployer/OpenLatex 2>/dev/null || (cd /home/deployer && git clone https://github.com/${{ github.repository }}.git OpenLatex && cd OpenLatex)
+            cd /home/admin/OpenLatex 2>/dev/null || (cd /home/deployer && git clone https://github.com/${{ github.repository }}.git OpenLatex && cd OpenLatex)
             git fetch origin ${{ github.ref_name }}
             git reset --hard origin/${{ github.ref_name }}
             cd backend
