@@ -32,9 +32,12 @@ Il met également à disposition une base de données intégrée pour que les ut
 ### Récemment réalisées 
 
 - Sauvegarde automatique chiffrée GPG (RSA x2) vers cloud storage (BackBlaze)
+- Transition du cloud provider/BDD de DigitalOcean vers AWS
 
 ### À venir
 
+- (En cours) - Terraform pour AWS
+- (En cours) - Procédures de maintenance du serveur (restauration BDD, sauvegardetransition cloud...)
 - Collaboration d'écriture de documents (Yjs) grâce à l'éditeur JS CodeMirror
 
 ## Informations de production
