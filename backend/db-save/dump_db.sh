@@ -10,7 +10,7 @@ SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
 source "$SCRIPT_DIR/../.env"
 
 # config
-BACKUP_DIR="/home/deployer/backups"
+BACKUP_DIR="/home/admin/backups"
 RETENTION_DAYS=7
 CONTAINER_NAME="openlatex_postgres"
 ALERT_EMAIL="baptiste.lavogiez@proton.me"
@@ -25,9 +25,9 @@ BACKUP_FILE="${BACKUP_DIR}/openlatex_${DATE}.dump"
 LOG_FILE="${BACKUP_DIR}/backup.log"
 
 # config pour lancement sous cron
-export PATH="/home/deployer/.local/bin:$PATH" #chemin pour trouver b2
-export HOME=/home/deployer
-export GNUPGHOME=/home/deployer/.gnupg
+export PATH="/home/admin/.local/bin:$PATH" #chemin pour trouver b2
+export HOME=/home/admin
+export GNUPGHOME=/home/admin/.gnupg
 
 log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >> "$LOG_FILE"
