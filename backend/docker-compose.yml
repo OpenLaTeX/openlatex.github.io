@@ -22,9 +22,7 @@ services:
       - openlatex
 
   backend:
-    build:
-      context: .
-      dockerfile: ./compiler/Dockerfile
+    image: ghcr.io/openlatex/openlatex-backend:latest
     container_name: openlatex_backend
     restart: unless-stopped
     depends_on:
