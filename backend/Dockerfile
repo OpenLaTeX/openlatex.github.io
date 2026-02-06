@@ -1,4 +1,4 @@
-# image docker du backend Node.js (compilateur + gestion des comptes)
+# image docker du backend Node.js (compilateur + gestion des comptes). Pertinent car texlive-full fait 4GB de données.
 FROM node:22-slim
 
 

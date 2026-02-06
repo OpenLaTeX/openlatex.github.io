@@ -37,7 +37,7 @@ Il met également à disposition une base de données intégrée pour que les ut
 ### À venir
 
 - (En cours) - Terraform pour AWS
-- (En cours) - Procédures de maintenance du serveur (restauration BDD, sauvegardetransition cloud...)
+- (En cours) - Procédures de maintenance du serveur (restauration BDD, sauvegarde, transition cloud...)
 - Collaboration d'écriture de documents (Yjs) grâce à l'éditeur JS CodeMirror
 
 ## Informations de production

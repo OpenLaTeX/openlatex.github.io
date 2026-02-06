@@ -38,14 +38,28 @@ services:
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN}
       FRONTEND_URL: ${FRONTEND_URL}
       PORT: 8000
-    ports:
-      - "8000:8000"
     volumes:
       - /tmp:/tmp
     networks:
       - openlatex
 
+  caddy:
+    image: caddy:2-alpine
+    container_name: openlatex_caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - openlatex
+
 volumes:
+  caddy_data:
+  caddy_config:
   postgres_data:
 
 networks:
