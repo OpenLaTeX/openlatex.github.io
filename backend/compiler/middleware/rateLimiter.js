@@ -18,7 +18,7 @@ const userLimiter = rateLimit({
     message: { error: '10 compilations max par minute pour les utilisateurs connectés, réessayez plus tard.' },
     standardHeaders: true,
     legacyHeaders: false,
-    validate: { ipAddress: false },
+    validate: { keyGeneratorIpFallback: false },
     keyGenerator: (req) => {
         const authHeader = req.headers.authorization;
         const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
