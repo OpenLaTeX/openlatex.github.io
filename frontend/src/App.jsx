@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { User, ChevronDown, Download, Save, FolderOpen, Play, AlertCircle, FileUp, FolderUp, Settings, FileText, LogOut, Plus, Menu, X, HelpCircle } from 'lucide-react';
+import { User, ChevronDown, Download, Save, FolderOpen, Play, AlertCircle, FileUp, FolderUp, Settings, FileText, LogOut, Plus, Menu, X } from 'lucide-react';
 import FileTree from './components/FileTree';
 import Auth from './components/Auth';
 import ProjectList from './components/ProjectList';
@@ -383,12 +383,10 @@ export default function App() {
           </div>
 
           <div className="sidebar-section">
-            <div style={{ fontSize: '13px', fontWeight: '600', marginBottom: '8px', padding: '0 4px', overflow: 'hidden', textOverflow: 'ellipsis', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              {projectName}
+            <div style={{ fontSize: '13px', fontWeight: '600', marginBottom: '8px', padding: '0 4px', overflow: 'hidden', textOverflow: 'ellipsis' }} title={projectName}>
+              {projectName.length > 15 ? projectName.slice(0, 15) + '...' : projectName}
               {currentProjectId && (
-                <span title={`ID: ${currentProjectId}`}>
-                  <HelpCircle size={14} style={{ color: 'var(--text-muted)', cursor: 'help', flexShrink: 0 }} />
-                </span>
+                <small style={{ display: 'block', fontSize: '10px', fontWeight: '400', color: 'var(--text-faint)', opacity: 0.6 }}>{currentProjectId.slice(0, 5)}</small>
               )}
             </div>
 
