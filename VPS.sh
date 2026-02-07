@@ -2,7 +2,7 @@
 
 # Choix du serveur
 echo "=== Choix du serveur ==="
-echo "1) DigitalOcean (159.65.196.71)"
+echo "1) DigitalOcean (159.65.196.71) (il est down suite à la transition)"
 echo "2) AWS (terraform output)"
 read -p "Choix (1-2) : " serveur
 

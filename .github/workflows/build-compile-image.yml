@@ -1,10 +1,9 @@
-name: (DOCKER) - Construction de l'image Node.js
-# Construit l'image docker du Node.js (auth + projets).
+name: (DOCKER) - Construction de l'image Compile
 
 on:
   push:
     paths:
-      - 'backend/account-manager/**'
+      - 'backend/compiler/**'
       - 'backend/package*.json'
     branches: [main, backend/release]
   workflow_dispatch:
@@ -32,6 +31,6 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./backend
-          file: ./backend/account-manager/Dockerfile
+          file: ./backend/compiler/Dockerfile
           push: true
-          tags: ghcr.io/${{ env.OWNER_LC }}/openlatex-backend:latest
+          tags: ghcr.io/${{ env.OWNER_LC }}/openlatex-compile:latest

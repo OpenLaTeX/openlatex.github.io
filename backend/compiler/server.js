@@ -4,10 +4,10 @@ const cookieParser = require('cookie-parser');
 const { exec } = require('child_process');
 require('dotenv').config();
 
-const authRoutes = require('./routes/auth');
-const projectsRoutes = require('./routes/projects');
+// Serveur de compilation, pensé pour fonctionner dans un conteneur différent du "manager" de comptes pour optimiser les performances
+
 const compileRoutes = require('./routes/compile');
-const { defaultProtectionLimiter, guestLimiter, userLimiter, authLimiter } = require('./middleware/rateLimiter');
+const { defaultProtectionLimiter, guestLimiter, userLimiter } = require('./middleware/rateLimiter');
 
 const app = express();
 app.use(cors({
@@ -36,18 +36,15 @@ app.get('/health', (req, res) => {
   });
 });
 
-app.use('/auth', authLimiter, authRoutes);
-app.use('/projects', projectsRoutes);
-
-// compilation avec qui se base sur l'upload + Rate limiting: 10/min pour users authentifiés, 3/min pour invités
+// compilation avec rate limiting: 10/min pour users authentifies, 3/min pour invites
 app.use('/compile', (req, res, next) => {
     (req.cookies.token ? userLimiter : guestLimiter)(req, res, next);
 }, compileRoutes);
 
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.PORT || 9000;
 
 app.listen(PORT, () => {
-  console.log('backend demarre sur le port', PORT);
+  console.log('compile-server demarre sur le port', PORT);
   exec('which pdflatex && pdflatex --version', (error, stdout) => {
     if (error) {
       console.error('warning: pdflatex pas trouve');

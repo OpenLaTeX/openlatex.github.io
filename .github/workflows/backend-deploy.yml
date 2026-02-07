@@ -2,7 +2,9 @@ name: (BACKEND) - Deploiement backend Docker VPS
 
 on:
   workflow_run:
-    workflows: ["(DOCKER) - Construction de l'image Node.js"]
+    workflows:
+      - "(DOCKER) - Construction de l'image Node.js"
+      - "(DOCKER) - Construction de l'image Compile"
     types: [completed]
     branches: [backend/*]
   workflow_dispatch:

@@ -64,10 +64,6 @@ Le conteneur PostgreSQL stocke les données dans un volume (les données restent
 
 Le backend est hébergé à des fins de démonstration et me coûte 6$/mois (DigitalOcean). Le VPS est à Amsterdam (1 CPU, 1GB RAM) et est déployé depuis la branche `backend/release` en CI/CD avec SSH.
 
-Des limites sont instaurées pour ne pas surcharger étant donné la puissance du VPS : 
-- 3 compilations par minute pour les invités
-- 10 compilations par minute pour les personnes connectées
-
 Le frontend est hébergé sur GitHub Pages et se redéploie depuis la branche `frontend/release`.
 
 ## Informations de sécurité
@@ -80,6 +76,16 @@ Les informations secrètes (clés privées) sont une priorité.
 Les clés n'apparaissent nulle part pour le public, que ce soit dans le code, dans l'historique git, etc.
 
 Enfin, les sauvegardes sont toujours chiffrées en GPG (RSA x2 4096 bits) avec la clé publique. La base ne peut être reproduite que par l'administrateur possédant la clé privée. De ce fait, aucune information présente sur le VPS / Cloud storage ne permet de déchiffrer les sauvegardes.
+
+## Limites 
+
+Des limites sont instaurées pour ne pas surcharger étant donné la puissance du VPS : 
+- 3 compilations par minute pour les invités
+- 10 compilations par minute pour les personnes connectées
+- 5 projets maximum par compte
+- 10 mb maximum par projet
+- Limites contre le bruteforce
+
 
 ## Installation
 

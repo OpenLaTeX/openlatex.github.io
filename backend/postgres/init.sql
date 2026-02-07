@@ -1,4 +1,4 @@
---- conventions nommages | syntaxe de l'IUTINFO Villeneuve d'ascq
+--- conventions nommages | syntaxe de l'IUT de Lille
 
 create extension if not exists pgcrypto;
 

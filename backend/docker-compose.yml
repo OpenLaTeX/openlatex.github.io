@@ -38,6 +38,17 @@ services:
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN}
       FRONTEND_URL: ${FRONTEND_URL}
       PORT: 8000
+    networks:
+      - openlatex
+
+  compile:
+    image: ghcr.io/openlatex/openlatex-compile:latest
+    container_name: openlatex_compile
+    restart: unless-stopped
+    environment:
+      FRONTEND_URL: ${FRONTEND_URL}
+      JWT_SECRET: ${JWT_SECRET}
+      PORT: 9000
     volumes:
       - /tmp:/tmp
     networks:
