@@ -28,18 +28,18 @@ function ProjectList({ onLoadProject, onNewProject, onConfirm }) {
     };
 
     const handleDelete = async (pno, projectName) => {
-        onConfirm(
+        const confirmed = await onConfirm(
             'Supprimer le projet',
-            `Êtes-vous sûr de vouloir supprimer le projet "${projectName}" ? Cette action est irréversible.`,
-            async () => {
-                try {
-                    await ProjectService.deleteProject(pno);
-                    setProjects(prev => prev.filter(p => p.pno !== pno));
-                } catch (err) {
-                    setError('Impossible de supprimer le projet : ' + err.message);
-                }
-            }
+            `Êtes-vous sûr de vouloir supprimer le projet "${projectName}" ? Cette action est irréversible.`
         );
+        if (confirmed) {
+            try {
+                await ProjectService.deleteProject(pno);
+                setProjects(prev => prev.filter(p => p.pno !== pno));
+            } catch (err) {
+                setError('Impossible de supprimer le projet : ' + err.message);
+            }
+        }
     };
 
     const handleDownload = async (pno, projectName) => {
