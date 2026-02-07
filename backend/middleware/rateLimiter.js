@@ -36,4 +36,20 @@ const userLimiter = rateLimit({
     }
 });
 
-module.exports = { guestLimiter, userLimiter };
+const defaultProtectionLimiter = rateLimit({
+    windowMs: 1 * 60 * 1000,
+    max: 10,
+    message: { error: 'Trop de requêtes, réessayez dans une minute.' },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+const authLimiter = rateLimit({
+    windowMs: 5 * 60 * 1000,
+    max: 5,
+    message: { error: 'Trop de tentatives, réessayez dans 5 minutes.' },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+module.exports = { defaultProtectionLimiter, guestLimiter, userLimiter, authLimiter };

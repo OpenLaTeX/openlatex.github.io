@@ -6,6 +6,15 @@ const router = express.Router();
 
 router.use(authMiddleware);
 
+const getConstraintMessage = (err) => {
+    if (err.code !== '23514') return null;
+    const messages = {
+        chk_project_limit: 'Limite de 5 projets atteinte',
+        chk_project_size: 'Le projet dépasse la limite de 10 Mo',
+    };
+    return messages[err.constraint] || null;
+};
+
 const isBinaryFileType = (fileType) => {
     return ['png', 'jpg', 'pdf'].includes(fileType);
 };
@@ -86,6 +95,8 @@ router.post('/', async (req, res) => {
             throw err;
         }
     } catch (err) {
+        const constraintMsg = getConstraintMessage(err);
+        if (constraintMsg) return res.status(400).json({ error: constraintMsg });
         console.error('erreur create project:', err);
         res.status(500).json({ error: 'erreur serveur' });
     }
@@ -194,6 +205,8 @@ router.put('/:pno', async (req, res) => {
 
         res.json({ message: 'projet mis a jour' });
     } catch (err) {
+        const constraintMsg = getConstraintMessage(err);
+        if (constraintMsg) return res.status(400).json({ error: constraintMsg });
         console.error('erreur update project:', err);
         res.status(500).json({ error: 'erreur serveur' });
     }
