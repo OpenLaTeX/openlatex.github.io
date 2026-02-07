@@ -9,7 +9,7 @@ on:
       - 'backend/account-manager/**'
       - 'backend/compiler/**'
       - 'backend/package*.json'
-    branches: [main, backend/release]
+    branches: [main, backend/*]
   workflow_dispatch:
 
 jobs:
