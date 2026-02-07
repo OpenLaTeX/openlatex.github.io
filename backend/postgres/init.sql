@@ -14,7 +14,7 @@ create table if not exists users (
 create table if not exists projects (
     pno text primary key default gen_random_uuid()::text,
     uno text not null references users(uno) on delete cascade,
-    name text not null,
+    name varchar(15) not null,
     description text,
     created_at timestamp default now(),
     total_size bigint default 0,

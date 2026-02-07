@@ -46,6 +46,10 @@ router.post('/', async (req, res) => {
         return res.status(400).json({ error: 'name et files requis !' });
     }
 
+    if (name.length > 15) {
+        return res.status(400).json({ error: 'le nom du projet ne doit pas depasser 15 caracteres' });
+    }
+
     try {
         await SQLquery('BEGIN');
         try {
@@ -135,6 +139,10 @@ router.put('/:pno', async (req, res) => {
 
     if (!name || !files || !Array.isArray(files)) {
         return res.status(400).json({ error: 'name et files requis' });
+    }
+
+    if (name.length > 15) {
+        return res.status(400).json({ error: 'le nom du projet ne doit pas depasser 15 caracteres' });
     }
 
     try {
