@@ -194,6 +194,44 @@
   color: var(--text-muted);
 }
 
+.limits-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.limits-list li {
+  font-size: 13px;
+  color: var(--text-muted);
+  padding: 8px 12px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+}
+
+.limits-list li span {
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.settings-credit {
+  margin: 16px 0 0 0;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.settings-credit a {
+  color: var(--accent-primary);
+  text-decoration: none;
+}
+
+.settings-credit a:hover {
+  text-decoration: underline;
+}
+
 @media (max-width: 480px) {
   .settings-modal-content {
     width: 100%;

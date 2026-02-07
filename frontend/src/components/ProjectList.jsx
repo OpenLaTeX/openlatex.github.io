@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import ProjectService from '../services/ProjectService';
-import { Download, HelpCircle } from 'lucide-react';
+import { Download } from 'lucide-react';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import './ProjectList.css';
@@ -86,12 +86,12 @@ function ProjectList({ onLoadProject, onNewProject, onConfirm }) {
                 <ul className="project-list">
                     {projects.map(project => (
                         <li key={project.pno} className="project-item">
-                            <div className="project-name">
-                                {project.name}
-                                <span title={`ID: ${project.pno}`}><HelpCircle size={14} className="project-id-icon" /></span>
+                            <div className="project-name" title={project.name}>
+                                {project.name.length > 15 ? project.name.slice(0, 15) + '...' : project.name}
                             </div>
                             {project.description && <p className="project-description">{project.description}</p>}
                             <small className="project-date">{new Date(project.created_at).toLocaleDateString()}</small>
+                            <small className="project-id">{project.pno.slice(0, 5)}</small>
                             <div className="project-actions">
                                 <button onClick={() => onLoadProject(project.pno)} className="project-action-button project-action-button-primary">
                                     Ouvrir

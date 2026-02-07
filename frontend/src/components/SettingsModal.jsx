@@ -67,6 +67,27 @@ export default function SettingsModal({ isOpen, onClose, theme, onThemeChange, a
             </div>
           </div>
         </div>
+
+        <div className="settings-section">
+          <h3>À propos</h3>
+          <div className="setting-item">
+            <div className="setting-info">
+              <label>Limites</label>
+              <span className="setting-description">
+                Restrictions en vigueur sur la plateforme
+              </span>
+            </div>
+            <ul className="limits-list">
+              <li><span>3</span> compilations par session (invité)</li>
+              <li><span>10</span> compilations par session (connecté)</li>
+              <li><span>5</span> projets maximum par compte</li>
+              <li><span>10 mb</span> maximum par projet</li>
+            </ul>
+          </div>
+          <p className="settings-credit">
+            Réalisé par <a href="https://github.com/blavogiez" target="_blank" rel="noopener noreferrer">Baptiste Lavogiez</a>
+          </p>
+        </div>
       </div>
     </Modal>
   );

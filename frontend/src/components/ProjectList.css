@@ -86,10 +86,11 @@
   gap: 6px;
 }
 
-.project-id-icon {
-  color: var(--text-muted);
-  cursor: help;
-  flex-shrink: 0;
+.project-id {
+  display: block;
+  font-size: 10px;
+  color: var(--text-faint);
+  opacity: 0.6;
 }
 
 .project-description {
