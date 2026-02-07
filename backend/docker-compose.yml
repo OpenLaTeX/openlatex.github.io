@@ -45,8 +45,6 @@ services:
       FRONTEND_URL: ${FRONTEND_URL}
       JWT_SECRET: ${JWT_SECRET}
       PORT: 9000
-    volumes:
-      - /tmp/openlatex-compile:/tmp
     networks:
       - openlatex
 
