@@ -45,7 +45,7 @@ jobs:
             echo "$GPG_PUBLIC_KEY" | gpg --import --batch 2>/dev/null || true
 
             # configurer b2 (Solution de cloud storage Backblaze)
-            b2 authorize-account "$B2_APPLICATION_KEY_ID" "$B2_APPLICATION_KEY"
+            b2 authorize-account "$B2_APPLICATION_KEY_ID" "$B2_APPLICATION_KEY" > /dev/null 2>&1
 
             chmod +x /home/admin/OpenLatex/backend/db-save/dump_db.sh
 

@@ -17,7 +17,7 @@ router.post('/register', async (req, res) => {
         const existing = await SQLquery('select uno from users where email = $1', [email]);
 
         if (existing.rows.length > 0) {
-            return res.status(409).json({ error: 'Email deja utilise (contrainte sql unique)' });
+            return res.status(409).json({ error: 'Email déjà utilisé' });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -30,7 +30,7 @@ router.post('/register', async (req, res) => {
         res.status(201).json({ message: 'utilisateur cree' });
     } catch (err) {
         console.error('erreur register:', err);
-        res.status(500).json({ error: 'erreur serveur suite à register' });
+        res.status(500).json({ error: 'Erreur serveur suite à un register' });
     }
 });
 
@@ -64,7 +64,7 @@ router.post('/login', async (req, res) => {
         res.json({ token });
     } catch (err) {
         console.error('erreur login:', err);
-        res.status(500).json({ error: 'erreur serveur suite à login' });
+        res.status(500).json({ error: 'Erreur serveur suite à un login' });
     }
 });
 

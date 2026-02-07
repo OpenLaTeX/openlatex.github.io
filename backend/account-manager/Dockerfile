@@ -10,6 +10,8 @@ RUN npm ci --only=production
 
 COPY account-manager/ ./
 
+USER node
+
 EXPOSE 8000
 
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \

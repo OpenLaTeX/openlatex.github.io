@@ -14,7 +14,9 @@ RUN npm ci --only=production
 
 COPY compiler/ ./
 
-RUN mkdir -p /tmp && chmod 777 /tmp
+RUN mkdir -p /tmp && chmod 1777 /tmp
+
+USER node
 
 EXPOSE 9000
 
