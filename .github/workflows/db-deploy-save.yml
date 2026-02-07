@@ -16,6 +16,12 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
 
+      - name: Setup known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VPS_SSH_KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
       - name: configuration backup sur VPS
         env:
           VPS_HOST: ${{ secrets.VPS_HOST }}
@@ -24,7 +30,7 @@ jobs:
           B2_APPLICATION_KEY_ID: ${{ secrets.B2_APPLICATION_KEY_ID }}
           B2_APPLICATION_KEY: ${{ secrets.B2_APPLICATION_KEY }}
         run: |
-          ssh -o StrictHostKeyChecking=no $VPS_USER@$VPS_HOST <<EOF
+          ssh $VPS_USER@$VPS_HOST <<EOF
             # dossier de backup (dans home, pas besoin de sudo)
             mkdir -p /home/admin/backups
 
