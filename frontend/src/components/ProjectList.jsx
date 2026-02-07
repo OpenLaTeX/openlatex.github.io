@@ -34,7 +34,7 @@ function ProjectList({ onLoadProject, onNewProject, onConfirm }) {
             async () => {
                 try {
                     await ProjectService.deleteProject(pno);
-                    setProjects(projects.filter(p => p.pno !== pno));
+                    setProjects(prev => prev.filter(p => p.pno !== pno));
                 } catch (err) {
                     setError('Impossible de supprimer le projet : ' + err.message);
                 }

@@ -49,7 +49,7 @@ export const validateProjectName = (name) => {
   }
 
   if (trimmed.length > 100) {
-    return 'Le nom du projet est trop long';
+    return 'Le nom du projet ne doit pas dépasser 100 caractères';
   }
 
   return null;
