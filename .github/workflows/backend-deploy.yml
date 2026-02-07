@@ -1,13 +1,16 @@
 name: (BACKEND) - Deploiement backend Docker VPS
 
 on:
-  push:
+  workflow_run:
+    workflows: ["(DOCKER) - Construction de l'image Node.js"]
+    types: [completed]
     branches: [backend/*]
   workflow_dispatch:
 
 jobs:
   deploy-backend:
     runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -21,6 +24,7 @@ jobs:
           ## reconstruction du .env avec secrets (cat .env sur VPS pour check)
       - name: deploiement sur VPS
         env:
+          DEPLOY_BRANCH: ${{ github.event.workflow_run.head_branch || github.ref_name }}
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_USER: ${{ secrets.VPS_USER }}
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
@@ -33,8 +37,8 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no $VPS_USER@$VPS_HOST <<EOF
             cd /home/admin/OpenLatex 2>/dev/null || (cd /home/admin && git clone https://github.com/${{ github.repository }}.git OpenLatex && cd OpenLatex)
-            git fetch origin ${{ github.ref_name }}
-            git reset --hard origin/${{ github.ref_name }}
+            git fetch origin $DEPLOY_BRANCH
+            git reset --hard origin/$DEPLOY_BRANCH
             cd backend
 
             printf '%s\n' \
