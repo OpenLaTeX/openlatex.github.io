@@ -29,12 +29,10 @@ while true; do
     echo "=== Menu ==="
     echo "1) Se connecter en root sur le VPS"
     echo "2) Se connecter en admin"
-    echo "3) Voir les logs du conteneur Postgres"
-    echo "4) Accéder au CLI du conteneur Postgres"
-    echo "5) Voir les logs du conteneur openlatex-backend"
-    echo "6) Accéder au CLI du conteneur openlatex-backend"
-    echo "7) Quitter"
-    read -p "choisissez une option (1-7) : " choix
+    echo "3) Voir les logs d'un conteneur"
+    echo "4) Accéder au CLI d'un conteneur"
+    echo "5) Quitter"
+    read -p "choisissez une option (1-5) : " choix
     case $choix in
         1)
             echo "Connexion à l'utilisateur : root..."
@@ -47,26 +45,40 @@ while true; do
             ssh -i github_deploy_key admin@$VPS_IP
             ;;
         3)
-            echo "Logs du conteneur Postgres..."
-            echo "ssh -i github_deploy_key admin@$VPS_IP \"docker logs -f openlatex_postgres\""
-            ssh -i github_deploy_key admin@$VPS_IP "docker logs -f openlatex_postgres"
+            echo "Quel conteneur ?"
+            echo "  a) openlatex_postgres"
+            echo "  b) openlatex_account-manager"
+            echo "  c) openlatex_compile"
+            echo "  d) openlatex_caddy"
+            read -p "Choix (a-d) : " container
+            case $container in
+                a) NAME="openlatex_postgres" ;;
+                b) NAME="openlatex_account-manager" ;;
+                c) NAME="openlatex_compile" ;;
+                d) NAME="openlatex_caddy" ;;
+                *) echo "Choix invalide"; continue ;;
+            esac
+            echo "Logs de $NAME..."
+            ssh -i github_deploy_key admin@$VPS_IP "docker logs -f $NAME"
             ;;
         4)
-            echo "Connexion au CLI Postgres..."
-            echo "ssh -i github_deploy_key -t admin@$VPS_IP \"docker exec -it openlatex_postgres bash\""
-            ssh -i github_deploy_key -t admin@$VPS_IP "docker exec -it openlatex_postgres bash"
+            echo "Quel conteneur ?"
+            echo "  a) openlatex_postgres"
+            echo "  b) openlatex_account-manager"
+            echo "  c) openlatex_compile"
+            echo "  d) openlatex_caddy"
+            read -p "Choix (a-d) : " container
+            case $container in
+                a) NAME="openlatex_postgres" ;;
+                b) NAME="openlatex_account-manager" ;;
+                c) NAME="openlatex_compile" ;;
+                d) NAME="openlatex_caddy" ;;
+                *) echo "Choix invalide"; continue ;;
+            esac
+            echo "Connexion au CLI de $NAME..."
+            ssh -i github_deploy_key -t admin@$VPS_IP "docker exec -it $NAME /bin/bash"
             ;;
         5)
-            echo "Connexion aux logs du conteneur openlatex-backend..."
-            echo "ssh -i github_deploy_key admin@$VPS_IP \"docker logs -f openlatex_backend\""
-            ssh -i github_deploy_key admin@$VPS_IP "docker logs -f openlatex_backend"
-            ;;
-        6)
-            echo "Connexion au CLI openlatex-backend..."
-            echo "ssh -i github_deploy_key admin@$VPS_IP \"docker exec -i openlatex_backend /bin/bash\""
-            ssh -i github_deploy_key admin@$VPS_IP "docker exec -i openlatex_backend /bin/bash"
-            ;;
-        7)
             echo "Fin du script"
             exit 0
             ;;

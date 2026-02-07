@@ -57,7 +57,7 @@ jobs:
           context: ./backend
           file: ./backend/account-manager/Dockerfile
           push: true
-          tags: ghcr.io/${{ env.OWNER_LC }}/openlatex-backend:latest
+          tags: ghcr.io/${{ env.OWNER_LC }}/openlatex-account-manager:latest
 
   build-compiler:
     needs: detect-changes
@@ -139,4 +139,5 @@ jobs:
             docker compose down
             docker compose pull
             docker compose up -d
+            docker image prune -f
           EOF
