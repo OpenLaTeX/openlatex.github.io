@@ -87,7 +87,7 @@ function ProjectList({ onLoadProject, onNewProject, onConfirm }) {
                     {projects.map(project => (
                         <li key={project.pno} className="project-item">
                             <div className="project-name" title={project.name}>
-                                {project.name.length > 15 ? project.name.slice(0, 15) + '...' : project.name}
+                                {project.name.length > 15 ? project.name.slice(0, 40) + '...' : project.name}
                             </div>
                             {project.description && <p className="project-description">{project.description}</p>}
                             <small className="project-date">{new Date(project.created_at).toLocaleDateString()}</small>

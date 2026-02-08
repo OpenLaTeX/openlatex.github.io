@@ -384,7 +384,7 @@ export default function App() {
 
           <div className="sidebar-section">
             <div style={{ fontSize: '13px', fontWeight: '600', marginBottom: '8px', padding: '0 4px', overflow: 'hidden', textOverflow: 'ellipsis' }} title={projectName}>
-              {projectName.length > 15 ? projectName.slice(0, 15) + '...' : projectName}
+              {projectName.length > 15 ? projectName.slice(0, 40) + '...' : projectName}
               {currentProjectId && (
                 <small style={{ display: 'block', fontSize: '10px', fontWeight: '400', color: 'var(--text-faint)', opacity: 0.6 }}>{currentProjectId.slice(0, 5)}</small>
               )}
