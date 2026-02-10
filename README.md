@@ -29,14 +29,16 @@ Il met également à disposition une base de données intégrée pour que les ut
 
 ## Améliorations
 
-### Récemment réalisées 
+### Récemment réalisées
 
 - Sauvegarde automatique chiffrée GPG (RSA x2) vers cloud storage (BackBlaze)
 - Transition du cloud provider/BDD de DigitalOcean vers AWS
+- Terraform pour AWS
+- Séparation du backend en deux conteneurs (account manager / compilateur)
+- En-têtes de sécurité stricts (Caddy)
 
 ### À venir
 
-- (En cours) - Terraform pour AWS
 - (En cours) - Procédures de maintenance du serveur (restauration BDD, sauvegarde, transition cloud...)
 - Collaboration d'écriture de documents (Yjs) grâce à l'éditeur JS CodeMirror
 
@@ -44,12 +46,15 @@ Il met également à disposition une base de données intégrée pour que les ut
 
 [Le site en production](https://openlatex.github.io)
 
-Le backend tourne sur un VPS Debian distant en continu avec deux conteneurs Docker :
+Le backend tourne sur un VPS Debian distant en continu avec quatre conteneurs Docker :
 
-- **Node.js** : Réception des fichiers, compilation, renvoi du PDF avec Express pour l'API REST
 - **PostgreSQL** : Comptes et projets des utilisateurs
+- **Node.js (Account Manager)** : Gestion des comptes, projets et communication avec la BDD
+- **Node.js (Compilateur)** : Compilateur LaTeX (conteneur séparé avec texlive)
+- **Caddy** : Reverse proxy HTTPS avec en-têtes de sécurité stricts
 
-Le conteneur Node.js communique avec le conteneur SQL afin de renvoyer les projets lorsque l'utilisateur le demande. Ce conteneur est exposé en HTTPS par un DNS simple (DuckDNS).
+
+Le conteneur Node.js de gestion communique avec le conteneur SQL afin de renvoyer les projets lorsque l'utilisateur le demande. Ce conteneur est exposé en HTTPS par un DNS simple (DuckDNS).
 
 Le conteneur PostgreSQL stocke les données dans un volume (les données restent même après arrêt du conteneur). 
 
@@ -62,7 +67,7 @@ Le conteneur PostgreSQL stocke les données dans un volume (les données restent
 >
 > </details>
 
-Le backend est hébergé à des fins de démonstration et me coûte 6$/mois (DigitalOcean). Le VPS est à Amsterdam (1 CPU, 1GB RAM) et est déployé depuis la branche `backend/release` en CI/CD avec SSH.
+Le backend est hébergé sur AWS, région Paris (eu-west-3), sur une instance EC2 t3.micro, et est déployé depuis la branche `backend/release` en CI/CD avec SSH.
 
 Le frontend est hébergé sur GitHub Pages et se redéploie depuis la branche `frontend/release`.
 
@@ -75,7 +80,9 @@ Les informations secrètes (clés privées) sont une priorité.
 
 Les clés n'apparaissent nulle part pour le public, que ce soit dans le code, dans l'historique git, etc.
 
-Enfin, les sauvegardes sont toujours chiffrées en GPG (RSA x2 4096 bits) avec la clé publique. La base ne peut être reproduite que par l'administrateur possédant la clé privée. De ce fait, aucune information présente sur le VPS / Cloud storage ne permet de déchiffrer les sauvegardes.
+Des en-têtes de sécurité HTTP sont configurés dans Caddy : HSTS, X-Content-Type-Options, X-Frame-Options, Referrer-Policy et Permissions-Policy. Les conteneurs Node.js tournent en utilisateur non-root.
+
+Enfin, les sauvegardes sont toujours chiffrées avec GPG (en RSA x2 4096 bits) avec la clé publique. La base ne peut être reproduite que par l'administrateur possédant la clé privée. De ce fait, aucune information présente sur le VPS / Cloud storage ne permet de déchiffrer les sauvegardes.
 
 ## Limites 
 
@@ -172,6 +179,7 @@ En somme, une introduction très épanouissante à des pratiques modernes de dé
 - **Backend** : Node.js, Express, API REST
 - **Base de données** : PostgreSQL avec volumes Docker persistants
 - **Infrastructure** : Docker, Docker Compose
+- **Infrastructure as Code** : Terraform (AWS)
 - **CI/CD** : GitHub Actions avec déploiement SSH automatisé
 - **Sécurité** : JWT pour l'authentification, HTTPS via DuckDNS
 
