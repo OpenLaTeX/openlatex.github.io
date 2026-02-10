@@ -34,7 +34,7 @@ Il met également à disposition une base de données intégrée pour que les ut
 - Sauvegarde automatique chiffrée GPG (RSA x2) vers cloud storage (BackBlaze)
 - Transition du cloud provider/BDD de DigitalOcean vers AWS
 - Terraform pour AWS
-- Séparation du backend en deux conteneurs (account manager / compilateur)
+- Séparation du backend Node.js en deux conteneurs (account manager / compilateur) portant le total à quatre conteneurs
 - En-têtes de sécurité stricts (Caddy)
 
 ### À venir
