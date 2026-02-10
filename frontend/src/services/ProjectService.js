@@ -18,11 +18,13 @@ class ProjectService {
             throw new Error('Session expirée - reconnexion requise');
         }
 
+        const data = await response.json();
+
         if (!response.ok) {
-            throw new Error('erreur chargement projets');
+            throw new Error(data.error || 'erreur chargement projets');
         }
 
-        return await response.json();
+        return data;
     }
 
     static async createProject(name, description, files) {
@@ -54,11 +56,13 @@ class ProjectService {
             throw new Error('Session expirée - reconnexion requise');
         }
 
+        const data = await response.json();
+
         if (!response.ok) {
-            throw new Error('erreur chargement projet');
+            throw new Error(data.error || 'erreur chargement projet');
         }
 
-        return await response.json();
+        return data;
     }
 
     static async updateProject(pno, name, description, files) {
