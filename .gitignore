@@ -8,7 +8,10 @@ C*.md
 github_deploy_key
 github_deploy_key.pub
 backup-public.key
+*.dump
+*.gpg
 
 terraform/azure
 terraform/digitalocean
 procedures
+.gitattributes
