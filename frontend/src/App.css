@@ -438,7 +438,6 @@ input::placeholder {
   box-shadow: var(--shadow-md) !important;
   border-radius: 8px !important;
   padding: 0 !important;
-  overflow: hidden !important;
 }
 
 .image-viewer {
