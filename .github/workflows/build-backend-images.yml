@@ -8,6 +8,7 @@ on:
     paths:
       - 'backend/account-manager/**'
       - 'backend/compiler/**'
+      - 'backend/caddy/**'
       - 'backend/package*.json'
     branches: [main, backend/*]
   workflow_dispatch:
