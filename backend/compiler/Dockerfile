@@ -1,11 +1,6 @@
-# image docker du service de compilation LaTeX (texlive-full ~4GB)
-FROM node:22-slim
-
-RUN apt-get update && apt-get install -y \
-    texlive-full \
-    && rm -rf /var/lib/apt/lists/*
-
-RUN which pdflatex && pdflatex --version
+# image docker du service de compilation LaTeX
+# La couche texlive-full (~4 GB) est dans l'image de base — rebuild via build-compiler-base.yml
+FROM ghcr.io/openlatex/openlatex-texlive-base:latest
 
 WORKDIR /app
 
