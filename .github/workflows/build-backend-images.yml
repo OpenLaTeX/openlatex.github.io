@@ -125,7 +125,7 @@ jobs:
             cd /home/admin/OpenLatex 2>/dev/null || (cd /home/admin && git clone https://github.com/${{ github.repository }}.git OpenLatex && cd OpenLatex)
             git fetch origin $DEPLOY_BRANCH
             git checkout $DEPLOY_BRANCH 2>/dev/null || git checkout -b $DEPLOY_BRANCH origin/$DEPLOY_BRANCH
-            git pull --ff-only origin $DEPLOY_BRANCH
+            git reset --hard origin/$DEPLOY_BRANCH
             cd backend
 
             umask 077
