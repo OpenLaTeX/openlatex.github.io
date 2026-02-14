@@ -54,7 +54,7 @@ Le backend tourne sur un VPS Debian distant en continu avec quatre conteneurs Do
 - **Caddy** : Reverse proxy HTTPS avec en-têtes de sécurité stricts
 
 
-Le conteneur Node.js de gestion communique avec le conteneur SQL afin de renvoyer les projets lorsque l'utilisateur le demande. Ce conteneur est exposé en HTTPS par un DNS simple (DuckDNS).
+Le conteneur Node.js de gestion communique avec le conteneur SQL afin de renvoyer les projets lorsque l'utilisateur le demande. Ce conteneur est exposé en HTTPS par un DNS simple (afraid.org).
 
 Le conteneur PostgreSQL stocke les données dans un volume (les données restent même après arrêt du conteneur). 
 
@@ -149,7 +149,7 @@ Votre setup fonctionne maintenant ! Vous pouvez y accéder localement en utilisa
 
 Pour l'exposer publiquement, il vous faut une URL (DNS).
 
-Le DNS actif dans la démonstration est gratuit ([DuckDNS](https://www.duckdns.org/)). Il suffit, sur le VPS, de faire tourner un processus *Caddy* qui associe l'IP exposée du VPS à l'adresse créée sur DuckDNS.
+Le DNS actif dans la démonstration est gratuit ([afraid.org](https://freedns.afraid.org/)). Il suffit, sur le VPS, de faire tourner un processus *Caddy* qui associe l'IP exposée du VPS à l'adresse créée sur afraid.org.
 
 ## Remarque personnelle
 
@@ -181,7 +181,7 @@ En somme, une introduction très épanouissante à des pratiques modernes de dé
 - **Infrastructure** : Docker, Docker Compose
 - **Infrastructure as Code** : Terraform (AWS)
 - **CI/CD** : GitHub Actions avec déploiement SSH automatisé
-- **Sécurité** : JWT pour l'authentification, HTTPS via DuckDNS
+- **Sécurité** : JWT pour l'authentification, HTTPS via afraid.org
 
 ## Licence
 

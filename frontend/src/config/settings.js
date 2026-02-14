@@ -1,6 +1,6 @@
 // Configuration centralisée de l'application
 // La valeur par défaut vient du fichier settings.prop à la racine du projet
-const DEFAULT_API_URL = 'https://openlatex.duckdns.org';
+const DEFAULT_API_URL = 'https://openlatex.v0id.nl';
 
 /**
  * Récupère l'URL de l'API.
