@@ -68,8 +68,6 @@ function ProjectList({ onLoadProject, onNewProject, onConfirm }) {
         }
     };
 
-    if (loading) return <div className="project-loading">Chargement...</div>;
-
     return (
         <div className="project-list-container">
             <h3>Mes projets</h3>
@@ -80,7 +78,9 @@ function ProjectList({ onLoadProject, onNewProject, onConfirm }) {
                 Nouveau projet
             </button>
 
-            {projects.length === 0 ? (
+            {loading ? (
+                <div className="project-loading">Chargement...</div>
+            ) : projects.length === 0 ? (
                 <p className="project-empty">Aucun projet</p>
             ) : (
                 <ul className="project-list">
