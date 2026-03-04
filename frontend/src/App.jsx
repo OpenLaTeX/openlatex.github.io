@@ -30,6 +30,7 @@ export default function App() {
   const [apiUrl, setApiUrlState] = useState(() => getApiUrl());
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
   const [autoSaveEnabled, setAutoSaveEnabled] = useState(() => localStorage.getItem('autoSave') !== 'false');
+  const [autoSaveInterval, setAutoSaveInterval] = useState(() => Number(localStorage.getItem('autoSaveInterval')) || 2);
   const { sidebarWidth: initialSidebarWidth, pdfWidth: initialPdfWidth } = UserStorage.getPanelWidths();
   const [sidebarWidth, setSidebarWidth] = useState(initialSidebarWidth);
   const [pdfWidth, setPdfWidth] = useState(initialPdfWidth);
@@ -95,7 +96,7 @@ export default function App() {
     handleNewProject: newProject,
     resetProject,
     handleDownloadProject
-  } = useProjectManager(isAuthenticated, showAlert, showPrompt, autoSaveEnabled);
+  } = useProjectManager(isAuthenticated, showAlert, showPrompt, autoSaveEnabled, autoSaveInterval);
 
   const {
     fileInputRef,
@@ -234,6 +235,11 @@ export default function App() {
   const handleAutoSaveChange = (enabled) => {
     setAutoSaveEnabled(enabled);
     localStorage.setItem('autoSave', enabled ? 'true' : 'false');
+  };
+
+  const handleAutoSaveIntervalChange = (minutes) => {
+    setAutoSaveInterval(minutes);
+    localStorage.setItem('autoSaveInterval', minutes);
   };
 
   const handleApiUrlChange = (newUrl) => {
@@ -584,6 +590,8 @@ export default function App() {
         onApiUrlChange={handleApiUrlChange}
         autoSaveEnabled={autoSaveEnabled}
         onAutoSaveChange={handleAutoSaveChange}
+        autoSaveInterval={autoSaveInterval}
+        onAutoSaveIntervalChange={handleAutoSaveIntervalChange}
       />
     </div>
   );

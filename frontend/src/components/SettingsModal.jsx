@@ -2,7 +2,7 @@ import Modal from 'react-modal';
 import { Sun, Moon, Link, X } from 'lucide-react';
 import './SettingsModal.css';
 
-export default function SettingsModal({ isOpen, onClose, theme, onThemeChange, apiUrl, onApiUrlChange, autoSaveEnabled, onAutoSaveChange }) {
+export default function SettingsModal({ isOpen, onClose, theme, onThemeChange, apiUrl, onApiUrlChange, autoSaveEnabled, onAutoSaveChange, autoSaveInterval, onAutoSaveIntervalChange }) {
   return (
     <Modal
       isOpen={isOpen}
@@ -49,21 +49,35 @@ export default function SettingsModal({ isOpen, onClose, theme, onThemeChange, a
 
         <div className="settings-section">
           <h3>Configuration</h3>
-          <div className="setting-item">
+          <div className="setting-item" style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
             <div className="setting-info">
-              <label>Sauvegarde automatique</label>
-              <span className="setting-description">
-                Sauvegarde le projet toutes les 2 minutes
-              </span>
+              <label htmlFor="autosave-toggle">Sauvegarde automatique</label>
+              <span className="setting-description">Sauvegarde le projet à la fréquence définie</span>
             </div>
-            <button
-              className={`theme-option ${autoSaveEnabled ? 'active' : ''}`}
-              onClick={() => onAutoSaveChange(!autoSaveEnabled)}
-            >
-              {autoSaveEnabled ? 'Activée' : 'Désactivée'}
-            </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
+              {autoSaveEnabled && (
+                <select
+                  value={autoSaveInterval}
+                  onChange={(e) => onAutoSaveIntervalChange(Number(e.target.value))}
+                  style={{ fontSize: '13px', padding: '4px 6px', borderRadius: '6px', border: '1px solid var(--border-subtle)', background: 'var(--bg-panel)', color: 'var(--text-main)', cursor: 'pointer' }}
+                >
+                  <option value={1}>1 min</option>
+                  <option value={2}>2 min</option>
+                  <option value={5}>5 min</option>
+                  <option value={10}>10 min</option>
+                  <option value={30}>30 min</option>
+                </select>
+              )}
+              <input
+                id="autosave-toggle"
+                type="checkbox"
+                checked={autoSaveEnabled}
+                onChange={(e) => onAutoSaveChange(e.target.checked)}
+                style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+              />
+            </div>
           </div>
-          <div className="setting-item">
+          <div className="setting-item" style={{ marginTop: '16px' }}>
             <div className="setting-info">
               <label>URL API</label>
               <span className="setting-description">

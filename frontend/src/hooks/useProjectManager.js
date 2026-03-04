@@ -6,7 +6,7 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { UserStorage } from '../storage/UserStorage';
 
-export const useProjectManager = (isAuthenticated, showAlert, showPrompt, autoSaveEnabled = true) => {
+export const useProjectManager = (isAuthenticated, showAlert, showPrompt, autoSaveEnabled = true, autoSaveInterval = 2) => {
   const [currentProjectId, setCurrentProjectId] = useState(null);
   const [projectName, setProjectName] = useState(() => {
     const draft = UserStorage.getProjectDraft();
@@ -58,9 +58,9 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt, autoSa
         await ProjectService.updateProject(currentProjectId, projectNameRef.current, null, files);
         setLastSavedAt(new Date());
       } catch {} // silencieux
-    }, 2 * 60 * 1000);
+    }, autoSaveInterval * 60 * 1000);
     return () => clearInterval(interval);
-  }, [currentProjectId, isAuthenticated, autoSaveEnabled]);
+  }, [currentProjectId, isAuthenticated, autoSaveEnabled, autoSaveInterval]);
 
   const handleSaveProject = async () => {
     if (!isAuthenticated) {
