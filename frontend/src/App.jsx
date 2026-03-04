@@ -29,6 +29,7 @@ export default function App() {
   const [showSettings, setShowSettings] = useState(false);
   const [apiUrl, setApiUrlState] = useState(() => getApiUrl());
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
+  const [autoSaveEnabled, setAutoSaveEnabled] = useState(() => localStorage.getItem('autoSave') !== 'false');
   const { sidebarWidth: initialSidebarWidth, pdfWidth: initialPdfWidth } = UserStorage.getPanelWidths();
   const [sidebarWidth, setSidebarWidth] = useState(initialSidebarWidth);
   const [pdfWidth, setPdfWidth] = useState(initialPdfWidth);
@@ -94,7 +95,7 @@ export default function App() {
     handleNewProject: newProject,
     resetProject,
     handleDownloadProject
-  } = useProjectManager(isAuthenticated, showAlert, showPrompt);
+  } = useProjectManager(isAuthenticated, showAlert, showPrompt, autoSaveEnabled);
 
   const {
     fileInputRef,
@@ -228,6 +229,11 @@ export default function App() {
 
     newProject();
     setShowProjectList(false);
+  };
+
+  const handleAutoSaveChange = (enabled) => {
+    setAutoSaveEnabled(enabled);
+    localStorage.setItem('autoSave', enabled ? 'true' : 'false');
   };
 
   const handleApiUrlChange = (newUrl) => {
@@ -388,9 +394,13 @@ export default function App() {
                 <span>Sauvegarder</span>
               </button>
             </div>
-            {lastSavedAt && currentProjectId && (
+            {currentProjectId && (
               <span style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px', display: 'block' }}>
-                Sauvegardé {formatLastSaved(lastSavedAt)}
+                {!autoSaveEnabled
+                  ? 'Sauvegarde automatique désactivée'
+                  : lastSavedAt
+                    ? `Sauvegardé ${formatLastSaved(lastSavedAt)}`
+                    : null}
               </span>
             )}
             {compilationErrors.length > 0 && (
@@ -572,6 +582,8 @@ export default function App() {
         onThemeChange={setTheme}
         apiUrl={apiUrl}
         onApiUrlChange={handleApiUrlChange}
+        autoSaveEnabled={autoSaveEnabled}
+        onAutoSaveChange={handleAutoSaveChange}
       />
     </div>
   );

@@ -6,7 +6,7 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { UserStorage } from '../storage/UserStorage';
 
-export const useProjectManager = (isAuthenticated, showAlert, showPrompt) => {
+export const useProjectManager = (isAuthenticated, showAlert, showPrompt, autoSaveEnabled = true) => {
   const [currentProjectId, setCurrentProjectId] = useState(null);
   const [projectName, setProjectName] = useState(() => {
     const draft = UserStorage.getProjectDraft();
@@ -49,7 +49,7 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt) => {
   }, [project]);
 
   useEffect(() => {
-    if (!currentProjectId || !isAuthenticated) return;
+    if (!currentProjectId || !isAuthenticated || !autoSaveEnabled) return;
     const interval = setInterval(async () => {
       try {
         const files = projectRef.current.files.map(f => ({
@@ -60,7 +60,7 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt) => {
       } catch {} // silencieux
     }, 2 * 60 * 1000);
     return () => clearInterval(interval);
-  }, [currentProjectId, isAuthenticated]);
+  }, [currentProjectId, isAuthenticated, autoSaveEnabled]);
 
   const handleSaveProject = async () => {
     if (!isAuthenticated) {

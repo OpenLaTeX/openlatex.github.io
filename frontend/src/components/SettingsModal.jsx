@@ -2,7 +2,7 @@ import Modal from 'react-modal';
 import { Sun, Moon, Link, X } from 'lucide-react';
 import './SettingsModal.css';
 
-export default function SettingsModal({ isOpen, onClose, theme, onThemeChange, apiUrl, onApiUrlChange }) {
+export default function SettingsModal({ isOpen, onClose, theme, onThemeChange, apiUrl, onApiUrlChange, autoSaveEnabled, onAutoSaveChange }) {
   return (
     <Modal
       isOpen={isOpen}
@@ -49,6 +49,20 @@ export default function SettingsModal({ isOpen, onClose, theme, onThemeChange, a
 
         <div className="settings-section">
           <h3>Configuration</h3>
+          <div className="setting-item">
+            <div className="setting-info">
+              <label>Sauvegarde automatique</label>
+              <span className="setting-description">
+                Sauvegarde le projet toutes les 2 minutes
+              </span>
+            </div>
+            <button
+              className={`theme-option ${autoSaveEnabled ? 'active' : ''}`}
+              onClick={() => onAutoSaveChange(!autoSaveEnabled)}
+            >
+              {autoSaveEnabled ? 'Activée' : 'Désactivée'}
+            </button>
+          </div>
           <div className="setting-item">
             <div className="setting-info">
               <label>URL API</label>
