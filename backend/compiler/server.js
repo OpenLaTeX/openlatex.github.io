@@ -7,7 +7,7 @@ require('dotenv').config();
 // Serveur de compilation, pensé pour fonctionner dans un conteneur différent du "manager" de comptes pour optimiser les performances
 
 const compileRoutes = require('./routes/compile');
-const { defaultProtectionLimiter, guestLimiter, userLimiter } = require('./middleware/rateLimiter');
+const { defaultProtectionLimiter, guestLimiter, userLimiter, tokenMiddleware } = require('./middleware/rateLimiter');
 
 const app = express();
 app.use(cors({
@@ -17,6 +17,7 @@ app.use(cors({
 app.use(cookieParser());
 app.use(express.json({ limit: '10mb' }));
 app.use(defaultProtectionLimiter);
+app.use(tokenMiddleware);
 
 app.get('/health', (req, res) => {
   exec('which pdflatex && pdflatex --version', { timeout: 5000 }, (error, stdout, stderr) => {
@@ -38,7 +39,7 @@ app.get('/health', (req, res) => {
 
 // compilation avec rate limiting: 10/min pour users authentifies, 3/min pour invites
 app.use('/compile', (req, res, next) => {
-    (req.cookies.token ? userLimiter : guestLimiter)(req, res, next);
+    (req.userId ? userLimiter : guestLimiter)(req, res, next);
 }, compileRoutes);
 
 const PORT = process.env.PORT || 9000;

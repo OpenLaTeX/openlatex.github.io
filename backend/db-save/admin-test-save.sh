@@ -19,7 +19,7 @@ fi
 GPG_FILE="$1"
 [ ! -f "$GPG_FILE" ] && { log "ERR : Fichier introuvable : $GPG_FILE"; exit 1; }
 
-DECRYPTED_FILE="${GPG_FILE%.gpg}"
+DECRYPTED_FILE="$(realpath "${GPG_FILE%.gpg}" 2>/dev/null || echo "$(pwd)/${GPG_FILE%.gpg}")"
 CONTAINER_NAME="openlatex_test_$$"
 PG_USER="postgres"
 PG_DB="openlatex_test"
@@ -27,7 +27,7 @@ PG_DB="openlatex_test"
 cleanup() {
     log " Nettoyage "
     [ -f "$DECRYPTED_FILE" ] && rm -f "$DECRYPTED_FILE" && log "Dump déchiffré supprimé"
-    if podman inspect "$CONTAINER_NAME" >/dev/null ; then
+    if podman inspect "$CONTAINER_NAME" >/dev/null 2>&1; then
         podman rm -f "$CONTAINER_NAME" && log "Container $CONTAINER_NAME supprimé"
     fi
 }

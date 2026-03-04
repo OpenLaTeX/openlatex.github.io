@@ -2,6 +2,18 @@ const rateLimit = require('express-rate-limit');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
+const tokenMiddleware = (req, res, next) => {
+    const authHeader = req.headers.authorization;
+    const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : req.cookies.token;
+    if (token) {
+        try {
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            req.userId = decoded.userId;
+        } catch (_) {}
+    }
+    next();
+};
+
 //limite basee sur l'ip
 const guestLimiter = rateLimit({
     windowMs: 1 * 60 * 1000,
@@ -18,23 +30,7 @@ const userLimiter = rateLimit({
     message: { error: '10 compilations max par minute pour les utilisateurs connectés, réessayez plus tard.' },
     standardHeaders: true,
     legacyHeaders: false,
-    validate: { keyGeneratorIpFallback: false },
-    keyGenerator: (req) => {
-        const authHeader = req.headers.authorization;
-        const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
-        if (token) {
-            try {
-                const decoded = jwt.verify(token, process.env.JWT_SECRET);
-                console.log('rate limit par userId:', decoded.userId);
-                return `user-${decoded.userId}`;
-            } catch (err) {
-                console.log('token invalide, rate limit par IP:', err.message);
-                return req.ip;
-            }
-        }
-        console.log('pas de token, rate limit par IP:', req.ip);
-        return req.ip;
-    }
+    keyGenerator: (req) => `user-${req.userId}`
 });
 
 const defaultProtectionLimiter = rateLimit({
@@ -53,4 +49,4 @@ const authLimiter = rateLimit({
     legacyHeaders: false,
 });
 
-module.exports = { defaultProtectionLimiter, guestLimiter, userLimiter, authLimiter };
+module.exports = { defaultProtectionLimiter, guestLimiter, userLimiter, authLimiter, tokenMiddleware };
