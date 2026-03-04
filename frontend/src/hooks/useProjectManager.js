@@ -28,7 +28,13 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt) => {
     return Project.createDefault();
   });
   const [loading, setLoading] = useState(false);
+  const [lastSavedAt, setLastSavedAt] = useState(null);
   const quotaErrorShown = useRef(false);
+  const projectRef = useRef(project);
+  const projectNameRef = useRef(projectName);
+
+  useEffect(() => { projectRef.current = project; }, [project]);
+  useEffect(() => { projectNameRef.current = projectName; }, [projectName]);
 
   useEffect(() => {
     if (project.files.length > 0) {
@@ -41,6 +47,20 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt) => {
       }
     }
   }, [project]);
+
+  useEffect(() => {
+    if (!currentProjectId || !isAuthenticated) return;
+    const interval = setInterval(async () => {
+      try {
+        const files = projectRef.current.files.map(f => ({
+          filename: f.path, content: f.content, file_type: f.type
+        }));
+        await ProjectService.updateProject(currentProjectId, projectNameRef.current, null, files);
+        setLastSavedAt(new Date());
+      } catch {} // silencieux
+    }, 2 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, [currentProjectId, isAuthenticated]);
 
   const handleSaveProject = async () => {
     if (!isAuthenticated) {
@@ -66,12 +86,14 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt) => {
             if (currentProjectId) {
               await ProjectService.updateProject(currentProjectId, name, null, files);
               setProjectName(name);
+              setLastSavedAt(new Date());
               UserStorage.clearProjectDraft();
               showAlert('Succès', 'Le projet a été mis à jour avec succès.');
             } else {
               const result = await ProjectService.createProject(name, null, files);
               setCurrentProjectId(result.pno);
               setProjectName(name);
+              setLastSavedAt(new Date());
               UserStorage.clearProjectDraft();
               showAlert('Succès', 'Le projet a été créé avec succès.');
             }
@@ -100,6 +122,7 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt) => {
       setProject(newProject);
       setCurrentProjectId(data.pno);
       setProjectName(data.name);
+      setLastSavedAt(new Date());
       UserStorage.clearProjectDraft();
       showAlert('Succès', 'Le projet a été chargé avec succès.');
       return { success: true };
@@ -152,6 +175,7 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt) => {
     projectName,
     project,
     loading,
+    lastSavedAt,
     setProject,
     setLoading,
     handleSaveProject,

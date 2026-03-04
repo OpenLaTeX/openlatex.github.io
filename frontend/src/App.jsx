@@ -37,6 +37,19 @@ export default function App() {
   const isSidebarResizing = useRef(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [, setTick] = useState(0);
+
+  useEffect(() => {
+    const t = setInterval(() => setTick(n => n + 1), 30000);
+    return () => clearInterval(t);
+  }, []);
+
+  const formatLastSaved = (date) => {
+    const diff = Math.floor((Date.now() - date.getTime()) / 60000);
+    if (diff < 1) return 'à l\'instant';
+    if (diff === 1) return 'il y a 1 min';
+    return `il y a ${diff} min`;
+  };
 
   const {
     alertModal,
@@ -73,6 +86,7 @@ export default function App() {
     projectName,
     project,
     loading,
+    lastSavedAt,
     setProject,
     setLoading,
     handleSaveProject: saveProject,
@@ -374,6 +388,11 @@ export default function App() {
                 <span>Sauvegarder</span>
               </button>
             </div>
+            {lastSavedAt && currentProjectId && (
+              <span style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px', display: 'block' }}>
+                Sauvegardé {formatLastSaved(lastSavedAt)}
+              </span>
+            )}
             {compilationErrors.length > 0 && (
               <button onClick={() => setShowErrorPanel(!showErrorPanel)} className="btn-icon" style={{ color: 'var(--danger)', borderColor: 'var(--danger)', marginTop: '8px', width: '100%' }}>
                 <AlertCircle size={14} />
