@@ -5,7 +5,7 @@ FROM ghcr.io/openlatex/openlatex-texlive-base:latest
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm install --omit=dev
 
 COPY compiler/ ./
 
