@@ -9,6 +9,12 @@ openlatex.v0id.nl {
     handle /compile* {
         reverse_proxy compile:9000
     }
+    handle /metrics {
+        respond 404
+    }
+    handle /grafana* {
+        reverse_proxy grafana:3000
+    }
     handle {
         reverse_proxy backend:8000
     }
