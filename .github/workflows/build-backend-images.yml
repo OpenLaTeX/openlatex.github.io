@@ -9,6 +9,8 @@ on:
       - 'backend/account-manager/**'
       - 'backend/compiler/**'
       - 'backend/caddy/**'
+      - 'backend/monitoring/**'
+      - 'backend/docker-compose.yml'
       - 'backend/package*.json'
     branches: [main, backend/*]
   workflow_dispatch:
