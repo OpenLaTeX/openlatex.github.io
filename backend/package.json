@@ -16,7 +16,8 @@
     "express-rate-limit": "^8.2.0",
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.0.2",
-    "pg": "^8.16.3"
+    "pg": "^8.16.3",
+    "prom-client": "^15.1.0"
   },
   "devDependencies": {
     "jest": "^30.2.0",

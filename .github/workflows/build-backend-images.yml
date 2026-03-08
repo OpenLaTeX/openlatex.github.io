@@ -120,6 +120,8 @@ jobs:
           JWT_EXPIRES_IN: ${{ secrets.JWT_EXPIRES_IN }}
           FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          GRAFANA_ADMIN_USER: ${{ secrets.GRAFANA_ADMIN_USER }}
+          GRAFANA_ADMIN_PASSWORD: ${{ secrets.GRAFANA_ADMIN_PASSWORD }}
         run: |
           ssh $VPS_USER@$VPS_HOST <<EOF
             cd /home/admin/OpenLatex 2>/dev/null || (cd /home/admin && git clone https://github.com/${{ github.repository }}.git OpenLatex && cd OpenLatex)
@@ -136,7 +138,9 @@ jobs:
               "JWT_SECRET=$JWT_SECRET" \
               "JWT_EXPIRES_IN=$JWT_EXPIRES_IN" \
               "FRONTEND_URL=$FRONTEND_URL" \
-              "RESEND_API_KEY=$RESEND_API_KEY" > .env
+              "RESEND_API_KEY=$RESEND_API_KEY" \
+              "GRAFANA_ADMIN_USER=$GRAFANA_ADMIN_USER" \
+              "GRAFANA_ADMIN_PASSWORD=$GRAFANA_ADMIN_PASSWORD" > .env
 
             docker compose down
             docker compose pull
