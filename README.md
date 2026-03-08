@@ -28,7 +28,7 @@
 Ce projet offre un moyen simple de déployer un serveur LaTeX open-source accessible par le Web, permettant d’utiliser LaTeX sans aucune installation locale.
 Il met également à disposition une base de données intégrée pour que les utilisateurs puissent enregistrer et gérer leurs projets d'où qu'ils soient !
 
-La stack permet également d'observer les métriques de l'application (Grafana) et de mieux la sécuriser / maintenir (Chiffrement, sauvegarde automatique, reverse proxy...).
+La stack permet également d'observer les métriques de l'application ([Grafana](https://openlatex.v0id.nl/grafana/dashboards)) et de mieux la sécuriser / maintenir (Chiffrement, sauvegarde automatique, reverse proxy...).
 
 L'objectif de ce projet, au delà de son utilité primaire, est de m'entraîner à petite échelle sur ce que je peux être amené à retrouver dans ma poursuite d'études ou mon alternance, afin de m'y préparer au mieux.
 
@@ -208,5 +208,6 @@ La **migration vers AWS avec Terraform** m’a permis d’aborder l’Infrastruc
 ## Licence
 
 Ce projet est open-source et disponible sous licence Apache.
+
 
 
