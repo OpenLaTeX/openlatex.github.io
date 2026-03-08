@@ -46,7 +46,7 @@ router.post('/', async (req, res) => {
                 hasErrors: result.hasErrors || false
             });
         } else {
-            compileResult.inc({ result: 'failure' });
+            compileResult.inc({ result: 'user_failure' });
             res.status(500).json({
                 error: result.error,
                 logs: result.logs
@@ -55,6 +55,7 @@ router.post('/', async (req, res) => {
 
         await FileManager.cleanup(workDir);
     } catch (error) {
+        compileResult.inc({ result: 'server_error' });
         console.error('erreur compilation:', error);
         if (workDir) {
             await FileManager.cleanup(workDir);

@@ -6,6 +6,7 @@ scrape_configs:
     static_configs:
       - targets: ['backend:8000']
   - job_name: 'compiler'
+    scrape_interval: 15s
     static_configs:
       - targets: ['compile:9000']
   - job_name: 'postgres'
