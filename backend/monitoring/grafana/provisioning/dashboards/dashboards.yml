@@ -1,0 +1,7 @@
+apiVersion: 1
+providers:
+  - name: openlatex
+    folder: OpenLatex
+    type: file
+    options:
+      path: /var/lib/grafana/dashboards
