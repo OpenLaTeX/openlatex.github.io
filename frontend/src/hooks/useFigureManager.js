@@ -1,9 +1,10 @@
 import { useRef } from 'react';
+import * as Y from 'yjs';
 import { ClipboardUtil } from '../utils/ClipboardUtil';
 import { LatexParser } from '../utils/LatexParser';
 import { FigureTemplate } from '../utils/FigureTemplate';
 
-export const useFigureManager = (project, setProject, editorViewRef, showFigureInsert, showAlert, t, setInYjs) => {
+export const useFigureManager = (project, setProject, editorViewRef, showFigureInsert, showAlert, t, setInYjs, filesMap) => {
   const timestampCounter = useRef(0);
 
   const handleFigureInsert = async () => {
@@ -36,11 +37,22 @@ export const useFigureManager = (project, setProject, editorViewRef, showFigureI
       const defaultLabel = LatexParser.generateLabel(hierarchy, imageName);
       const defaultCaption = '';
 
+      const yText = filesMap?.get(project.currentFile);
+      const relPos = yText
+        ? Y.createRelativePositionFromTypeIndex(yText, cursorPosition)
+        : null;
+
       showFigureInsert(imageData, defaultLabel, defaultCaption, ({ caption, label, width }) => {
         try {
           const latexCode = FigureTemplate.generate(imagePath, caption, label, width);
 
-          const insertAt = view.state.selection.main.head;
+          let insertAt = cursorPosition;
+          if (relPos && yText) {
+            const absPos = Y.createAbsolutePositionFromRelativePosition(relPos, yText.doc);
+            if (absPos !== null) insertAt = absPos.index;
+          }
+          insertAt = Math.min(insertAt, view.state.doc.length);
+
           view.dispatch({
             changes: {
               from: insertAt,

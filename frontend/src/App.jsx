@@ -137,7 +137,7 @@ export default function App() {
 
   const editorViewRef = useRef(null);
 
-  const { handleFigureInsert } = useFigureManager(project, setProject, editorViewRef, showFigureInsert, showAlert, t, setInYjs);
+  const { handleFigureInsert } = useFigureManager(project, setProject, editorViewRef, showFigureInsert, showAlert, t, setInYjs, filesMap);
 
   const [pdfBlobUrl, setPdfBlobUrl] = useState(null);
 
