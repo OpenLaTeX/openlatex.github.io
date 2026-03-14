@@ -101,4 +101,26 @@ export class UserStorage {
       console.error('Failed to clear project draft:', error);
     }
   }
+
+  static saveLastProject(pno, name) {
+    try {
+      if (pno) {
+        localStorage.setItem('lastProject', JSON.stringify({ pno, name }));
+      } else {
+        localStorage.removeItem('lastProject');
+      }
+    } catch (error) {
+      console.error('Failed to save last project:', error);
+    }
+  }
+
+  static getLastProject() {
+    try {
+      const stored = localStorage.getItem('lastProject');
+      return stored ? JSON.parse(stored) : null;
+    } catch (error) {
+      console.error('Failed to get last project:', error);
+      return null;
+    }
+  }
 }
