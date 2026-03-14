@@ -1,5 +1,5 @@
 import Modal from 'react-modal';
-import { Sun, Moon, Link, X } from 'lucide-react';
+import { Sun, Moon, Link, X, Activity } from 'lucide-react';
 import './SettingsModal.css';
 
 export default function SettingsModal({ isOpen, onClose, theme, onThemeChange, apiUrl, onApiUrlChange, autoSaveEnabled, onAutoSaveChange, autoSaveInterval, onAutoSaveIntervalChange }) {
@@ -111,6 +111,23 @@ export default function SettingsModal({ isOpen, onClose, theme, onThemeChange, a
               <li><span>5</span> projets maximum par compte</li>
               <li><span>10 mb</span> maximum par projet</li>
             </ul>
+          </div>
+          <div className="setting-item setting-item--status">
+            <div className="setting-info">
+              <label>Status</label>
+              <span className="setting-description">
+                Monitoring de l'infrastructure en temps réel
+              </span>
+            </div>
+            <a
+              href="https://openlatex.v0id.nl/grafana/dashboards"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="status-link"
+            >
+              <Activity size={16} />
+              <span>Grafana</span>
+            </a>
           </div>
           <p className="settings-credit">
             Réalisé par <a href="https://github.com/blavogiez" target="_blank" rel="noopener noreferrer">Baptiste Lavogiez</a>
