@@ -1,16 +1,12 @@
 import { HttpClient } from '../utils/HttpClient';
-import { AuthHeaders } from '../utils/AuthHeaders';
 import { PdfDataTransformer } from '../utils/PdfDataTransformer';
 
 class ApiService {
   static async compile(apiUrl, files, mainFile) {
-    const headers = AuthHeaders.create();
-
     try {
       const data = await HttpClient.post(
         `${apiUrl}/compile`,
-        { files, mainFile },
-        headers
+        { files, mainFile }
       );
 
       return {

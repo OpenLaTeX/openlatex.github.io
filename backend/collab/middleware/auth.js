@@ -3,8 +3,9 @@ const { SQLquery } = require('../db/pool');
 require('dotenv').config();
 
 const authMiddleware = async (req, projectId) => {
-    const url = new URL(req.url, 'http://localhost');
-    const token = url.searchParams.get('token');
+    const cookieHeader = req.headers.cookie || '';
+    const match = cookieHeader.match(/(?:^|;\s*)token=([^;]+)/);
+    const token = match ? match[1] : null;
 
     if (!token) return null;
 

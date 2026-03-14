@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import Modal from 'react-modal';
 import { Sun, Moon, Link, X, Activity, UserPlus, Trash2 } from 'lucide-react';
 import { getApiUrl } from '../config/settings';
-import { UserStorage } from '../storage/UserStorage';
 import './SettingsModal.css';
 
 export default function SettingsModal({ isOpen, onClose, theme, onThemeChange, apiUrl, onApiUrlChange, autoSaveEnabled, onAutoSaveChange, autoSaveInterval, onAutoSaveIntervalChange, currentProjectId, isOwner }) {
@@ -12,9 +11,8 @@ export default function SettingsModal({ isOpen, onClose, theme, onThemeChange, a
 
   useEffect(() => {
     if (!isOpen || !currentProjectId || !isOwner) return;
-    const token = UserStorage.getToken();
     fetch(`${getApiUrl()}/projects/${currentProjectId}/collaborators`, {
-      headers: { Authorization: `Bearer ${token}` }
+      credentials: 'include'
     })
       .then(r => r.json())
       .then(data => setCollaborators(Array.isArray(data) ? data : []))
@@ -23,26 +21,25 @@ export default function SettingsModal({ isOpen, onClose, theme, onThemeChange, a
 
   const handleInvite = async () => {
     setInviteError('');
-    const token = UserStorage.getToken();
     const res = await fetch(`${getApiUrl()}/projects/${currentProjectId}/collaborators`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: inviteEmail })
     });
     const data = await res.json();
     if (!res.ok) { setInviteError(data.error || 'Erreur'); return; }
     setInviteEmail('');
     const updated = await fetch(`${getApiUrl()}/projects/${currentProjectId}/collaborators`, {
-      headers: { Authorization: `Bearer ${token}` }
+      credentials: 'include'
     });
     setCollaborators(await updated.json());
   };
 
   const handleRemove = async (uno) => {
-    const token = UserStorage.getToken();
     await fetch(`${getApiUrl()}/projects/${currentProjectId}/collaborators/${uno}`, {
       method: 'DELETE',
-      headers: { Authorization: `Bearer ${token}` }
+      credentials: 'include'
     });
     setCollaborators(prev => prev.filter(c => c.uno !== uno));
   };

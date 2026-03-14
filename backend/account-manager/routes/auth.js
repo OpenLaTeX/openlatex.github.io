@@ -61,6 +61,7 @@ router.post('/login', async (req, res) => {
             { expiresIn: process.env.JWT_EXPIRES_IN }
         );
 
+        res.cookie('token', token, { httpOnly: true, secure: true, sameSite: 'lax' });
         res.json({ token });
     } catch (err) {
         console.error('erreur login:', err);
@@ -69,12 +70,13 @@ router.post('/login', async (req, res) => {
 });
 
 router.post('/logout', (req, res) => {
+    res.clearCookie('token');
     res.json({ message: 'deconnecte' });
 });
 
 router.get('/verify', async (req, res) => {
     const authHeader = req.headers.authorization;
-    const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
+    const token = req.cookies?.token || (authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null);
 
     if (!token) {
         return res.status(401).json({ valid: false, error: 'Session invalide' });
