@@ -107,8 +107,8 @@ Les métriques sont collectées toutes les 2 minutes (15 secondes pour le compil
 ## Limites
 
 Des limites sont instaurées pour ne pas surcharger étant donné la puissance du VPS : 
-- 3 compilations par minute pour les invités
-- 10 compilations par minute pour les personnes connectées
+- 10 compilations par minute pour les invités
+- 30 compilations par minute pour les personnes connectées
 - 5 projets maximum par compte
 - 10 mb maximum par projet
 - Limites contre le bruteforce

@@ -59,16 +59,24 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt, autoSa
     }
   }, [project]);
 
+  const filesMapsRef = useRef(null);
+
   useEffect(() => {
     if (!currentProjectId || !isAuthenticated || !autoSaveEnabled) return;
     const interval = setInterval(async () => {
       try {
-        const files = projectRef.current.files.map(f => ({
-          filename: f.path, content: f.content, file_type: f.type
-        }));
+        const files = projectRef.current.files.map(f => {
+          const isBinary = ['png', 'jpg', 'pdf'].includes(f.type);
+          const yText = !isBinary && filesMapsRef.current ? filesMapsRef.current.get(f.path) : null;
+          return {
+            filename: f.path,
+            content: yText ? yText.toString() : f.content,
+            file_type: f.type
+          };
+        });
         await ProjectService.updateProject(currentProjectId, projectNameRef.current, null, files);
         setLastSavedAt(new Date());
-      } catch {} // silencieux
+      } catch {}
     }, autoSaveInterval * 60 * 1000);
     return () => clearInterval(interval);
   }, [currentProjectId, isAuthenticated, autoSaveEnabled, autoSaveInterval]);
@@ -222,6 +230,7 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt, autoSa
     handleNewProject,
     resetProject,
     handleDownloadProject,
-    handleMergeWithProject
+    handleMergeWithProject,
+    filesMapsRef
   };
 };

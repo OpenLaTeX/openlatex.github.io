@@ -1,5 +1,6 @@
 import { useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { EditorState } from '@codemirror/state';
+import { yCollab } from 'y-codemirror.next';
 import { EditorView, keymap, lineNumbers, highlightActiveLineGutter, highlightSpecialChars, drawSelection, dropCursor, rectangularSelection, crosshairCursor, highlightActiveLine } from '@codemirror/view';
 import { defaultKeymap, history, historyKeymap, insertNewline } from '@codemirror/commands';
 import { searchKeymap, highlightSelectionMatches } from '@codemirror/search';
@@ -115,7 +116,7 @@ const darkHighlightStyle = syntaxHighlighting(
   ])
 );
 
-const Editor = forwardRef(({ value, onChange, currentFile, onFigureInsert, theme }, ref) => {
+const Editor = forwardRef(({ value, onChange, currentFile, onFigureInsert, theme, yText, awareness }, ref) => {
   const editorRef = useRef(null);
   const viewRef = useRef(null);
   const onFigureInsertRef = useRef(onFigureInsert);
@@ -201,16 +202,19 @@ const Editor = forwardRef(({ value, onChange, currentFile, onFigureInsert, theme
         enableLinting: true,
         enableTooltips: true
       }),
-      EditorView.updateListener.of((update) => {
-        if (update.docChanged) {
-          onChange(update.state.doc.toString());
-        }
-      })
+      ...(yText
+        ? [yCollab(yText, awareness)]
+        : [EditorView.updateListener.of((update) => {
+            if (update.docChanged) {
+              onChange(update.state.doc.toString());
+            }
+          })]
+      )
     ];
 
     const view = new EditorView({
       state: EditorState.create({
-        doc: value || '',
+        doc: yText ? yText.toString() : (value || ''),
         extensions
       }),
       parent: editorRef.current
@@ -222,7 +226,7 @@ const Editor = forwardRef(({ value, onChange, currentFile, onFigureInsert, theme
       view.destroy();
       viewRef.current = null;
     };
-  }, [currentFile?.path, theme]);
+  }, [currentFile?.path, theme, yText]);
 
   return <div ref={editorRef} style={{ flex: 1, overflow: 'auto' }} />;
 });

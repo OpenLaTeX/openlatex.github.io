@@ -17,8 +17,8 @@ const tokenMiddleware = (req, res, next) => {
 //limite basee sur l'ip
 const guestLimiter = rateLimit({
     windowMs: 1 * 60 * 1000,
-    max: 3,
-    message: { error: '3 compilations max par minute pour les invités, réessayez plus tard ou créez un compte.' },
+    max: 10,
+    message: { error: '10 compilations max par minute pour les invités, réessayez plus tard ou créez un compte.' },
     standardHeaders: true,
     legacyHeaders: false,
 });
@@ -26,8 +26,8 @@ const guestLimiter = rateLimit({
 //limite basee sur le token JWT (identifiant de l'utilisateur) pour éviter qu'un invité du même réseau ne le bloque
 const userLimiter = rateLimit({
     windowMs: 1 * 60 * 1000,
-    max: 10,
-    message: { error: '10 compilations max par minute pour les utilisateurs connectés, réessayez plus tard.' },
+    max: 30,
+    message: { error: '30 compilations max par minute pour les utilisateurs connectés, réessayez plus tard.' },
     standardHeaders: true,
     legacyHeaders: false,
     keyGenerator: (req) => `user-${req.userId}`
@@ -35,7 +35,7 @@ const userLimiter = rateLimit({
 
 const defaultProtectionLimiter = rateLimit({
     windowMs: 1 * 60 * 1000,
-    max: 10,
+    max: 30,
     message: { error: 'Trop de requêtes, réessayez dans une minute.' },
     standardHeaders: true,
     legacyHeaders: false,
@@ -43,7 +43,7 @@ const defaultProtectionLimiter = rateLimit({
 
 const authLimiter = rateLimit({
     windowMs: 5 * 60 * 1000,
-    max: 5,
+    max: 15,
     message: { error: 'Trop de tentatives, réessayez dans 5 minutes.' },
     standardHeaders: true,
     legacyHeaders: false,
