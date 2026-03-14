@@ -70,18 +70,26 @@ export const useCollaboration = (projectId, project, setProject) => {
     if (!filesMeta || !filesMap) return;
     const handler = (event, transaction) => {
       if (transaction.local) return;
+      const changes = [];
+      for (const [path, change] of event.changes.keys) {
+        if (change.action === 'add') {
+          const meta = JSON.parse(filesMeta.get(path) || '{}');
+          const type = meta.type || path.split('.').pop() || 'tex';
+          const content = meta.content || filesMap.get(path)?.toString() || '';
+          changes.push({ action: 'add', path, type, content });
+        } else if (change.action === 'delete') {
+          changes.push({ action: 'delete', path });
+        }
+      }
       setProject(prev => {
         let updated = prev;
-        for (const [path, change] of event.changes.keys) {
-          if (change.action === 'add') {
+        for (const { action, path, type, content } of changes) {
+          if (action === 'add') {
             if (!updated.getFile(path)) {
-              const meta = JSON.parse(filesMeta.get(path) || '{}');
-              const type = meta.type || path.split('.').pop() || 'tex';
               updated = updated.addEmptyFile(path, type);
-              const content = meta.content || filesMap.get(path)?.toString() || '';
               if (content) updated = updated.updateFileContent(path, content);
             }
-          } else if (change.action === 'delete') {
+          } else if (action === 'delete') {
             updated = updated.removeFile(path);
           }
         }
