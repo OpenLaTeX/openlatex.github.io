@@ -310,11 +310,9 @@ export default function App() {
   if (showProjectList) {
     return (
       <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto', height: '100vh', overflowY: 'auto' }}>
-        {currentProjectId && (
-          <button onClick={() => setShowProjectList(false)} className="btn-icon" style={{marginBottom: '20px'}}>
-            ← Retour
-          </button>
-        )}
+        <button onClick={() => setShowProjectList(false)} className="btn-icon" style={{marginBottom: '20px'}}>
+          ← Retour
+        </button>
         <ProjectList
           onLoadProject={handleLoadProject}
           onNewProject={handleNewProject}
