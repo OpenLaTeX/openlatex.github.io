@@ -86,6 +86,13 @@
   gap: 6px;
 }
 
+.project-shared-by {
+  display: block;
+  font-size: 11px;
+  color: var(--accent-primary);
+  margin-bottom: 4px;
+}
+
 .project-id {
   display: block;
   font-size: 10px;

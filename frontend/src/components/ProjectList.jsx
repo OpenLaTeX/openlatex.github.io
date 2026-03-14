@@ -89,6 +89,9 @@ function ProjectList({ onLoadProject, onNewProject, onConfirm }) {
                             <div className="project-name" title={project.name}>
                                 {project.name.length > 15 ? project.name.slice(0, 40) + '...' : project.name}
                             </div>
+                            {!project.is_owner && (
+                                <small className="project-shared-by">Partagé par {project.owner_email}</small>
+                            )}
                             {project.description && <p className="project-description">{project.description}</p>}
                             <small className="project-date">{new Date(project.created_at).toLocaleDateString()}</small>
                             <small className="project-id">{project.pno.slice(0, 5)}</small>
@@ -99,9 +102,11 @@ function ProjectList({ onLoadProject, onNewProject, onConfirm }) {
                                 <button onClick={() => handleDownload(project.pno, project.name)} className="project-action-button">
                                     <Download size={16} /> Télécharger
                                 </button>
-                                <button onClick={() => handleDelete(project.pno, project.name)} className="project-action-button">
-                                    Supprimer
-                                </button>
+                                {project.is_owner && (
+                                    <button onClick={() => handleDelete(project.pno, project.name)} className="project-action-button">
+                                        Supprimer
+                                    </button>
+                                )}
                             </div>
                         </li>
                     ))}

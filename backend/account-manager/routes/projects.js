@@ -37,7 +37,12 @@ const bufferToContent = (buffer, fileType) => {
 router.get('/', async (req, res) => {
     try {
         const result = await SQLquery(
-            'select pno, name, description, created_at from projects where uno = $1 order by created_at desc',
+            `select p.pno, p.name, p.description, p.created_at, p.uno = $1 as is_owner, u.email as owner_email
+             from projects p
+             join users u on u.uno = p.uno
+             where p.uno = $1
+                or exists (select 1 from project_collaborators pc where pc.pno = p.pno and pc.uno = $1)
+             order by p.created_at desc`,
             [req.userId]
         );
         res.json(result.rows);
@@ -116,8 +121,15 @@ router.get('/:pno', async (req, res) => {
 
         const project = projectResult.rows[0];
 
-        if (project.uno !== req.userId) {
-            return res.status(403).json({ error: "Accès interdit car le token de l'utilisateur de la requête ne correspond pas à celui du propriétaire du projet" });
+        const isOwner = project.uno === req.userId;
+        if (!isOwner) {
+            const collabCheck = await SQLquery(
+                'select 1 from project_collaborators where pno = $1 and uno = $2',
+                [pno, req.userId]
+            );
+            if (collabCheck.rows.length === 0) {
+                return res.status(403).json({ error: 'acces interdit' });
+            }
         }
 
         const filesResult = await SQLquery('select fno, filename, content, file_type, created_at from files where pno = $1',[pno]);
