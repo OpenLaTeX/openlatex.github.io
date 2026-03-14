@@ -255,7 +255,7 @@ router.post('/:pno/collaborators', async (req, res) => {
         if (check.rows[0].uno !== req.userId) return res.status(403).json({ error: 'acces interdit' });
 
         const userResult = await SQLquery('select uno from users where email = $1', [email]);
-        if (userResult.rows.length === 0) return res.status(404).json({ error: 'utilisateur non trouve' });
+        if (userResult.rows.length === 0) return res.status(201).json({ message: 'collaborateur ajouté (s\'il existe)' });
 
         const targetUno = userResult.rows[0].uno;
         if (targetUno === req.userId) return res.status(400).json({ error: 'impossible d\'ajouter le proprietaire' });
@@ -264,7 +264,7 @@ router.post('/:pno/collaborators', async (req, res) => {
             'insert into project_collaborators (pno, uno) values ($1, $2) on conflict do nothing',
             [pno, targetUno]
         );
-        res.status(201).json({ message: 'collaborateur ajoute' });
+        res.status(201).json({ message: 'collaborateur ajouté (s\'il existe)' });
     } catch (err) {
         console.error('erreur add collaborator:', err);
         res.status(500).json({ error: 'erreur serveur' });
