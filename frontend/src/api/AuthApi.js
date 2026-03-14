@@ -1,11 +1,10 @@
 import { getApiUrl } from '../config/settings';
-import { UserStorage } from '../storage/UserStorage';
-import { AuthHeaders } from '../utils/AuthHeaders';
 
 export class AuthApi {
   static async register(email, password) {
     const response = await fetch(`${getApiUrl()}/auth/register`, {
       method: 'POST',
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json'
       },
@@ -24,6 +23,7 @@ export class AuthApi {
   static async login(email, password) {
     const response = await fetch(`${getApiUrl()}/auth/login`, {
       method: 'POST',
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json'
       },
@@ -36,19 +36,13 @@ export class AuthApi {
       throw new Error(data.error || 'erreur connexion');
     }
 
-    if (data.token) {
-      UserStorage.saveToken(data.token);
-    }
-
     return data;
   }
 
   static async verify() {
     const response = await fetch(`${getApiUrl()}/auth/verify`, {
       method: 'GET',
-      headers: {
-        ...AuthHeaders.create()
-      }
+      credentials: 'include'
     });
 
     const data = await response.json();
@@ -63,12 +57,8 @@ export class AuthApi {
   static async logout() {
     const response = await fetch(`${getApiUrl()}/auth/logout`, {
       method: 'POST',
-      headers: {
-        ...AuthHeaders.create()
-      }
+      credentials: 'include'
     });
-
-    UserStorage.clearToken();
 
     if (!response.ok) {
       throw new Error('Erreur déconnexion');

@@ -1,6 +1,5 @@
 import { AuthApi } from '../api/AuthApi';
 import { UserStorage } from '../storage/UserStorage';
-import { getApiUrl } from '../config/settings';
 
 class AuthService {
     static async register(email, password) {
@@ -28,9 +27,6 @@ class AuthService {
         }
     }
 
-    static isAuthenticated() {
-        return !!UserStorage.getToken();
-    }
 }
 
 export default AuthService;

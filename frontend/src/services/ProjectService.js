@@ -1,17 +1,9 @@
 import { getApiUrl } from '../config/settings';
-import { AuthHeaders } from '../utils/AuthHeaders';
 
 class ProjectService {
-    static getHeaders() {
-        return {
-            'Content-Type': 'application/json',
-            ...AuthHeaders.create()
-        };
-    }
-
     static async getProjects() {
         const response = await fetch(`${getApiUrl()}/projects`, {
-            headers: this.getHeaders()
+            credentials: 'include'
         });
 
         if (response.status === 401) {
@@ -35,7 +27,8 @@ class ProjectService {
 
         const response = await fetch(`${getApiUrl()}/projects`, {
             method: 'POST',
-            headers: this.getHeaders(),
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
             body
         });
 
@@ -58,7 +51,7 @@ class ProjectService {
 
     static async getProject(pno) {
         const response = await fetch(`${getApiUrl()}/projects/${pno}`, {
-            headers: this.getHeaders()
+            credentials: 'include'
         });
 
         if (response.status === 401) {
@@ -82,7 +75,8 @@ class ProjectService {
 
         const response = await fetch(`${getApiUrl()}/projects/${pno}`, {
             method: 'PUT',
-            headers: this.getHeaders(),
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
             body
         });
 
@@ -106,7 +100,7 @@ class ProjectService {
     static async deleteProject(pno) {
         const response = await fetch(`${getApiUrl()}/projects/${pno}`, {
             method: 'DELETE',
-            headers: this.getHeaders()
+            credentials: 'include'
         });
 
         if (response.status === 401) {
