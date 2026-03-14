@@ -233,7 +233,7 @@ router.get('/:pno/collaborators', async (req, res) => {
         if (check.rows[0].uno !== req.userId) return res.status(403).json({ error: 'acces interdit' });
 
         const result = await SQLquery(
-            'select u.uno, u.email from project_collaborators pc join users u on u.uno = pc.uno where pc.pno = $1',
+            'select u.email from project_collaborators pc join users u on u.uno = pc.uno where pc.pno = $1',
             [pno]
         );
         res.json(result.rows);
@@ -271,14 +271,17 @@ router.post('/:pno/collaborators', async (req, res) => {
     }
 });
 
-router.delete('/:pno/collaborators/:uno', async (req, res) => {
-    const { pno, uno } = req.params;
+router.delete('/:pno/collaborators/:email', async (req, res) => {
+    const { pno, email } = req.params;
     try {
         const check = await SQLquery('select uno from projects where pno = $1', [pno]);
         if (check.rows.length === 0) return res.status(404).json({ error: 'projet non trouve' });
         if (check.rows[0].uno !== req.userId) return res.status(403).json({ error: 'acces interdit' });
 
-        await SQLquery('delete from project_collaborators where pno = $1 and uno = $2', [pno, uno]);
+        await SQLquery(
+            'delete from project_collaborators where pno = $1 and uno = (select uno from users where email = $2)',
+            [pno, email]
+        );
         res.json({ message: 'collaborateur retire' });
     } catch (err) {
         console.error('erreur remove collaborator:', err);

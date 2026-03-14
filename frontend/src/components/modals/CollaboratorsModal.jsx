@@ -30,11 +30,11 @@ export default function CollaboratorsModal({ isOpen, onClose, currentProjectId }
     setCollaborators(await updated.json());
   };
 
-  const handleRemove = async (uno) => {
-    await fetch(`${getApiUrl()}/projects/${currentProjectId}/collaborators/${uno}`, {
+  const handleRemove = async (email) => {
+    await fetch(`${getApiUrl()}/projects/${currentProjectId}/collaborators/${encodeURIComponent(email)}`, {
       method: 'DELETE', credentials: 'include'
     });
-    setCollaborators(prev => prev.filter(c => c.uno !== uno));
+    setCollaborators(prev => prev.filter(c => c.email !== email));
   };
 
   return (
@@ -56,9 +56,9 @@ export default function CollaboratorsModal({ isOpen, onClose, currentProjectId }
       {collaborators.length > 0 && (
         <ul style={{ listStyle: 'none', padding: 0, margin: 0, width: '100%' }}>
           {collaborators.map(c => (
-            <li key={c.uno} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '4px 0', fontSize: '13px' }}>
+            <li key={c.email} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '4px 0', fontSize: '13px' }}>
               <span>{c.email}</span>
-              <button onClick={() => handleRemove(c.uno)} className="btn-ghost" style={{ padding: '2px 4px' }}>
+              <button onClick={() => handleRemove(c.email)} className="btn-ghost" style={{ padding: '2px 4px' }}>
                 <Trash2 size={14} />
               </button>
             </li>
