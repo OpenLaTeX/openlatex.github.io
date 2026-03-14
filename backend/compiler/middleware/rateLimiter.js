@@ -2,6 +2,11 @@ const rateLimit = require('express-rate-limit');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
+// contournement par secret administrateur (pour les load tests)
+const bypassRateLimit = (req) =>
+    process.env.TEST_BYPASS_SECRET &&
+    req.headers['x-test-key'] === process.env.TEST_BYPASS_SECRET;
+
 const tokenMiddleware = (req, res, next) => {
     const authHeader = req.headers.authorization;
     const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : req.cookies.token;
@@ -21,6 +26,7 @@ const guestLimiter = rateLimit({
     message: { error: '10 compilations max per minute for guests, try again later or create an account.' },
     standardHeaders: true,
     legacyHeaders: false,
+    skip: bypassRateLimit,
 });
 
 //limite basee sur le token JWT (identifiant de l'utilisateur) pour éviter qu'un invité du même réseau ne le bloque
@@ -30,7 +36,8 @@ const userLimiter = rateLimit({
     message: { error: '30 compilations max per minute for logged-in users, try again later.' },
     standardHeaders: true,
     legacyHeaders: false,
-    keyGenerator: (req) => `user-${req.userId}`
+    keyGenerator: (req) => `user-${req.userId}`,
+    skip: bypassRateLimit,
 });
 
 const defaultProtectionLimiter = rateLimit({
@@ -39,6 +46,7 @@ const defaultProtectionLimiter = rateLimit({
     message: { error: 'Too many requests, try again in one minute.' },
     standardHeaders: true,
     legacyHeaders: false,
+    skip: bypassRateLimit,
 });
 
 const authLimiter = rateLimit({

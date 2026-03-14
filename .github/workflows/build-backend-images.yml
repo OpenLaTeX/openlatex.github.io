@@ -125,6 +125,7 @@ jobs:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           GRAFANA_ADMIN_USER: ${{ secrets.GRAFANA_ADMIN_USER }}
           GRAFANA_ADMIN_PASSWORD: ${{ secrets.GRAFANA_ADMIN_PASSWORD }}
+          TEST_BYPASS_SECRET: ${{ secrets.TEST_BYPASS_SECRET }}
         run: |
           ssh $VPS_USER@$VPS_HOST <<EOF
             cd /home/admin/OpenLatex 2>/dev/null || (cd /home/admin && git clone https://github.com/${{ github.repository }}.git OpenLatex && cd OpenLatex)
@@ -143,7 +144,8 @@ jobs:
               "FRONTEND_URL=$FRONTEND_URL" \
               "RESEND_API_KEY=$RESEND_API_KEY" \
               "GRAFANA_ADMIN_USER=$GRAFANA_ADMIN_USER" \
-              "GRAFANA_ADMIN_PASSWORD=$GRAFANA_ADMIN_PASSWORD" > .env
+              "GRAFANA_ADMIN_PASSWORD=$GRAFANA_ADMIN_PASSWORD" \
+              "TEST_BYPASS_SECRET=$TEST_BYPASS_SECRET" > .env
 
             docker compose down
             docker compose pull
