@@ -2,7 +2,7 @@ import { useState } from 'react';
 import ApiService from '../services/ApiService';
 import { parseLatexLogs } from '../utils/LogParser';
 
-export const useCompilation = (project, resolveFiles, apiUrl, showAlert, setLoading) => {
+export const useCompilation = (project, resolveFiles, apiUrl, showAlert, setLoading, t) => {
   const [pdfUrl, setPdfUrl] = useState(null);
   const [compilationErrors, setCompilationErrors] = useState([]);
   const [showErrorPanel, setShowErrorPanel] = useState(false);
@@ -10,8 +10,8 @@ export const useCompilation = (project, resolveFiles, apiUrl, showAlert, setLoad
   const handleCompile = async () => {
     if (!project.currentFile || !project.currentFile.endsWith('.tex')) {
       showAlert(
-        'Fichier invalide',
-        'Veuillez sélectionner un fichier .tex pour compiler.'
+        t.invalidFileTitle,
+        t.invalidFileMsg
       );
       return;
     }
@@ -34,8 +34,8 @@ export const useCompilation = (project, resolveFiles, apiUrl, showAlert, setLoad
       setCompilationErrors(errors);
       setShowErrorPanel(true);
       showAlert(
-        'Erreur de compilation',
-        `La compilation a échoué : ${err.message}`
+        t.compilationErrorTitle,
+        t.compilationErrorMsg(err.message)
       );
     }
     setLoading(false);

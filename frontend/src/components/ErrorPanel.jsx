@@ -1,4 +1,5 @@
 import { AlertCircle, AlertTriangle, Info, X } from 'lucide-react';
+import { useLanguage } from '../i18n/LanguageContext';
 import './ErrorPanel.css';
 
 const getErrorIcon = (type) => {
@@ -13,19 +14,21 @@ const getErrorClass = (type) => {
 };
 
 export const ErrorPanel = ({ errors, isOpen, onClose, onErrorClick }) => {
+  const { t } = useLanguage();
+
   if (!isOpen) return null;
 
   return (
     <div className="error-panel">
       <div className="error-panel-header">
-        <h3>Erreurs de compilation ({errors.length})</h3>
+        <h3>{t.compilationErrors(errors.length)}</h3>
         <button onClick={onClose} className="close-btn">
           <X size={16} />
         </button>
       </div>
       <div className="error-panel-body">
         {errors.length === 0 ? (
-          <p className="no-errors">Aucune erreur</p>
+          <p className="no-errors">{t.noErrors}</p>
         ) : (
           errors.map((error, index) => (
             <div
@@ -39,7 +42,7 @@ export const ErrorPanel = ({ errors, isOpen, onClose, onErrorClick }) => {
                   {getErrorIcon(error.type)}
                   <span className="error-type-text">{error.type}</span>
                 </span>
-                {error.line && <span className="error-line">Ligne {error.line}</span>}
+                {error.line && <span className="error-line">{t.line} {error.line}</span>}
               </div>
               <div className="error-message">{error.message}</div>
               {error.context.length > 0 && (

@@ -7,13 +7,13 @@ class ProjectService {
         });
 
         if (response.status === 401) {
-            throw new Error('Session expirée - reconnexion requise');
+            throw new Error('Session expired — please log in again');
         }
 
         const data = await response.json();
 
         if (!response.ok) {
-            throw new Error(data.error || 'erreur chargement projets');
+            throw new Error(data.error || 'Failed to load projects');
         }
 
         return data;
@@ -22,7 +22,7 @@ class ProjectService {
     static async createProject(name, description, files) {
         const body = JSON.stringify({ name, description, files });
         if (body.length > 10 * 1024 * 1024) {
-            throw new Error('Le projet dépasse la limite de 10 Mo');
+            throw new Error('Project exceeds the 10 MB limit');
         }
 
         const response = await fetch(`${getApiUrl()}/projects`, {
@@ -33,17 +33,17 @@ class ProjectService {
         });
 
         if (response.status === 401) {
-            throw new Error('Session expirée - reconnexion requise');
+            throw new Error('Session expired — please log in again');
         }
 
         if (response.status === 413) {
-            throw new Error('Le projet dépasse la limite de 10 Mo');
+            throw new Error('Project exceeds the 10 MB limit');
         }
 
         const data = await response.json();
 
         if (!response.ok) {
-            throw new Error(data.error || 'erreur creation projet');
+            throw new Error(data.error || 'Failed to create project');
         }
 
         return data;
@@ -55,13 +55,13 @@ class ProjectService {
         });
 
         if (response.status === 401) {
-            throw new Error('Session expirée - reconnexion requise');
+            throw new Error('Session expired — please log in again');
         }
 
         const data = await response.json();
 
         if (!response.ok) {
-            throw new Error(data.error || 'erreur chargement projet');
+            throw new Error(data.error || 'Failed to load project');
         }
 
         return data;
@@ -70,7 +70,7 @@ class ProjectService {
     static async updateProject(pno, name, description, files) {
         const body = JSON.stringify({ name, description, files });
         if (body.length > 10 * 1024 * 1024) {
-            throw new Error('Le projet dépasse la limite de 10 Mo');
+            throw new Error('Project exceeds the 10 MB limit');
         }
 
         const response = await fetch(`${getApiUrl()}/projects/${pno}`, {
@@ -81,17 +81,17 @@ class ProjectService {
         });
 
         if (response.status === 401) {
-            throw new Error('Session expirée - reconnexion requise');
+            throw new Error('Session expired — please log in again');
         }
 
         if (response.status === 413) {
-            throw new Error('Le projet dépasse la limite de 10 Mo');
+            throw new Error('Project exceeds the 10 MB limit');
         }
 
         const data = await response.json();
 
         if (!response.ok) {
-            throw new Error(data.error || 'erreur mise a jour projet');
+            throw new Error(data.error || 'Failed to update project');
         }
 
         return data;
@@ -104,13 +104,13 @@ class ProjectService {
         });
 
         if (response.status === 401) {
-            throw new Error('Session expirée - reconnexion requise');
+            throw new Error('Session expired — please log in again');
         }
 
         const data = await response.json();
 
         if (!response.ok) {
-            throw new Error(data.error || 'erreur suppression projet');
+            throw new Error(data.error || 'Failed to delete project');
         }
 
         return data;

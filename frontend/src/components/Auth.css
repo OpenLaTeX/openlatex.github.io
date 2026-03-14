@@ -59,6 +59,16 @@
   text-align: center;
 }
 
+.auth-success {
+  padding: 10px 12px;
+  background: var(--success-bg);
+  color: var(--success);
+  border: 1px solid var(--success);
+  border-radius: 6px;
+  font-size: 13px;
+  text-align: center;
+}
+
 .auth-buttons {
   display: flex;
   flex-direction: column;

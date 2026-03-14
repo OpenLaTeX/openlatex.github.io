@@ -1,10 +1,12 @@
 import { useState, useMemo } from 'react';
 import { ChevronRight, ChevronDown, Folder, Edit2, Trash2 } from 'lucide-react';
+import { useLanguage } from '../i18n/LanguageContext';
 import { FileTreeBuilder } from '../utils/FileTreeBuilder';
 import { FileIconMapper } from '../utils/FileIconMapper';
 import './FileTree.css';
 
 function TreeNode({ node, level, currentFile, onSelect, onRename, onDelete, onDeleteFolder, onMove }) {
+  const { t } = useLanguage();
   const [isOpen, setIsOpen] = useState(true);
   const [isDragOver, setIsDragOver] = useState(false);
 
@@ -27,10 +29,10 @@ function TreeNode({ node, level, currentFile, onSelect, onRename, onDelete, onDe
           {node.name}
         </span>
         <div className="tree-file-actions">
-          <button onClick={() => onRename(node.path)} className="tree-file-button" title="Renommer">
+          <button onClick={() => onRename(node.path)} className="tree-file-button" title={t.rename}>
             <Edit2 size={14} />
           </button>
-          <button onClick={() => onDelete(node.path)} className="tree-file-button" title="Supprimer">
+          <button onClick={() => onDelete(node.path)} className="tree-file-button" title={t.delete}>
             <Trash2 size={14} />
           </button>
         </div>
@@ -73,7 +75,7 @@ function TreeNode({ node, level, currentFile, onSelect, onRename, onDelete, onDe
         </span>
         <Folder size={16} className="tree-folder-icon" />
         <span className="tree-folder-name">{node.name}</span>
-        <button onClick={() => onDeleteFolder(node.path)} className="tree-folder-button" title="Supprimer le dossier">
+        <button onClick={() => onDeleteFolder(node.path)} className="tree-folder-button" title={t.deleteFolder}>
           <Trash2 size={14} />
         </button>
       </div>

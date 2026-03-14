@@ -23,9 +23,11 @@ import { useFileManager } from './hooks/useFileManager';
 import { useCompilation } from './hooks/useCompilation';
 import { useFigureManager } from './hooks/useFigureManager';
 import { useCollaboration } from './hooks/useCollaboration';
+import { useLanguage } from './i18n/LanguageContext';
 import './App.css';
 
 export default function App() {
+  const { t } = useLanguage();
   const [showAuth, setShowAuth] = useState(false);
   const [showProjectList, setShowProjectList] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -51,9 +53,7 @@ export default function App() {
 
   const formatLastSaved = (date) => {
     const diff = Math.floor((Date.now() - date.getTime()) / 60000);
-    if (diff < 1) return 'à l\'instant';
-    if (diff === 1) return 'il y a 1 min';
-    return `il y a ${diff} min`;
+    return t.savedAgo(diff);
   };
 
   const {
@@ -103,7 +103,7 @@ export default function App() {
     filesMapsRef,
     resolveFiles,
     isOwner
-  } = useProjectManager(isAuthenticated, showAlert, showPrompt, autoSaveEnabled, autoSaveInterval);
+  } = useProjectManager(isAuthenticated, showAlert, showPrompt, autoSaveEnabled, autoSaveInterval, t);
 
   const { filesMap, filesMeta, awareness, isConnected, synced } = useCollaboration(currentProjectId, project, setProject);
 
@@ -125,7 +125,7 @@ export default function App() {
     handleCreateItem,
     handleMoveFile,
     handleMoveToRoot
-  } = useFileManager(project, setProject, showPrompt, showConfirm, filesMap, filesMeta);
+  } = useFileManager(project, setProject, showPrompt, showConfirm, filesMap, filesMeta, t);
 
   const {
     pdfUrl,
@@ -133,11 +133,11 @@ export default function App() {
     showErrorPanel,
     setShowErrorPanel,
     handleCompile
-  } = useCompilation(project, resolveFiles, apiUrl, showAlert, setLoading);
+  } = useCompilation(project, resolveFiles, apiUrl, showAlert, setLoading, t);
 
   const editorViewRef = useRef(null);
 
-  const { handleFigureInsert } = useFigureManager(project, setProject, editorViewRef, showFigureInsert, showAlert);
+  const { handleFigureInsert } = useFigureManager(project, setProject, editorViewRef, showFigureInsert, showAlert, t);
 
   const [pdfBlobUrl, setPdfBlobUrl] = useState(null);
 
@@ -199,8 +199,8 @@ export default function App() {
 
     if (hasUnsavedFiles) {
       const confirmed = await showConfirm(
-        'Déconnexion',
-        'Vous avez des fichiers non sauvegardés. Continuer ?'
+        t.logoutConfirmTitle,
+        t.logoutConfirmMsg
       );
       if (!confirmed) return;
     }
@@ -221,8 +221,8 @@ export default function App() {
 
     if (hasUnsavedChanges) {
       const confirmed = await showConfirm(
-        'Charger projet',
-        'Vous avez des fichiers non sauvegardés. Continuer ?'
+        t.loadConfirmTitle,
+        t.loadConfirmMsg
       );
       if (!confirmed) return;
     }
@@ -236,8 +236,8 @@ export default function App() {
 
     if (hasUnsavedFiles) {
       const confirmed = await showConfirm(
-        'Nouveau projet',
-        'Vous avez des fichiers non sauvegardés. Continuer ?'
+        t.newConfirmTitle,
+        t.newConfirmMsg
       );
       if (!confirmed) return;
     }
@@ -304,29 +304,29 @@ export default function App() {
 
   useEffect(() => {
     setOnSessionExpired(() => {
-      showAlert('Session expirée', 'Votre session a expiré. Veuillez vous reconnecter.');
+      showAlert(t.sessionExpiredTitle, t.sessionExpiredMsg);
       setShowAuth(true);
     });
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     if (!isAuthenticated || currentProjectId) return;
     const last = UserStorage.getLastProject();
     if (last?.pno) {
       showConfirm(
-        'Dernier projet',
-        `Voulez-vous fusionner votre brouillon local avec votre dernier projet "${last.name}" ? Votre brouillon local a la priorité dans la fusion.`
+        t.lastProjectTitle,
+        t.lastProjectMsg(last.name)
       ).then((confirmed) => {
         if (confirmed) handleMergeWithProject(last.pno);
       });
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, t]);
 
   if (showAuth) {
     return (
       <div style={{ padding: '20px', maxWidth: '400px', margin: '0 auto' }}>
         <button onClick={() => setShowAuth(false)} className="btn-icon" style={{marginBottom: '20px'}}>
-          ← Retour
+          {t.back}
         </button>
         <Auth onLogin={handleLogin} />
       </div>
@@ -337,7 +337,7 @@ export default function App() {
     return (
       <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto', height: '100vh', overflowY: 'auto' }}>
         <button onClick={() => setShowProjectList(false)} className="btn-icon" style={{marginBottom: '20px'}}>
-          ← Retour
+          {t.back}
         </button>
         <ProjectList
           onLoadProject={handleLoadProject}
@@ -399,55 +399,55 @@ export default function App() {
                 </div>
                 <div className="user-info">
                   <span className="user-email">{userEmail}</span>
-                  <span className="user-role">Connecté</span>
+                  <span className="user-role">{t.connected}</span>
                 </div>
                 <ChevronDown size={14} className="text-muted" />
               </div>
-              
+
               {showUserDropdown && (
                 <div className="user-dropdown-menu">
                   <button className="user-dropdown-item" onClick={handleLogout}>
                     <LogOut size={14} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
-                    Déconnexion
+                    {t.logout}
                   </button>
                 </div>
               )}
             </div>
           ) : (
             <button className="login-link" onClick={() => setShowAuth(true)}>
-              Se connecter
+              {t.signIn}
             </button>
           )}
         </div>
 
         <div className="file-tree-container">
           <div className="sidebar-section">
-            <h3>Actions</h3>
+            <h3>{t.actions}</h3>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-              <button onClick={handleCompile} disabled={loading} className="btn-icon btn-primary" title="Compiler (Ctrl+Enter)">
+              <button onClick={handleCompile} disabled={loading} className="btn-icon btn-primary" title={`${t.compile} (Ctrl+Enter)`}>
                 <Play size={14} />
-                <span>Compiler</span>
+                <span>{t.compile}</span>
               </button>
-              <button onClick={handleSaveProject} disabled={loading || !isAuthenticated || !isOwner} className="btn-icon" title={!isOwner && currentProjectId ? "Seul le propriétaire peut sauvegarder" : "Sauvegarder"}>
+              <button onClick={handleSaveProject} disabled={loading || !isAuthenticated || !isOwner} className="btn-icon" title={!isOwner && currentProjectId ? t.ownerOnly : t.save}>
                 <Save size={14} />
-                <span>Sauvegarder</span>
+                <span>{t.save}</span>
               </button>
             </div>
             {currentProjectId && (
               <span style={{ fontSize: '11px', color: !isOwner ? 'var(--danger)' : 'var(--text-muted)', marginTop: '4px', display: 'block' }}>
                 {!isOwner
-                  ? 'Seul le propriétaire peut sauvegarder'
+                  ? t.ownerOnly
                   : !autoSaveEnabled
-                    ? 'Sauvegarde automatique désactivée'
+                    ? t.autoSaveDisabled
                     : lastSavedAt
-                      ? `Sauvegardé ${formatLastSaved(lastSavedAt)}`
+                      ? `${t.savedAt} ${formatLastSaved(lastSavedAt)}`
                       : null}
               </span>
             )}
             {compilationErrors.length > 0 && (
               <button onClick={() => setShowErrorPanel(!showErrorPanel)} className="btn-icon" style={{ color: 'var(--danger)', borderColor: 'var(--danger)', marginTop: '8px', width: '100%' }}>
                 <AlertCircle size={14} />
-                <span>{compilationErrors.length} Erreurs</span>
+                <span>{t.errorsCount(compilationErrors.length)}</span>
               </button>
             )}
           </div>
@@ -464,18 +464,18 @@ export default function App() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                 <button onClick={() => setShowProjectList(true)} className="btn-icon btn-ghost" style={{ justifyContent: 'flex-start' }}>
                   <FolderOpen size={14} />
-                  <span>Ouvrir...</span>
+                  <span>{t.openProject}</span>
                 </button>
                 {currentProjectId && (
                   <button onClick={handleDownloadProject} disabled={loading} className="btn-icon btn-ghost" style={{ justifyContent: 'flex-start' }}>
                     <Download size={14} />
-                    <span>Exporter ZIP</span>
+                    <span>{t.exportZip}</span>
                   </button>
                 )}
                 {currentProjectId && isOwner && (
                   <button onClick={() => setShowCollaborators(true)} className="btn-icon btn-ghost" style={{ justifyContent: 'flex-start' }}>
                     <Users size={14} />
-                    <span>Inviter un collaborateur</span>
+                    <span>{t.inviteCollaborator}</span>
                   </button>
                 )}
               </div>
@@ -484,15 +484,15 @@ export default function App() {
 
           <div className="sidebar-section" style={{ borderBottom: 'none' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-              <h3>Fichiers</h3>
+              <h3>{t.files}</h3>
               <div style={{ display: 'flex', gap: '4px' }}>
-                <button onClick={triggerFileUpload} className="btn-ghost" title="Ajouter fichier" style={{ padding: '4px' }}>
+                <button onClick={triggerFileUpload} className="btn-ghost" title={t.addFile} style={{ padding: '4px' }}>
                   <FileUp size={14} />
                 </button>
-                <button onClick={triggerFolderUpload} className="btn-ghost" title="Ajouter dossier" style={{ padding: '4px' }}>
+                <button onClick={triggerFolderUpload} className="btn-ghost" title={t.addFolder} style={{ padding: '4px' }}>
                   <FolderUp size={14} />
                 </button>
-                <button onClick={() => showCreateItem(handleCreateItem)} className="btn-ghost" title="Nouveau" style={{ padding: '4px' }}>
+                <button onClick={() => showCreateItem(handleCreateItem)} className="btn-ghost" title={t.newItem} style={{ padding: '4px' }}>
                   <Plus size={14} />
                 </button>
               </div>
@@ -517,7 +517,7 @@ export default function App() {
         <div className="sidebar-footer">
           <button className="btn-icon btn-ghost" onClick={() => setShowSettings(true)} style={{ justifyContent: 'flex-start', width: '100%', marginBottom: '8px' }}>
             <Settings size={14} />
-            <span>Paramètres</span>
+            <span>{t.settings}</span>
           </button>
         </div>
       </div>
@@ -531,7 +531,7 @@ export default function App() {
               <div className="file-path-breadcrumb">
                 <FileText size={14} />
                 <span>/</span>
-                <span className="file-name-active">{currentFile?.path || 'Sans titre'}</span>
+                <span className="file-name-active">{currentFile?.path || t.untitled}</span>
               </div>
             </div>
 
@@ -569,7 +569,7 @@ export default function App() {
                   <div style={{ marginBottom: '16px', opacity: 0.5 }}>
                     <FileText size={48} />
                   </div>
-                  <p>Le document compilé apparaîtra ici.</p>
+                  <p>{t.compiledDocPlaceholder}</p>
                 </div>
               </div>
             )}
