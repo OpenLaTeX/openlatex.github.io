@@ -3,7 +3,7 @@ import { ClipboardUtil } from '../utils/ClipboardUtil';
 import { LatexParser } from '../utils/LatexParser';
 import { FigureTemplate } from '../utils/FigureTemplate';
 
-export const useFigureManager = (project, setProject, editorViewRef, showFigureInsert, showAlert, t) => {
+export const useFigureManager = (project, setProject, editorViewRef, showFigureInsert, showAlert, t, setInYjs) => {
   const timestampCounter = useRef(0);
 
   const handleFigureInsert = async () => {
@@ -57,6 +57,7 @@ export const useFigureManager = (project, setProject, editorViewRef, showFigureI
           }
 
           setProject(newProject);
+          if (setInYjs) setInYjs(imagePath, imageData.extension, imageData.base64);
         } catch (err) {
           showAlert(t.error, t.figureInsertError(err.message));
         }

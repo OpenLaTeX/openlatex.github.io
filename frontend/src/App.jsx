@@ -114,6 +114,7 @@ export default function App() {
   const {
     fileInputRef,
     folderInputRef,
+    setInYjs,
     handleFileSelect,
     handleContentChange,
     handleUploadFiles,
@@ -137,7 +138,7 @@ export default function App() {
 
   const editorViewRef = useRef(null);
 
-  const { handleFigureInsert } = useFigureManager(project, setProject, editorViewRef, showFigureInsert, showAlert, t);
+  const { handleFigureInsert } = useFigureManager(project, setProject, editorViewRef, showFigureInsert, showAlert, t, setInYjs);
 
   const [pdfBlobUrl, setPdfBlobUrl] = useState(null);
 
@@ -641,6 +642,7 @@ export default function App() {
         isOpen={showCollaborators}
         onClose={() => setShowCollaborators(false)}
         currentProjectId={currentProjectId}
+        t={t}
       />
     </div>
   );
