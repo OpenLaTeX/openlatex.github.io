@@ -112,6 +112,7 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt, autoSa
             } else {
               const result = await ProjectService.createProject(name, null, files);
               setCurrentProjectId(result.pno);
+              setIsOwner(true);
               setProjectName(name);
               setLastSavedAt(new Date());
               UserStorage.clearProjectDraft();
