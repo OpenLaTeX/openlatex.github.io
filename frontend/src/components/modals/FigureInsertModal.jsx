@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLanguage } from '../../i18n/LanguageContext';
 import Modal from './Modal';
 
 const previewStyle = {
@@ -28,6 +29,7 @@ const labelStyle = {
 };
 
 const FigureInsertModal = ({ isOpen, onClose, onConfirm, imageData, defaultLabel, defaultCaption = '' }) => {
+  const { t } = useLanguage();
   const [caption, setCaption] = useState(defaultCaption);
   const [label, setLabel] = useState(defaultLabel);
   const [width, setWidth] = useState('0.8');
@@ -48,7 +50,7 @@ const FigureInsertModal = ({ isOpen, onClose, onConfirm, imageData, defaultLabel
     }
     const widthNum = parseFloat(width);
     if (isNaN(widthNum) || widthNum <= 0 || widthNum > 2) {
-      setError('La largeur doit être un nombre entre 0 et 2');
+      setError(t.widthError);
       return;
     }
     onConfirm({ caption: caption.trim(), label: label.trim(), width });
@@ -62,7 +64,7 @@ const FigureInsertModal = ({ isOpen, onClose, onConfirm, imageData, defaultLabel
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Insérer une figure">
+    <Modal isOpen={isOpen} onClose={onClose} title={t.insertFigure}>
       <div className="modal-body">
         {imageData && (
           <div style={previewStyle}>
@@ -76,7 +78,7 @@ const FigureInsertModal = ({ isOpen, onClose, onConfirm, imageData, defaultLabel
 
         <div style={inputGroupStyle}>
           <label style={labelStyle}>
-            Caption
+            {t.captionLabel}
           </label>
           <input
             type="text"
@@ -84,14 +86,14 @@ const FigureInsertModal = ({ isOpen, onClose, onConfirm, imageData, defaultLabel
             value={caption}
             onChange={(e) => setCaption(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="Description de la figure"
+            placeholder={t.figureDescPlaceholder}
             autoFocus
           />
         </div>
 
         <div style={inputGroupStyle}>
           <label style={labelStyle}>
-            Label
+            {t.labelLabel}
           </label>
           <input
             type="text"
@@ -105,7 +107,7 @@ const FigureInsertModal = ({ isOpen, onClose, onConfirm, imageData, defaultLabel
 
         <div style={inputGroupStyle}>
           <label style={labelStyle}>
-            Largeur (fraction de textwidth)
+            {t.widthLabel}
           </label>
           <input
             type="text"
@@ -121,14 +123,14 @@ const FigureInsertModal = ({ isOpen, onClose, onConfirm, imageData, defaultLabel
 
       <div className="modal-actions">
         <button className="modal-button modal-button-secondary" onClick={onClose}>
-          Annuler
+          {t.cancel}
         </button>
         <button
           className="modal-button modal-button-primary"
           onClick={handleConfirm}
           disabled={!caption.trim()}
         >
-          Insérer
+          {t.insert}
         </button>
       </div>
     </Modal>

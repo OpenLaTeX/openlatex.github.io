@@ -14,7 +14,7 @@ export class AuthApi {
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(data.error || 'erreur inscription');
+      throw new Error(data.error || 'Registration failed');
     }
 
     return data;
@@ -33,7 +33,7 @@ export class AuthApi {
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(data.error || 'erreur connexion');
+      throw new Error(data.error || 'Login failed');
     }
 
     return data;
@@ -48,7 +48,7 @@ export class AuthApi {
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(data.error || 'Vérification de session échouée');
+      throw new Error(data.error || 'Session verification failed');
     }
 
     return data;
@@ -61,7 +61,7 @@ export class AuthApi {
     });
 
     if (!response.ok) {
-      throw new Error('Erreur déconnexion');
+      throw new Error('Logout failed');
     }
 
     return await response.json();

@@ -15,7 +15,7 @@ class ApiService {
         hasErrors: data.hasErrors
       };
     } catch (error) {
-      const compilationError = new Error(error.message || 'erreur compilation');
+      const compilationError = new Error(error.message || 'Compilation failed');
       compilationError.logs = error.data?.logs;
       throw compilationError;
     }

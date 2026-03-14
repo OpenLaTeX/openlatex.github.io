@@ -3,7 +3,7 @@ import { ClipboardUtil } from '../utils/ClipboardUtil';
 import { LatexParser } from '../utils/LatexParser';
 import { FigureTemplate } from '../utils/FigureTemplate';
 
-export const useFigureManager = (project, setProject, editorViewRef, showFigureInsert, showAlert) => {
+export const useFigureManager = (project, setProject, editorViewRef, showFigureInsert, showAlert, t) => {
   const timestampCounter = useRef(0);
 
   const handleFigureInsert = async () => {
@@ -11,13 +11,13 @@ export const useFigureManager = (project, setProject, editorViewRef, showFigureI
       const imageData = await ClipboardUtil.readImageFromClipboard();
 
       if (!imageData) {
-        showAlert('Aucune image', 'Aucune image trouvée dans le presse-papiers');
+        showAlert(t.noImageTitle, t.noImageMsg);
         return;
       }
 
       const view = editorViewRef.current;
       if (!view) {
-        showAlert('Erreur', 'Éditeur non disponible');
+        showAlert(t.error, t.editorUnavailable);
         return;
       }
 
@@ -58,12 +58,12 @@ export const useFigureManager = (project, setProject, editorViewRef, showFigureI
 
           setProject(newProject);
         } catch (err) {
-          showAlert('Erreur', `Impossible d'insérer la figure: ${err.message}`);
+          showAlert(t.error, t.figureInsertError(err.message));
         }
       });
 
     } catch (err) {
-      showAlert('Erreur', `Erreur lors de la lecture du presse-papiers: ${err.message}`);
+      showAlert(t.error, t.clipboardError(err.message));
     }
   };
 

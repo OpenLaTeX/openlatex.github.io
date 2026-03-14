@@ -1,9 +1,11 @@
 import Modal from 'react-modal';
 import { Sun, Moon, Link, X, Activity } from 'lucide-react';
+import { useLanguage } from '../i18n/LanguageContext';
 import { getApiUrl } from '../config/settings';
 import './SettingsModal.css';
 
 export default function SettingsModal({ isOpen, onClose, theme, onThemeChange, apiUrl, onApiUrlChange, autoSaveEnabled, onAutoSaveChange, autoSaveInterval, onAutoSaveIntervalChange }) {
+  const { lang, setLanguage, t } = useLanguage();
 
   return (
     <Modal
@@ -14,7 +16,7 @@ export default function SettingsModal({ isOpen, onClose, theme, onThemeChange, a
       closeTimeoutMS={200}
     >
       <div className="settings-header">
-        <h2>Paramètres</h2>
+        <h2>{t.settingsTitle}</h2>
         <button className="settings-close" onClick={onClose}>
           <X size={20} />
         </button>
@@ -22,12 +24,12 @@ export default function SettingsModal({ isOpen, onClose, theme, onThemeChange, a
 
       <div className="settings-body">
         <div className="settings-section">
-          <h3>Apparence</h3>
+          <h3>{t.appearance}</h3>
           <div className="setting-item">
             <div className="setting-info">
-              <label>Thème</label>
+              <label>{t.theme}</label>
               <span className="setting-description">
-                Choisir entre le mode clair et sombre
+                {t.themeDesc}
               </span>
             </div>
             <div className="theme-selector">
@@ -36,25 +38,35 @@ export default function SettingsModal({ isOpen, onClose, theme, onThemeChange, a
                 onClick={() => onThemeChange('light')}
               >
                 <Sun size={18} />
-                <span>Clair</span>
+                <span>{t.light}</span>
               </button>
               <button
                 className={`theme-option ${theme === 'dark' ? 'active' : ''}`}
                 onClick={() => onThemeChange('dark')}
               >
                 <Moon size={18} />
-                <span>Sombre</span>
+                <span>{t.dark}</span>
               </button>
+            </div>
+          </div>
+          <div className="setting-item" style={{ marginTop: '16px' }}>
+            <div className="setting-info">
+              <label>{t.language}</label>
+              <span className="setting-description">{t.languageDesc}</span>
+            </div>
+            <div className="theme-selector">
+              <button className={`theme-option ${lang === 'fr' ? 'active' : ''}`} onClick={() => setLanguage('fr')}>FR</button>
+              <button className={`theme-option ${lang === 'en' ? 'active' : ''}`} onClick={() => setLanguage('en')}>EN</button>
             </div>
           </div>
         </div>
 
         <div className="settings-section">
-          <h3>Configuration</h3>
+          <h3>{t.configuration}</h3>
           <div className="setting-item" style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
             <div className="setting-info">
-              <label htmlFor="autosave-toggle">Sauvegarde automatique</label>
-              <span className="setting-description">Sauvegarde le projet à la fréquence définie</span>
+              <label htmlFor="autosave-toggle">{t.autosave}</label>
+              <span className="setting-description">{t.autosaveDesc}</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
               {autoSaveEnabled && (
@@ -81,9 +93,9 @@ export default function SettingsModal({ isOpen, onClose, theme, onThemeChange, a
           </div>
           <div className="setting-item" style={{ marginTop: '16px' }}>
             <div className="setting-info">
-              <label>URL API</label>
+              <label>{t.apiUrl}</label>
               <span className="setting-description">
-                Endpoint du serveur de compilation LaTeX
+                {t.apiUrlDesc}
               </span>
             </div>
             <div className="input-with-icon">
@@ -99,26 +111,26 @@ export default function SettingsModal({ isOpen, onClose, theme, onThemeChange, a
         </div>
 
         <div className="settings-section">
-          <h3>À propos</h3>
+          <h3>{t.about}</h3>
           <div className="setting-item">
             <div className="setting-info">
-              <label>Limites</label>
+              <label>{t.limits}</label>
               <span className="setting-description">
-                Restrictions en vigueur sur la plateforme
+                {t.limitsDesc}
               </span>
             </div>
             <ul className="limits-list">
-              <li><span>10</span> compilations par minute (invité)</li>
-              <li><span>30</span> compilations par minute (connecté)</li>
-              <li><span>5</span> projets maximum par compte</li>
-              <li><span>10 mb</span> maximum par projet</li>
+              <li><span>10</span> {t.limitGuest}</li>
+              <li><span>30</span> {t.limitAuth}</li>
+              <li><span>5</span> {t.limitProjects}</li>
+              <li><span>10 mb</span> {t.limitSize}</li>
             </ul>
           </div>
           <div className="setting-item setting-item--status">
             <div className="setting-info">
-              <label>Status</label>
+              <label>{t.status}</label>
               <span className="setting-description">
-                Monitoring de l'infrastructure en temps réel
+                {t.statusDesc}
               </span>
             </div>
             <a
@@ -132,7 +144,7 @@ export default function SettingsModal({ isOpen, onClose, theme, onThemeChange, a
             </a>
           </div>
           <p className="settings-credit">
-            Réalisé par <a href="https://github.com/blavogiez" target="_blank" rel="noopener noreferrer">Baptiste Lavogiez</a>
+            {t.madeBy} <a href="https://github.com/blavogiez" target="_blank" rel="noopener noreferrer">Baptiste Lavogiez</a>
           </p>
         </div>
       </div>

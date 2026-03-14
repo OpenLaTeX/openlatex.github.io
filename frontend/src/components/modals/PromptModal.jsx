@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useLanguage } from '../../i18n/LanguageContext';
 import Modal from './Modal';
 
 const PromptModal = ({ isOpen, onClose, onConfirm, title, message, defaultValue = '', validate }) => {
+  const { t } = useLanguage();
   const [value, setValue] = useState(defaultValue);
   const [error, setError] = useState('');
 
@@ -47,10 +49,10 @@ const PromptModal = ({ isOpen, onClose, onConfirm, title, message, defaultValue 
       </div>
       <div className="modal-actions">
         <button className="modal-button modal-button-secondary" onClick={onClose}>
-          Annuler
+          {t.cancel}
         </button>
         <button className="modal-button modal-button-primary" onClick={handleConfirm}>
-          Confirmer
+          {t.confirm}
         </button>
       </div>
     </Modal>

@@ -5,7 +5,7 @@ import { validateFilePath } from '../utils/validation';
 
 const BINARY_TYPES = ['png', 'jpg', 'jpeg', 'pdf'];
 
-export const useFileManager = (project, setProject, showPrompt, showConfirm, filesMap = null, filesMeta = null) => {
+export const useFileManager = (project, setProject, showPrompt, showConfirm, filesMap = null, filesMeta = null, t) => {
   const fileInputRef = useRef(null);
   const folderInputRef = useRef(null);
 
@@ -82,8 +82,8 @@ export const useFileManager = (project, setProject, showPrompt, showConfirm, fil
 
   const handleRename = (oldPath) => {
     showPrompt(
-      'Renommer le fichier',
-      'Nouveau nom :',
+      t.renameFileTitle,
+      t.newNameLabel,
       oldPath,
       validateFilePath,
       (newPath) => {
@@ -97,8 +97,8 @@ export const useFileManager = (project, setProject, showPrompt, showConfirm, fil
 
   const handleDelete = async (path) => {
     const confirmed = await showConfirm(
-      'Supprimer le fichier',
-      `Êtes-vous sûr de vouloir supprimer "${path}" ? Cette action est irréversible.`
+      t.deleteFileTitle,
+      t.deleteFileMsg(path)
     );
     if (confirmed) {
       setProject(p => p.removeFile(path));
@@ -110,9 +110,8 @@ export const useFileManager = (project, setProject, showPrompt, showConfirm, fil
     const prefix = folderPath.endsWith('/') ? folderPath : folderPath + '/';
     const filesToDelete = project.files.filter(f => f.path.startsWith(prefix));
     const fileList = filesToDelete.map(f => f.path).join('\n• ');
-    const message = `Êtes-vous sûr de vouloir supprimer le dossier "${folderPath}" ?\n\nFichiers qui seront supprimés (${filesToDelete.length}) :\n• ${fileList}\n\nCette action est irréversible.`;
 
-    const confirmed = await showConfirm('Supprimer le dossier', message);
+    const confirmed = await showConfirm(t.deleteFolderTitle, t.deleteFolderMsg(folderPath, filesToDelete.length, fileList));
     if (confirmed) {
       setProject(p => p.removeFolder(folderPath));
       for (const f of filesToDelete) {

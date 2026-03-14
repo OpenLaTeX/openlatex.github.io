@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useLanguage } from '../../i18n/LanguageContext';
 import Modal from './Modal';
 
 const CreateItemModal = ({ isOpen, onClose, onConfirm }) => {
+  const { t } = useLanguage();
   const [itemType, setItemType] = useState('file');
   const [fileName, setFileName] = useState('');
   const [folderName, setFolderName] = useState('');
@@ -18,21 +20,21 @@ const CreateItemModal = ({ isOpen, onClose, onConfirm }) => {
 
   const validate = () => {
     if (!fileName.trim()) {
-      return 'Le nom du fichier est requis';
+      return t.validateFileRequired;
     }
     if (!fileName.includes('.')) {
-      return 'Le fichier doit avoir une extension (ex: .tex)';
+      return t.validateFileExtension;
     }
     const ext = fileName.split('.').pop().toLowerCase();
     if (!['tex', 'cls', 'sty'].includes(ext)) {
-      return 'Extension non supportée. Utilisez .tex, .cls ou .sty';
+      return t.validateFileExtUnsupported;
     }
     if (itemType === 'folder') {
       if (!folderName.trim()) {
-        return 'Le nom du dossier est requis';
+        return t.validateFolderRequired;
       }
       if (folderName.includes('/')) {
-        return 'Le nom du dossier ne peut pas contenir /';
+        return t.validateFolderSlash;
       }
     }
     return null;
@@ -55,7 +57,7 @@ const CreateItemModal = ({ isOpen, onClose, onConfirm }) => {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Nouveau">
+    <Modal isOpen={isOpen} onClose={onClose} title={t.newItem}>
       <div className="modal-body">
         <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
           <button
@@ -64,7 +66,7 @@ const CreateItemModal = ({ isOpen, onClose, onConfirm }) => {
             onClick={() => setItemType('file')}
             style={{ flex: 1 }}
           >
-            Fichier
+            {t.fileTab}
           </button>
           <button
             type="button"
@@ -72,13 +74,13 @@ const CreateItemModal = ({ isOpen, onClose, onConfirm }) => {
             onClick={() => setItemType('folder')}
             style={{ flex: 1 }}
           >
-            Dossier
+            {t.folderTab}
           </button>
         </div>
 
         {itemType === 'folder' && (
           <>
-            <p style={{ marginBottom: '4px' }}>Nom du dossier :</p>
+            <p style={{ marginBottom: '4px' }}>{t.folderNameLabel}</p>
             <input
               type="text"
               className="modal-input"
@@ -92,7 +94,7 @@ const CreateItemModal = ({ isOpen, onClose, onConfirm }) => {
         )}
 
         <p style={{ marginBottom: '4px', marginTop: itemType === 'folder' ? '12px' : '0' }}>
-          Nom du fichier :
+          {t.fileNameLabel}
         </p>
         <input
           type="text"
@@ -108,10 +110,10 @@ const CreateItemModal = ({ isOpen, onClose, onConfirm }) => {
       </div>
       <div className="modal-actions">
         <button className="modal-button modal-button-secondary" onClick={onClose}>
-          Annuler
+          {t.cancel}
         </button>
         <button className="modal-button modal-button-primary" onClick={handleConfirm}>
-          Créer
+          {t.create}
         </button>
       </div>
     </Modal>

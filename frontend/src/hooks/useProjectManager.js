@@ -6,11 +6,11 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { UserStorage } from '../storage/UserStorage';
 
-export const useProjectManager = (isAuthenticated, showAlert, showPrompt, autoSaveEnabled = true, autoSaveInterval = 2) => {
+export const useProjectManager = (isAuthenticated, showAlert, showPrompt, autoSaveEnabled = true, autoSaveInterval = 2, t) => {
   const [currentProjectId, setCurrentProjectId] = useState(null);
   const [projectName, setProjectName] = useState(() => {
     const draft = UserStorage.getProjectDraft();
-    return (draft && draft.name) || 'Nouveau projet';
+    return (draft && draft.name) || t.newProject;
   });
   const [project, setProject] = useState(() => {
     const draft = UserStorage.getProjectDraft();
@@ -53,7 +53,7 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt, autoSa
       const success = UserStorage.saveProjectDraft(project);
       if (!success && !quotaErrorShown.current) {
         quotaErrorShown.current = true;
-        showAlert('Erreur localStorage', 'Impossible de sauvegarder le brouillon localement (quota dépassé). Sauvegardez votre projet sur le serveur pour ne pas perdre vos modifications.');
+        showAlert(t.localStorageErrorTitle, t.localStorageErrorMsg);
       } else if (success) {
         quotaErrorShown.current = false;
       }
@@ -83,19 +83,19 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt, autoSa
 
   const handleSaveProject = async () => {
     if (!isAuthenticated) {
-      showAlert('Authentification requise', 'Vous devez vous connecter pour sauvegarder votre projet.');
+      showAlert(t.authRequired, t.authRequiredMsg);
       return { requiresAuth: true };
     }
 
     if (currentProjectId && !isOwner) {
-      showAlert('Accès refusé', 'Seul le propriétaire du projet peut le sauvegarder.');
+      showAlert(t.accessDenied, t.accessDeniedMsg);
       return { success: false };
     }
 
     return new Promise((resolve) => {
       showPrompt(
-        currentProjectId ? 'Mettre à jour le projet' : 'Créer un nouveau projet',
-        'Nom du projet :',
+        currentProjectId ? t.updateProjectTitle : t.createProjectTitle,
+        t.projectNameLabel,
         projectName,
         validateProjectName,
         async (name) => {
@@ -108,18 +108,18 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt, autoSa
               setProjectName(name);
               setLastSavedAt(new Date());
               UserStorage.clearProjectDraft();
-              showAlert('Succès', 'Le projet a été mis à jour avec succès.');
+              showAlert(t.success, t.projectUpdated);
             } else {
               const result = await ProjectService.createProject(name, null, files);
               setCurrentProjectId(result.pno);
               setProjectName(name);
               setLastSavedAt(new Date());
               UserStorage.clearProjectDraft();
-              showAlert('Succès', 'Le projet a été créé avec succès.');
+              showAlert(t.success, t.projectCreated);
             }
             resolve({ success: true });
           } catch (err) {
-            showAlert('Erreur', `Impossible de sauvegarder le projet : ${err.message}`);
+            showAlert(t.error, t.cannotSave(err.message));
             resolve({ success: false });
           }
           setLoading(false);
@@ -145,10 +145,10 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt, autoSa
       setIsOwner(data.is_owner || false);
       setLastSavedAt(new Date());
       UserStorage.clearProjectDraft();
-      showAlert('Succès', 'Le projet a été chargé avec succès.');
+      showAlert(t.success, t.projectLoaded);
       return { success: true };
     } catch (err) {
-      showAlert('Erreur', `Impossible de charger le projet : ${err.message}`);
+      showAlert(t.error, t.cannotLoad(err.message));
       return { success: false };
     } finally {
       setLoading(false);
@@ -158,7 +158,7 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt, autoSa
   const handleNewProject = () => {
     setProject(Project.createDefault());
     setCurrentProjectId(null);
-    setProjectName('Nouveau projet');
+    setProjectName(t.newProject);
     setIsOwner(false);
     UserStorage.saveLastProject(null, null);
   };
@@ -167,7 +167,7 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt, autoSa
     skipDraftSaveRef.current = true;
     setCurrentProjectId(null);
     setProject(Project.createDefault());
-    setProjectName('Nouveau projet');
+    setProjectName(t.newProject);
     setIsOwner(false);
   };
 
@@ -191,7 +191,7 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt, autoSa
       UserStorage.clearProjectDraft();
       return { success: true };
     } catch (err) {
-      showAlert('Erreur', `Impossible de fusionner le projet : ${err.message}`);
+      showAlert(t.error, t.cannotMerge(err.message));
       return { success: false };
     } finally {
       setLoading(false);
@@ -201,7 +201,7 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt, autoSa
   const handleDownloadProject = async () => {
     try {
       if (!project.files || project.files.length === 0) {
-        showAlert('Erreur', 'Aucun fichier à télécharger');
+        showAlert(t.error, t.noFilesToDownload);
         return;
       }
 
@@ -214,9 +214,9 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt, autoSa
 
       const blob = await zip.generateAsync({ type: 'blob' });
       saveAs(blob, `${projectName}.zip`);
-      showAlert('Succès', 'Projet téléchargé avec succès');
+      showAlert(t.success, t.projectDownloaded);
     } catch (err) {
-      showAlert('Erreur', `Impossible de télécharger le projet : ${err.message}`);
+      showAlert(t.error, t.cannotDownload(err.message));
     }
   };
 

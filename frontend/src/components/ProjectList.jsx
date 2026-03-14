@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLanguage } from '../i18n/LanguageContext';
 import ProjectService from '../services/ProjectService';
 import { Download } from 'lucide-react';
 import JSZip from 'jszip';
@@ -6,6 +7,7 @@ import { saveAs } from 'file-saver';
 import './ProjectList.css';
 
 function ProjectList({ onLoadProject, onNewProject, onConfirm }) {
+    const { t } = useLanguage();
     const [projects, setProjects] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -21,7 +23,7 @@ function ProjectList({ onLoadProject, onNewProject, onConfirm }) {
             setProjects(data);
             setError('');
         } catch (err) {
-            setError('Impossible de charger les projets : ' + err.message);
+            setError(t.cannotLoadProjects(err.message));
         } finally {
             setLoading(false);
         }
@@ -29,15 +31,15 @@ function ProjectList({ onLoadProject, onNewProject, onConfirm }) {
 
     const handleDelete = async (pno, projectName) => {
         const confirmed = await onConfirm(
-            'Supprimer le projet',
-            `Êtes-vous sûr de vouloir supprimer le projet "${projectName}" ? Cette action est irréversible.`
+            t.deleteProjectTitle,
+            t.deleteProjectMsg(projectName)
         );
         if (confirmed) {
             try {
                 await ProjectService.deleteProject(pno);
                 setProjects(prev => prev.filter(p => p.pno !== pno));
             } catch (err) {
-                setError('Impossible de supprimer le projet : ' + err.message);
+                setError(t.cannotDeleteProject(err.message));
             }
         }
     };
@@ -47,7 +49,7 @@ function ProjectList({ onLoadProject, onNewProject, onConfirm }) {
             const data = await ProjectService.getProject(pno);
 
             if (!data.files || data.files.length === 0) {
-                setError('Aucun fichier à télécharger');
+                setError(t.noFilesToDownload);
                 return;
             }
 
@@ -64,24 +66,24 @@ function ProjectList({ onLoadProject, onNewProject, onConfirm }) {
             saveAs(blob, `${projectName}.zip`);
             setError('');
         } catch (err) {
-            setError('Impossible de télécharger le projet : ' + err.message);
+            setError(t.cannotDownloadProject(err.message));
         }
     };
 
     return (
         <div className="project-list-container">
-            <h3>Mes projets</h3>
+            <h3>{t.myProjects}</h3>
 
             {error && <div className="project-error">{error}</div>}
 
             <button onClick={onNewProject} className="project-new-button">
-                Nouveau projet
+                {t.newProject}
             </button>
 
             {loading ? (
-                <div className="project-loading">Chargement...</div>
+                <div className="project-loading">{t.loading}</div>
             ) : projects.length === 0 ? (
-                <p className="project-empty">Aucun projet</p>
+                <p className="project-empty">{t.noProjects}</p>
             ) : (
                 <ul className="project-list">
                     {projects.map(project => (
@@ -90,21 +92,21 @@ function ProjectList({ onLoadProject, onNewProject, onConfirm }) {
                                 {project.name.length > 15 ? project.name.slice(0, 40) + '...' : project.name}
                             </div>
                             {!project.is_owner && (
-                                <small className="project-shared-by">Partagé par {project.owner_email}</small>
+                                <small className="project-shared-by">{t.sharedBy} {project.owner_email}</small>
                             )}
                             {project.description && <p className="project-description">{project.description}</p>}
                             <small className="project-date">{new Date(project.created_at).toLocaleDateString()}</small>
                             <small className="project-id">{project.pno.slice(0, 5)}</small>
                             <div className="project-actions">
                                 <button onClick={() => onLoadProject(project.pno)} className="project-action-button project-action-button-primary">
-                                    Ouvrir
+                                    {t.open}
                                 </button>
                                 <button onClick={() => handleDownload(project.pno, project.name)} className="project-action-button">
-                                    <Download size={16} /> Télécharger
+                                    <Download size={16} /> {t.download}
                                 </button>
                                 {project.is_owner && (
                                     <button onClick={() => handleDelete(project.pno, project.name)} className="project-action-button">
-                                        Supprimer
+                                        {t.delete}
                                     </button>
                                 )}
                             </div>
