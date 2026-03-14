@@ -6,6 +6,9 @@ openlatex.v0id.nl {
         Referrer-Policy "strict-origin-when-cross-origin"
         Permissions-Policy "camera=(), microphone=(), geolocation=()"
     }
+    handle /collab/* {
+        reverse_proxy collab:7000
+    }
     handle /compile* {
         reverse_proxy compile:9000
     }

@@ -21,6 +21,7 @@ import { useProjectManager } from './hooks/useProjectManager';
 import { useFileManager } from './hooks/useFileManager';
 import { useCompilation } from './hooks/useCompilation';
 import { useFigureManager } from './hooks/useFigureManager';
+import { useCollaboration } from './hooks/useCollaboration';
 import './App.css';
 
 export default function App() {
@@ -96,8 +97,15 @@ export default function App() {
     handleNewProject: newProject,
     resetProject,
     handleDownloadProject,
-    handleMergeWithProject
+    handleMergeWithProject,
+    filesMapsRef
   } = useProjectManager(isAuthenticated, showAlert, showPrompt, autoSaveEnabled, autoSaveInterval);
+
+  const { filesMap, awareness, isConnected } = useCollaboration(currentProjectId);
+
+  useEffect(() => {
+    filesMapsRef.current = filesMap;
+  }, [filesMap]);
 
   const {
     fileInputRef,
@@ -532,6 +540,8 @@ export default function App() {
                 currentFile={currentFile}
                 onFigureInsert={currentFile?.type === 'tex' ? handleFigureInsert : null}
                 theme={theme}
+                yText={filesMap && currentFile ? filesMap.get(currentFile.path) ?? null : null}
+                awareness={awareness}
               />
             )}
           </div>
@@ -613,6 +623,8 @@ export default function App() {
         onAutoSaveChange={handleAutoSaveChange}
         autoSaveInterval={autoSaveInterval}
         onAutoSaveIntervalChange={handleAutoSaveIntervalChange}
+        currentProjectId={currentProjectId}
+        isOwner={!!currentProjectId && isAuthenticated}
       />
     </div>
   );

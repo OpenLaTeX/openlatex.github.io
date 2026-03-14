@@ -30,6 +30,19 @@ create table if not exists files (
     created_at timestamp default now()
 );
 
+create table if not exists yjs_state (
+  pno text primary key references projects(pno) on delete cascade,
+  state bytea not null,
+  updated_at timestamptz default now()
+);
+
+create table if not exists project_collaborators (
+  pno text not null references projects(pno) on delete cascade,
+  uno text not null references users(uno) on delete cascade,
+  created_at timestamptz default now(),
+  primary key (pno, uno)
+);
+
 create index if not exists idx_projects_uno on projects(uno);
 create index if not exists idx_files_pno on files(pno);
 
