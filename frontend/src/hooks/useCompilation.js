@@ -2,7 +2,7 @@ import { useState } from 'react';
 import ApiService from '../services/ApiService';
 import { parseLatexLogs } from '../utils/LogParser';
 
-export const useCompilation = (project, apiUrl, showAlert, setLoading) => {
+export const useCompilation = (project, resolveFiles, apiUrl, showAlert, setLoading) => {
   const [pdfUrl, setPdfUrl] = useState(null);
   const [compilationErrors, setCompilationErrors] = useState([]);
   const [showErrorPanel, setShowErrorPanel] = useState(false);
@@ -19,8 +19,8 @@ export const useCompilation = (project, apiUrl, showAlert, setLoading) => {
     setLoading(true);
     setCompilationErrors([]);
     try {
-      const compileRequest = project.toCompileRequest(project.currentFile);
-      const result = await ApiService.compile(apiUrl, compileRequest.files, compileRequest.mainFile);
+      const files = resolveFiles().map(f => ({ path: f.path, content: f.content }));
+      const result = await ApiService.compile(apiUrl, files, project.currentFile);
 
       setPdfUrl(result.pdfUrl);
 

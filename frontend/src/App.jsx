@@ -98,7 +98,8 @@ export default function App() {
     resetProject,
     handleDownloadProject,
     handleMergeWithProject,
-    filesMapsRef
+    filesMapsRef,
+    resolveFiles
   } = useProjectManager(isAuthenticated, showAlert, showPrompt, autoSaveEnabled, autoSaveInterval);
 
   const { filesMap, filesMeta, awareness, isConnected, synced } = useCollaboration(currentProjectId, project, setProject);
@@ -129,7 +130,7 @@ export default function App() {
     showErrorPanel,
     setShowErrorPanel,
     handleCompile
-  } = useCompilation(project, apiUrl, showAlert, setLoading);
+  } = useCompilation(project, resolveFiles, apiUrl, showAlert, setLoading);
 
   const editorViewRef = useRef(null);
 
