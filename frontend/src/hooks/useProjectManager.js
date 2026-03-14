@@ -37,6 +37,12 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt, autoSa
   useEffect(() => { projectNameRef.current = projectName; }, [projectName]);
 
   useEffect(() => {
+    if (currentProjectId) {
+      UserStorage.saveLastProject(currentProjectId, projectNameRef.current);
+    }
+  }, [currentProjectId]);
+
+  useEffect(() => {
     if (project.files.length > 0) {
       const success = UserStorage.saveProjectDraft(project);
       if (!success && !quotaErrorShown.current) {
@@ -138,12 +144,40 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt, autoSa
     setProject(Project.createDefault());
     setCurrentProjectId(null);
     setProjectName('Nouveau projet');
+    UserStorage.saveLastProject(null, null);
   };
 
   const resetProject = () => {
     setCurrentProjectId(null);
     setProject(Project.createDefault());
     setProjectName('Nouveau projet');
+    UserStorage.saveLastProject(null, null);
+  };
+
+  const handleMergeWithProject = async (pno) => {
+    setLoading(true);
+    try {
+      const data = await ProjectService.getProject(pno);
+      const currentPaths = new Set(projectRef.current.files.map(f => f.path));
+      let merged = projectRef.current;
+      for (const f of data.files) {
+        if (!currentPaths.has(f.filename)) {
+          merged = merged.addEmptyFile(f.filename, f.file_type);
+          merged = merged.updateFileContent(f.filename, f.content);
+        }
+      }
+      setProject(merged);
+      setCurrentProjectId(data.pno);
+      setProjectName(data.name);
+      setLastSavedAt(null);
+      UserStorage.clearProjectDraft();
+      return { success: true };
+    } catch (err) {
+      showAlert('Erreur', `Impossible de fusionner le projet : ${err.message}`);
+      return { success: false };
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleDownloadProject = async () => {
@@ -182,6 +216,7 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt, autoSa
     handleLoadProject,
     handleNewProject,
     resetProject,
-    handleDownloadProject
+    handleDownloadProject,
+    handleMergeWithProject
   };
 };

@@ -95,7 +95,8 @@ export default function App() {
     handleLoadProject: loadProject,
     handleNewProject: newProject,
     resetProject,
-    handleDownloadProject
+    handleDownloadProject,
+    handleMergeWithProject
   } = useProjectManager(isAuthenticated, showAlert, showPrompt, autoSaveEnabled, autoSaveInterval);
 
   const {
@@ -295,6 +296,19 @@ export default function App() {
       setShowAuth(true);
     });
   }, []);
+
+  useEffect(() => {
+    if (!isAuthenticated || currentProjectId) return;
+    const last = UserStorage.getLastProject();
+    if (last?.pno) {
+      showConfirm(
+        'Dernier projet',
+        `Voulez-vous fusionner votre brouillon local avec votre dernier projet "${last.name}" ? Votre brouillon local a la priorité dans la fusion.`
+      ).then((confirmed) => {
+        if (confirmed) handleMergeWithProject(last.pno);
+      });
+    }
+  }, [isAuthenticated]);
 
   if (showAuth) {
     return (
