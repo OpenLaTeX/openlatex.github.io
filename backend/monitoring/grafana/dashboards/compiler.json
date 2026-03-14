@@ -18,9 +18,75 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 4,
   "links": [],
   "panels": [
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "description": "Durée de fonctionnement du service depuis son dernier démarrage",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "green",
+            "mode": "fixed"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "dtdhms"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 20,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "10.4.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "process_uptime_seconds{job=\"compiler\"}",
+          "instant": true,
+          "legendFormat": "Uptime",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Uptime",
+      "type": "stat"
+    },
     {
       "datasource": {
         "type": "prometheus",
@@ -58,7 +124,7 @@
         "h": 4,
         "w": 12,
         "x": 0,
-        "y": 0
+        "y": 4
       },
       "id": 10,
       "options": {
@@ -85,7 +151,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum(latex_compile_total{result=\"success\"}) / scalar(sum(latex_compile_total)) * 100",
+          "expr": "sum(latex_compile_total{result!=\"server_failure\"}) / scalar(sum(latex_compile_total)) * 100",
           "instant": false,
           "legendFormat": "Taux de succès",
           "range": true,
@@ -100,11 +166,12 @@
         "type": "prometheus",
         "uid": "prometheus"
       },
-      "description": "Total des compilations -> donc jusqu'au nombre de jours de rétention des données (ici paramétrés à 5)",
+      "description": "Total des compilations -> donc jusqu'au nombre de jours de rétention des données (ici paramétré à 5)",
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
+            "fixedColor": "blue",
+            "mode": "fixed"
           },
           "mappings": [],
           "thresholds": {
@@ -121,13 +188,26 @@
             ]
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "success" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "server_failure" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "user_failure" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }]
+          }
+        ]
       },
       "gridPos": {
         "h": 4,
         "w": 12,
         "x": 12,
-        "y": 0
+        "y": 4
       },
       "id": 4,
       "options": {
@@ -227,7 +307,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 4
+        "y": 8
       },
       "id": 2,
       "options": {
@@ -323,7 +403,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 4
+        "y": 8
       },
       "id": 1,
       "options": {
@@ -423,7 +503,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 12
+        "y": 16
       },
       "id": 5,
       "options": {
@@ -519,7 +599,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 12
+        "y": 16
       },
       "id": 11,
       "options": {
@@ -548,7 +628,7 @@
           "refId": "A"
         }
       ],
-      "title": "Taux d'erreur (compilations échouées/heure)",
+      "title": "Taux d'erreur (compilations échouées/heure, faute utilisateur)",
       "type": "timeseries"
     },
     {
@@ -577,7 +657,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 20
+        "y": 24
       },
       "id": 3,
       "options": {
@@ -670,7 +750,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 20
+        "y": 24
       },
       "id": 12,
       "options": {
@@ -679,6 +759,7 @@
         "fullHighlight": false,
         "groupWidth": 0.7,
         "legend": {
+          "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
           "showLegend": false
@@ -718,9 +799,6 @@
       "description": "Distribution des durées de compilation dans le temps",
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "fixed"
-          },
           "custom": {
             "hideFrom": {
               "legend": false,
@@ -738,7 +816,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 28
+        "y": 32
       },
       "id": 13,
       "options": {
@@ -748,6 +826,7 @@
           "exponent": 0.5,
           "fill": "dark-orange",
           "mode": "scheme",
+          "reverse": false,
           "scale": "exponential",
           "scheme": "Oranges",
           "steps": 64
@@ -774,6 +853,7 @@
           "reverse": false
         }
       },
+      "pluginVersion": "10.4.3",
       "targets": [
         {
           "datasource": {
@@ -806,6 +886,6 @@
   "timezone": "browser",
   "title": "Compilateur",
   "uid": "affezpiyozaioe",
-  "version": 12,
+  "version": 13,
   "weekStart": ""
 }
