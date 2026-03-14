@@ -38,9 +38,9 @@ create table if not exists yjs_state (
 
 create table if not exists project_collaborators (
   pno text not null references projects(pno) on delete cascade,
-  uno text not null references users(uno) on delete cascade,
+  email text not null,
   created_at timestamptz default now(),
-  primary key (pno, uno)
+  primary key (pno, email)
 );
 
 create index if not exists idx_projects_uno on projects(uno);
