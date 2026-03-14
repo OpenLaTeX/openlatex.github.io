@@ -36,14 +36,20 @@ const bufferToContent = (buffer, fileType) => {
 // demande tous les projets de l'utilisateur
 router.get('/', async (req, res) => {
     try {
+        const userResult = await SQLquery('select email from users where uno = $1', [req.userId]);
+        if (userResult.rows.length === 0) {
+            return res.status(401).json({ error: 'User not found' });
+        }
+        const userEmail = userResult.rows[0].email;
+
         const result = await SQLquery(
             `select p.pno, p.name, p.description, p.created_at, p.uno = $1 as is_owner, u.email as owner_email
              from projects p
              join users u on u.uno = p.uno
              where p.uno = $1
-                or exists (select 1 from project_collaborators pc where pc.pno = p.pno and pc.uno = $1)
+                or exists (select 1 from project_collaborators pc where pc.pno = p.pno and pc.email = $2)
              order by p.created_at desc`,
-            [req.userId]
+            [req.userId, userEmail]
         );
         res.json(result.rows);
     } catch (err) {
@@ -123,9 +129,15 @@ router.get('/:pno', async (req, res) => {
 
         const isOwner = project.uno === req.userId;
         if (!isOwner) {
+            const userResult = await SQLquery('select email from users where uno = $1', [req.userId]);
+            if (userResult.rows.length === 0) {
+                return res.status(403).json({ error: 'Access forbidden' });
+            }
+            const userEmail = userResult.rows[0].email;
+
             const collabCheck = await SQLquery(
-                'select 1 from project_collaborators where pno = $1 and uno = $2',
-                [pno, req.userId]
+                'select 1 from project_collaborators where pno = $1 and email = $2',
+                [pno, userEmail]
             );
             if (collabCheck.rows.length === 0) {
                 return res.status(403).json({ error: 'Access forbidden' });
@@ -233,7 +245,7 @@ router.get('/:pno/collaborators', async (req, res) => {
         if (check.rows[0].uno !== req.userId) return res.status(403).json({ error: 'Access forbidden' });
 
         const result = await SQLquery(
-            'select u.email from project_collaborators pc join users u on u.uno = pc.uno where pc.pno = $1',
+            'select email from project_collaborators where pno = $1',
             [pno]
         );
         res.json(result.rows);
@@ -254,17 +266,15 @@ router.post('/:pno/collaborators', async (req, res) => {
         if (check.rows.length === 0) return res.status(404).json({ error: 'Project not found' });
         if (check.rows[0].uno !== req.userId) return res.status(403).json({ error: 'Access forbidden' });
 
-        const userResult = await SQLquery('select uno from users where email = $1', [email]);
-        if (userResult.rows.length === 0) return res.status(201).json({ message: 'Collaborator added (if they exist)' });
-
-        const targetUno = userResult.rows[0].uno;
-        if (targetUno === req.userId) return res.status(400).json({ error: 'Cannot add the project owner' });
+        const ownerResult = await SQLquery('select email from users where uno = $1', [req.userId]);
+        const ownerEmail = ownerResult.rows[0].email;
+        if (email === ownerEmail) return res.status(400).json({ error: 'Cannot add the project owner' });
 
         await SQLquery(
-            'insert into project_collaborators (pno, uno) values ($1, $2) on conflict do nothing',
-            [pno, targetUno]
+            'insert into project_collaborators (pno, email) values ($1, $2) on conflict do nothing',
+            [pno, email]
         );
-        res.status(201).json({ message: 'Collaborator added (if they exist)' });
+        res.status(201).json({ message: 'Collaborator added' });
     } catch (err) {
         console.error('erreur add collaborator:', err);
         res.status(500).json({ error: 'Server error' });
@@ -279,7 +289,7 @@ router.delete('/:pno/collaborators/:email', async (req, res) => {
         if (check.rows[0].uno !== req.userId) return res.status(403).json({ error: 'Access forbidden' });
 
         await SQLquery(
-            'delete from project_collaborators where pno = $1 and uno = (select uno from users where email = $2)',
+            'delete from project_collaborators where pno = $1 and email = $2',
             [pno, email]
         );
         res.json({ message: 'collaborateur retire' });

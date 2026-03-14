@@ -23,9 +23,13 @@ const authMiddleware = async (req, projectId) => {
     const ownerUno = projectResult.rows[0].uno;
     if (ownerUno === userId) return userId;
 
+    const userResult = await SQLquery('select email from users where uno = $1', [userId]);
+    if (userResult.rows.length === 0) return null;
+    const userEmail = userResult.rows[0].email;
+
     const collabResult = await SQLquery(
-        'select 1 from project_collaborators where pno = $1 and uno = $2',
-        [projectId, userId]
+        'select 1 from project_collaborators where pno = $1 and email = $2',
+        [projectId, userEmail]
     );
     if (collabResult.rows.length > 0) return userId;
 
