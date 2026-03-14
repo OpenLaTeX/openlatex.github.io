@@ -43,10 +43,10 @@ export class UserStorage {
     }
   }
 
-  static saveProjectDraft(project) {
+  static saveProjectDraft(project, name) {
     try {
       localStorage.setItem('projectDraft', JSON.stringify({
-        name: project.name,
+        name: name ?? project.name,
         files: project.files,
         currentFile: project.currentFile,
         timestamp: Date.now()

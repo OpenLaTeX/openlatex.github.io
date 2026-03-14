@@ -38,9 +38,6 @@ export const useFigureManager = (project, setProject, editorViewRef, showFigureI
 
       showFigureInsert(imageData, defaultLabel, defaultCaption, ({ caption, label, width }) => {
         try {
-          let newProject = project.addEmptyFile(imagePath, imageData.extension);
-          newProject = newProject.updateFileContent(imagePath, imageData.base64);
-
           const latexCode = FigureTemplate.generate(imagePath, caption, label, width);
 
           view.dispatch({
@@ -52,11 +49,14 @@ export const useFigureManager = (project, setProject, editorViewRef, showFigureI
           });
 
           const finalContent = view.state.doc.toString();
-          if (project.currentFile) {
-            newProject = newProject.updateFileContent(project.currentFile, finalContent);
-          }
-
-          setProject(newProject);
+          setProject(prev => {
+            let newProject = prev.addEmptyFile(imagePath, imageData.extension);
+            newProject = newProject.updateFileContent(imagePath, imageData.base64);
+            if (prev.currentFile) {
+              newProject = newProject.updateFileContent(prev.currentFile, finalContent);
+            }
+            return newProject;
+          });
           if (setInYjs) setInYjs(imagePath, imageData.extension, imageData.base64);
         } catch (err) {
           showAlert(t.error, t.figureInsertError(err.message));
