@@ -1,10 +1,46 @@
 import { useRef } from 'react';
+import * as Y from 'yjs';
 import { FileReaderUtil } from '../utils/FileReader';
 import { validateFilePath } from '../utils/validation';
 
-export const useFileManager = (project, setProject, showPrompt, showConfirm) => {
+const BINARY_TYPES = ['png', 'jpg', 'jpeg', 'pdf'];
+
+export const useFileManager = (project, setProject, showPrompt, showConfirm, filesMap = null, filesMeta = null) => {
   const fileInputRef = useRef(null);
   const folderInputRef = useRef(null);
+
+  const setInYjs = (path, type, content) => {
+    if (!filesMap || !filesMeta) return;
+    const isBinary = BINARY_TYPES.includes(type);
+    filesMeta.set(path, JSON.stringify(isBinary ? { type, content } : { type }));
+    if (!isBinary) {
+      const yText = new Y.Text();
+      if (content) yText.insert(0, content);
+      filesMap.set(path, yText);
+    }
+  };
+
+  const deleteFromYjs = (path) => {
+    if (!filesMap || !filesMeta) return;
+    filesMeta.delete(path);
+    filesMap.delete(path);
+  };
+
+  const renameInYjs = (oldPath, newPath) => {
+    if (!filesMap || !filesMeta) return;
+    const oldMeta = filesMeta.get(oldPath);
+    if (oldMeta) {
+      filesMeta.set(newPath, oldMeta);
+      filesMeta.delete(oldPath);
+    }
+    const oldYText = filesMap.get(oldPath);
+    if (oldYText) {
+      const newYText = new Y.Text();
+      newYText.insert(0, oldYText.toString());
+      filesMap.set(newPath, newYText);
+      filesMap.delete(oldPath);
+    }
+  };
 
   const handleFileSelect = (path) => {
     setProject(p => p.setCurrentFile(path));
@@ -19,6 +55,7 @@ export const useFileManager = (project, setProject, showPrompt, showConfirm) => 
   const handleUploadFiles = async (event) => {
     const files = Array.from(event.target.files);
     let newProject = project;
+    const yjsUpdates = [];
 
     for (const file of files) {
       const content = await FileReaderUtil.readFile(file);
@@ -28,12 +65,18 @@ export const useFileManager = (project, setProject, showPrompt, showConfirm) => 
       try {
         newProject = newProject.addEmptyFile(path, type);
         newProject = newProject.updateFileContent(path, content);
+        yjsUpdates.push({ path, type, content });
       } catch (err) {
         console.error(`erreur upload ${path}:`, err);
       }
     }
 
     setProject(newProject);
+
+    for (const { path, type, content } of yjsUpdates) {
+      setInYjs(path, type, content);
+    }
+
     event.target.value = '';
   };
 
@@ -46,6 +89,7 @@ export const useFileManager = (project, setProject, showPrompt, showConfirm) => 
       (newPath) => {
         if (newPath !== oldPath) {
           setProject(p => p.renameFile(oldPath, newPath));
+          renameInYjs(oldPath, newPath);
         }
       }
     );
@@ -58,6 +102,7 @@ export const useFileManager = (project, setProject, showPrompt, showConfirm) => 
     );
     if (confirmed) {
       setProject(p => p.removeFile(path));
+      deleteFromYjs(path);
     }
   };
 
@@ -70,6 +115,9 @@ export const useFileManager = (project, setProject, showPrompt, showConfirm) => 
     const confirmed = await showConfirm('Supprimer le dossier', message);
     if (confirmed) {
       setProject(p => p.removeFolder(folderPath));
+      for (const f of filesToDelete) {
+        deleteFromYjs(f.path);
+      }
     }
   };
 
@@ -85,6 +133,7 @@ export const useFileManager = (project, setProject, showPrompt, showConfirm) => 
     const ext = fileName.split('.').pop();
     const path = type === 'folder' ? `${folderName}/${fileName}` : fileName;
     setProject(p => p.addEmptyFile(path, ext));
+    setInYjs(path, ext, '');
   };
 
   const handleMoveFile = (sourcePath, targetFolderPath) => {
@@ -92,6 +141,7 @@ export const useFileManager = (project, setProject, showPrompt, showConfirm) => 
     const newPath = `${targetFolderPath}/${fileName}`;
     if (sourcePath !== newPath && !project.getFile(newPath)) {
       setProject(p => p.renameFile(sourcePath, newPath));
+      renameInYjs(sourcePath, newPath);
     }
   };
 
@@ -99,6 +149,7 @@ export const useFileManager = (project, setProject, showPrompt, showConfirm) => 
     const fileName = sourcePath.split('/').pop();
     if (sourcePath !== fileName && !project.getFile(fileName)) {
       setProject(p => p.renameFile(sourcePath, fileName));
+      renameInYjs(sourcePath, fileName);
     }
   };
 
