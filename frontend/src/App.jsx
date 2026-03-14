@@ -177,6 +177,7 @@ export default function App() {
 
   const handleLogin = (email) => {
     authLogin(email);
+    closeAlert();
     setShowAuth(false);
   };
 
