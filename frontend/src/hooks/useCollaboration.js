@@ -79,6 +79,12 @@ export const useCollaboration = (projectId, project, setProject) => {
           changes.push({ action: 'add', path, type, content });
         } else if (change.action === 'delete') {
           changes.push({ action: 'delete', path });
+        } else if (change.action === 'update') {
+          const meta = JSON.parse(filesMeta.get(path) || '{}');
+          const isBinary = ['png', 'jpg', 'jpeg', 'pdf'].includes(meta.type);
+          if (isBinary && meta.content) {
+            changes.push({ action: 'update', path, content: meta.content });
+          }
         }
       }
       setProject(prev => {
@@ -91,6 +97,8 @@ export const useCollaboration = (projectId, project, setProject) => {
             }
           } else if (action === 'delete') {
             updated = updated.removeFile(path);
+          } else if (action === 'update') {
+            updated = updated.updateFileContent(path, content);
           }
         }
         return updated;

@@ -63,7 +63,9 @@ export const useFileManager = (project, setProject, showPrompt, showConfirm, fil
       const path = file.webkitRelativePath || file.name;
 
       try {
-        newProject = newProject.addEmptyFile(path, type);
+        if (!newProject.getFile(path)) {
+          newProject = newProject.addEmptyFile(path, type);
+        }
         newProject = newProject.updateFileContent(path, content);
         yjsUpdates.push({ path, type, content });
       } catch (err) {
