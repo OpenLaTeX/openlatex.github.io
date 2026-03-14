@@ -335,6 +335,14 @@ export default function App() {
     );
   }
 
+  const projectSizeMB = currentProjectId
+    ? (project.files.reduce((acc, f) =>
+        acc + (['png', 'jpg', 'jpeg', 'pdf'].includes(f.type)
+          ? f.content.length * 0.75
+          : f.content.length)
+      , 0) / (1024 * 1024)).toFixed(2)
+    : null;
+
   return (
     <div className="app-container">
       {isMobile && (
@@ -420,7 +428,7 @@ export default function App() {
             <div style={{ fontSize: '13px', fontWeight: '600', marginBottom: '8px', padding: '0 4px', overflow: 'hidden', textOverflow: 'ellipsis' }} title={projectName}>
               {projectName.length > 15 ? projectName.slice(0, 40) + '...' : projectName}
               {currentProjectId && (
-                <small style={{ display: 'block', fontSize: '10px', fontWeight: '400', color: 'var(--text-faint)', opacity: 0.6 }}>{currentProjectId.slice(0, 5)}</small>
+                <small style={{ display: 'block', fontSize: '10px', fontWeight: '400', color: 'var(--text-faint)', opacity: 0.6 }}>{currentProjectId.slice(0, 5)} · {projectSizeMB} Mo</small>
               )}
             </div>
 
