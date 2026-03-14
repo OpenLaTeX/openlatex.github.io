@@ -10,6 +10,12 @@ const { defaultProtectionLimiter, authLimiter } = require('./middleware/rateLimi
 
 promClient.collectDefaultMetrics();
 
+const uptimeGauge = new promClient.Gauge({
+  name: 'process_uptime_seconds',
+  help: 'Durée de fonctionnement du process en secondes',
+});
+setInterval(() => uptimeGauge.set(process.uptime()), 10000);
+
 const httpDuration = new promClient.Histogram({
   name: 'http_request_duration_seconds',
   help: 'Durée des requêtes HTTP (en secondes)',
