@@ -30,6 +30,7 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt, autoSa
   const [loading, setLoading] = useState(false);
   const [lastSavedAt, setLastSavedAt] = useState(null);
   const quotaErrorShown = useRef(false);
+  const skipDraftSaveRef = useRef(false);
   const projectRef = useRef(project);
   const projectNameRef = useRef(projectName);
 
@@ -43,6 +44,10 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt, autoSa
   }, [currentProjectId]);
 
   useEffect(() => {
+    if (skipDraftSaveRef.current) {
+      skipDraftSaveRef.current = false;
+      return;
+    }
     if (project.files.length > 0) {
       const success = UserStorage.saveProjectDraft(project);
       if (!success && !quotaErrorShown.current) {
@@ -148,10 +153,10 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt, autoSa
   };
 
   const resetProject = () => {
+    skipDraftSaveRef.current = true;
     setCurrentProjectId(null);
     setProject(Project.createDefault());
     setProjectName('Nouveau projet');
-    UserStorage.saveLastProject(null, null);
   };
 
   const handleMergeWithProject = async (pno) => {

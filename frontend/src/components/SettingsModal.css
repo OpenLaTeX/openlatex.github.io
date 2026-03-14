@@ -217,6 +217,31 @@
   color: var(--text-main);
 }
 
+.setting-item--status {
+  margin-top: 16px;
+}
+
+.status-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: var(--bg-panel);
+  color: var(--accent-primary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  align-self: flex-start;
+}
+
+.status-link:hover {
+  background: var(--bg-hover);
+  border-color: var(--accent-primary);
+}
+
 .settings-credit {
   margin: 16px 0 0 0;
   font-size: 12px;
