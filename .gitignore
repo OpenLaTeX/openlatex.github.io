@@ -1,3 +1,4 @@
+scripts/
 restore-sandbox/
 node_modules
 dist

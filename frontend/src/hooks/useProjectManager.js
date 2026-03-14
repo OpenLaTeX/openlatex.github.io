@@ -13,9 +13,12 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt, autoSa
     if (draft && draft.files && draft.files.length > 0 && last?.pno) return last.pno;
     return null;
   });
+  const isDefaultNameRef = useRef(false);
   const [projectName, setProjectName] = useState(() => {
     const draft = UserStorage.getProjectDraft();
-    return (draft && draft.name) || t.newProject;
+    if (draft && draft.name) return draft.name;
+    isDefaultNameRef.current = true;
+    return t.newProject;
   });
   const [project, setProject] = useState(() => {
     const draft = UserStorage.getProjectDraft();
@@ -47,6 +50,10 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt, autoSa
 
   useEffect(() => { projectRef.current = project; }, [project]);
   useEffect(() => { projectNameRef.current = projectName; }, [projectName]);
+
+  useEffect(() => {
+    if (isDefaultNameRef.current) setProjectName(t.newProject);
+  }, [t]);
 
   const isOwnerRef = useRef(isOwner);
   useEffect(() => { isOwnerRef.current = isOwner; }, [isOwner]);
@@ -167,6 +174,7 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt, autoSa
   };
 
   const handleNewProject = () => {
+    isDefaultNameRef.current = true;
     setProject(Project.createDefault());
     setCurrentProjectId(null);
     setProjectName(t.newProject);
@@ -176,6 +184,7 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt, autoSa
 
   const resetProject = () => {
     skipDraftSaveRef.current = true;
+    isDefaultNameRef.current = true;
     setCurrentProjectId(null);
     setProject(Project.createDefault());
     setProjectName(t.newProject);
