@@ -157,6 +157,7 @@ export const useFileManager = (project, setProject, showPrompt, showConfirm, fil
   return {
     fileInputRef,
     folderInputRef,
+    setInYjs,
     handleFileSelect,
     handleContentChange,
     handleUploadFiles,

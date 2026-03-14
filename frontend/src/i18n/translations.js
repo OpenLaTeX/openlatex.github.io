@@ -133,6 +133,9 @@ export const translations = {
     editorUnavailable: 'Éditeur non disponible',
     figureInsertError: (msg) => `Impossible d'insérer la figure : ${msg}`,
     clipboardError: (msg) => `Erreur lors de la lecture du presse-papiers : ${msg}`,
+    collaboratorsTitle: 'Collaborateurs',
+    invite: 'Inviter',
+    emailPlaceholder: 'email@exemple.com',
   },
   en: {
     compile: 'Compile',
@@ -268,5 +271,8 @@ export const translations = {
     editorUnavailable: 'Editor not available',
     figureInsertError: (msg) => `Could not insert figure: ${msg}`,
     clipboardError: (msg) => `Error reading clipboard: ${msg}`,
+    collaboratorsTitle: 'Collaborators',
+    invite: 'Invite',
+    emailPlaceholder: 'email@example.com',
   },
 };
