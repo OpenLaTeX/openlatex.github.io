@@ -1,6 +1,11 @@
 export class ClipboardUtil {
   static async readImageFromClipboard() {
-    const clipboardItems = await navigator.clipboard.read();
+    let clipboardItems;
+    try {
+      clipboardItems = await navigator.clipboard.read();
+    } catch {
+      throw new Error('Accès au presse-papiers refusé. Autorisez l\'accès et réessayez.');
+    }
 
     for (const item of clipboardItems) {
       for (const type of item.types) {

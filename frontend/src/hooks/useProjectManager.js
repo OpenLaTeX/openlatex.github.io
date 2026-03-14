@@ -20,8 +20,8 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt, autoSa
         restoredProject = restoredProject.addEmptyFile(file.path, file.type);
         restoredProject = restoredProject.updateFileContent(file.path, file.content);
       }
-      if (draft.currentFile) {
-        restoredProject.currentFile = draft.currentFile;
+      if (draft.currentFile && restoredProject.getFile(draft.currentFile)) {
+        restoredProject = restoredProject.setCurrentFile(draft.currentFile);
       }
       return restoredProject;
     }
@@ -50,7 +50,7 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt, autoSa
       return;
     }
     if (project.files.length > 0) {
-      const success = UserStorage.saveProjectDraft(project);
+      const success = UserStorage.saveProjectDraft(project, projectNameRef.current);
       if (!success && !quotaErrorShown.current) {
         quotaErrorShown.current = true;
         showAlert(t.localStorageErrorTitle, t.localStorageErrorMsg);

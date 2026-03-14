@@ -26,11 +26,10 @@ export class LatexParser {
       }
       if (!hierarchy.section) {
         const match = line.match(regexSection);
-        if (match) hierarchy.section = match[1].trim();
-      }
-
-      if (hierarchy.section && hierarchy.subsection && hierarchy.subsubsection) {
-        break;
+        if (match) {
+          hierarchy.section = match[1].trim();
+          break;
+        }
       }
     }
 
