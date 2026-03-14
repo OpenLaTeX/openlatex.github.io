@@ -40,10 +40,11 @@ export const useFigureManager = (project, setProject, editorViewRef, showFigureI
         try {
           const latexCode = FigureTemplate.generate(imagePath, caption, label, width);
 
+          const insertAt = view.state.selection.main.head;
           view.dispatch({
             changes: {
-              from: cursorPosition,
-              to: cursorPosition,
+              from: insertAt,
+              to: insertAt,
               insert: latexCode
             }
           });
