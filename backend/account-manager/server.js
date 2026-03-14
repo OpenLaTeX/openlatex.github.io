@@ -55,7 +55,7 @@ app.use('/projects', projectsRoutes);
 
 app.use((err, req, res, next) => {
   if (err.type === 'entity.too.large') {
-    return res.status(413).json({ error: 'Le projet dépasse la limite de 10 Mo' });
+    return res.status(413).json({ error: 'Project exceeds the 10 MB limit' });
   }
   next(err);
 });

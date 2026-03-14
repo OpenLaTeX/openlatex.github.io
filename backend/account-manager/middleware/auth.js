@@ -6,7 +6,7 @@ const authMiddleware = (req, res, next) => {
     const token = req.cookies?.token || (authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null);
 
     if (!token) {
-        return res.status(401).json({ error: 'token manquant' });
+        return res.status(401).json({ error: 'Missing token' });
     }
 
     try {
@@ -14,7 +14,7 @@ const authMiddleware = (req, res, next) => {
         req.userId = decoded.userId;
         next();
     } catch (err) {
-        return res.status(401).json({ error: 'token invalide' });
+        return res.status(401).json({ error: 'Invalid token' });
     }
 };
 

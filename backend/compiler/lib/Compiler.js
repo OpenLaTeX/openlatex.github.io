@@ -11,7 +11,7 @@ class Compiler {
         const mainFileName = path.basename(mainFile);
 
         if (!/^[a-zA-Z0-9_\-\.]+$/.test(mainFileName)) {
-            throw new Error('Le nom de fichier invalide');
+            throw new Error('Invalid file name');
         }
 
         const pdfFileName = mainFileName.replace(/\.tex$/, '.pdf');

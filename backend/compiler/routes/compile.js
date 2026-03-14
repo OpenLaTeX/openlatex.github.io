@@ -24,7 +24,7 @@ router.post('/', async (req, res) => {
     console.log('fichiers:', files?.length);
 
     if (!files || !mainFile) {
-        return res.status(400).json({ error: 'files et mainFile requis' });
+        return res.status(400).json({ error: 'Files and mainFile required' });
     }
 
     const projectId = Date.now().toString();
