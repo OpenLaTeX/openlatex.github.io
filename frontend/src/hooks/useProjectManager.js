@@ -7,7 +7,12 @@ import { saveAs } from 'file-saver';
 import { UserStorage } from '../storage/UserStorage';
 
 export const useProjectManager = (isAuthenticated, showAlert, showPrompt, autoSaveEnabled = true, autoSaveInterval = 2, t) => {
-  const [currentProjectId, setCurrentProjectId] = useState(null);
+  const [currentProjectId, setCurrentProjectId] = useState(() => {
+    const draft = UserStorage.getProjectDraft();
+    const last = UserStorage.getLastProject();
+    if (draft && draft.files && draft.files.length > 0 && last?.pno) return last.pno;
+    return null;
+  });
   const [projectName, setProjectName] = useState(() => {
     const draft = UserStorage.getProjectDraft();
     return (draft && draft.name) || t.newProject;
@@ -29,7 +34,12 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt, autoSa
   });
   const [loading, setLoading] = useState(false);
   const [lastSavedAt, setLastSavedAt] = useState(null);
-  const [isOwner, setIsOwner] = useState(false);
+  const [isOwner, setIsOwner] = useState(() => {
+    const draft = UserStorage.getProjectDraft();
+    const last = UserStorage.getLastProject();
+    if (draft && draft.files && draft.files.length > 0 && last?.pno) return last.isOwner ?? true;
+    return false;
+  });
   const quotaErrorShown = useRef(false);
   const skipDraftSaveRef = useRef(false);
   const projectRef = useRef(project);
@@ -38,11 +48,14 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt, autoSa
   useEffect(() => { projectRef.current = project; }, [project]);
   useEffect(() => { projectNameRef.current = projectName; }, [projectName]);
 
+  const isOwnerRef = useRef(isOwner);
+  useEffect(() => { isOwnerRef.current = isOwner; }, [isOwner]);
+
   useEffect(() => {
     if (currentProjectId) {
-      UserStorage.saveLastProject(currentProjectId, projectNameRef.current);
+      UserStorage.saveLastProject(currentProjectId, projectNameRef.current, isOwnerRef.current);
     }
-  }, [currentProjectId]);
+  }, [currentProjectId, isOwner]);
 
   useEffect(() => {
     if (skipDraftSaveRef.current) {
@@ -107,7 +120,6 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt, autoSa
               await ProjectService.updateProject(currentProjectId, name, null, files);
               setProjectName(name);
               setLastSavedAt(new Date());
-              UserStorage.clearProjectDraft();
               showAlert(t.success, t.projectUpdated);
             } else {
               const result = await ProjectService.createProject(name, null, files);
@@ -115,7 +127,6 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt, autoSa
               setIsOwner(true);
               setProjectName(name);
               setLastSavedAt(new Date());
-              UserStorage.clearProjectDraft();
               showAlert(t.success, t.projectCreated);
             }
             resolve({ success: true });
@@ -145,7 +156,6 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt, autoSa
       setProjectName(data.name);
       setIsOwner(data.is_owner || false);
       setLastSavedAt(new Date());
-      UserStorage.clearProjectDraft();
       showAlert(t.success, t.projectLoaded);
       return { success: true };
     } catch (err) {
@@ -170,33 +180,6 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt, autoSa
     setProject(Project.createDefault());
     setProjectName(t.newProject);
     setIsOwner(false);
-  };
-
-  const handleMergeWithProject = async (pno) => {
-    setLoading(true);
-    try {
-      const data = await ProjectService.getProject(pno);
-      const currentPaths = new Set(projectRef.current.files.map(f => f.path));
-      let merged = projectRef.current;
-      for (const f of data.files) {
-        if (!currentPaths.has(f.filename)) {
-          merged = merged.addEmptyFile(f.filename, f.file_type);
-          merged = merged.updateFileContent(f.filename, f.content);
-        }
-      }
-      setProject(merged);
-      setCurrentProjectId(data.pno);
-      setProjectName(data.name);
-      setIsOwner(data.is_owner || false);
-      setLastSavedAt(null);
-      UserStorage.clearProjectDraft();
-      return { success: true };
-    } catch (err) {
-      showAlert(t.error, t.cannotMerge(err.message));
-      return { success: false };
-    } finally {
-      setLoading(false);
-    }
   };
 
   const handleDownloadProject = async () => {
@@ -234,7 +217,6 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt, autoSa
     handleNewProject,
     resetProject,
     handleDownloadProject,
-    handleMergeWithProject,
     filesMapsRef,
     resolveFiles,
     isOwner

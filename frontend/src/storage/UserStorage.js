@@ -76,10 +76,10 @@ export class UserStorage {
     }
   }
 
-  static saveLastProject(pno, name) {
+  static saveLastProject(pno, name, isOwner) {
     try {
       if (pno) {
-        localStorage.setItem('lastProject', JSON.stringify({ pno, name }));
+        localStorage.setItem('lastProject', JSON.stringify({ pno, name, isOwner: isOwner ?? true }));
       } else {
         localStorage.removeItem('lastProject');
       }

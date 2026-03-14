@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useLanguage } from '../i18n/LanguageContext';
 import ProjectService from '../services/ProjectService';
+import { UserStorage } from '../storage/UserStorage';
 import { Download } from 'lucide-react';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
@@ -38,6 +39,9 @@ function ProjectList({ onLoadProject, onNewProject, onConfirm }) {
             try {
                 await ProjectService.deleteProject(pno);
                 setProjects(prev => prev.filter(p => p.pno !== pno));
+                if (UserStorage.getLastProject()?.pno === pno) {
+                  UserStorage.saveLastProject(null, null);
+                }
             } catch (err) {
                 setError(t.cannotDeleteProject(err.message));
             }

@@ -99,7 +99,6 @@ export default function App() {
     handleNewProject: newProject,
     resetProject,
     handleDownloadProject,
-    handleMergeWithProject,
     filesMapsRef,
     resolveFiles,
     isOwner
@@ -310,18 +309,6 @@ export default function App() {
     });
   }, [t]);
 
-  useEffect(() => {
-    if (!isAuthenticated || currentProjectId) return;
-    const last = UserStorage.getLastProject();
-    if (last?.pno) {
-      showConfirm(
-        t.lastProjectTitle,
-        t.lastProjectMsg(last.name)
-      ).then((confirmed) => {
-        if (confirmed) handleMergeWithProject(last.pno);
-      });
-    }
-  }, [isAuthenticated, t]);
 
   if (showAuth) {
     return (
