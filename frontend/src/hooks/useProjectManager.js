@@ -61,19 +61,18 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt, autoSa
 
   const filesMapsRef = useRef(null);
 
+  const resolveFiles = () =>
+    projectRef.current.files.map(f => {
+      const isBinary = ['png', 'jpg', 'jpeg', 'pdf'].includes(f.type);
+      const yText = !isBinary && filesMapsRef.current ? filesMapsRef.current.get(f.path) : null;
+      return { path: f.path, type: f.type, content: yText ? yText.toString() : f.content };
+    });
+
   useEffect(() => {
     if (!currentProjectId || !isAuthenticated || !autoSaveEnabled) return;
     const interval = setInterval(async () => {
       try {
-        const files = projectRef.current.files.map(f => {
-          const isBinary = ['png', 'jpg', 'pdf'].includes(f.type);
-          const yText = !isBinary && filesMapsRef.current ? filesMapsRef.current.get(f.path) : null;
-          return {
-            filename: f.path,
-            content: yText ? yText.toString() : f.content,
-            file_type: f.type
-          };
-        });
+        const files = resolveFiles().map(f => ({ filename: f.path, content: f.content, file_type: f.type }));
         await ProjectService.updateProject(currentProjectId, projectNameRef.current, null, files);
         setLastSavedAt(new Date());
       } catch {}
@@ -96,11 +95,7 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt, autoSa
         async (name) => {
           setLoading(true);
           try {
-            const files = project.files.map(f => ({
-              filename: f.path,
-              content: f.content,
-              file_type: f.type
-            }));
+            const files = resolveFiles().map(f => ({ filename: f.path, content: f.content, file_type: f.type }));
 
             if (currentProjectId) {
               await ProjectService.updateProject(currentProjectId, name, null, files);
@@ -202,11 +197,9 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt, autoSa
 
       const zip = new JSZip();
 
-      project.files.forEach(file => {
-        if (file.path && file.content !== undefined) {
-          const isBinary = ['png', 'jpg', 'pdf'].includes(file.type);
-          zip.file(file.path, file.content, isBinary ? { base64: true } : {});
-        }
+      resolveFiles().forEach(f => {
+        const isBinary = ['png', 'jpg', 'jpeg', 'pdf'].includes(f.type);
+        zip.file(f.path, f.content, isBinary ? { base64: true } : {});
       });
 
       const blob = await zip.generateAsync({ type: 'blob' });
@@ -231,6 +224,7 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt, autoSa
     resetProject,
     handleDownloadProject,
     handleMergeWithProject,
-    filesMapsRef
+    filesMapsRef,
+    resolveFiles
   };
 };
