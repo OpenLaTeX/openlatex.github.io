@@ -1,48 +1,9 @@
-import { useState, useEffect } from 'react';
 import Modal from 'react-modal';
-import { Sun, Moon, Link, X, Activity, UserPlus, Trash2 } from 'lucide-react';
+import { Sun, Moon, Link, X, Activity } from 'lucide-react';
 import { getApiUrl } from '../config/settings';
 import './SettingsModal.css';
 
-export default function SettingsModal({ isOpen, onClose, theme, onThemeChange, apiUrl, onApiUrlChange, autoSaveEnabled, onAutoSaveChange, autoSaveInterval, onAutoSaveIntervalChange, currentProjectId, isOwner }) {
-  const [collaborators, setCollaborators] = useState([]);
-  const [inviteEmail, setInviteEmail] = useState('');
-  const [inviteError, setInviteError] = useState('');
-
-  useEffect(() => {
-    if (!isOpen || !currentProjectId || !isOwner) return;
-    fetch(`${getApiUrl()}/projects/${currentProjectId}/collaborators`, {
-      credentials: 'include'
-    })
-      .then(r => r.json())
-      .then(data => setCollaborators(Array.isArray(data) ? data : []))
-      .catch(() => {});
-  }, [isOpen, currentProjectId, isOwner]);
-
-  const handleInvite = async () => {
-    setInviteError('');
-    const res = await fetch(`${getApiUrl()}/projects/${currentProjectId}/collaborators`, {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: inviteEmail })
-    });
-    const data = await res.json();
-    if (!res.ok) { setInviteError(data.error || 'Erreur'); return; }
-    setInviteEmail('');
-    const updated = await fetch(`${getApiUrl()}/projects/${currentProjectId}/collaborators`, {
-      credentials: 'include'
-    });
-    setCollaborators(await updated.json());
-  };
-
-  const handleRemove = async (uno) => {
-    await fetch(`${getApiUrl()}/projects/${currentProjectId}/collaborators/${uno}`, {
-      method: 'DELETE',
-      credentials: 'include'
-    });
-    setCollaborators(prev => prev.filter(c => c.uno !== uno));
-  };
+export default function SettingsModal({ isOpen, onClose, theme, onThemeChange, apiUrl, onApiUrlChange, autoSaveEnabled, onAutoSaveChange, autoSaveInterval, onAutoSaveIntervalChange }) {
 
   return (
     <Modal
@@ -136,40 +97,6 @@ export default function SettingsModal({ isOpen, onClose, theme, onThemeChange, a
             </div>
           </div>
         </div>
-
-        {currentProjectId && isOwner && (
-          <div className="settings-section">
-            <h3>Collaborateurs</h3>
-            <div className="setting-item" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '8px' }}>
-              <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
-                <input
-                  type="email"
-                  placeholder="email@exemple.com"
-                  value={inviteEmail}
-                  onChange={e => setInviteEmail(e.target.value)}
-                  style={{ flex: 1, fontSize: '13px', padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border-subtle)', background: 'var(--bg-panel)', color: 'var(--text-main)' }}
-                />
-                <button onClick={handleInvite} className="btn-icon" style={{ flexShrink: 0 }}>
-                  <UserPlus size={14} />
-                  <span>Inviter</span>
-                </button>
-              </div>
-              {inviteError && <span style={{ color: 'var(--danger)', fontSize: '12px' }}>{inviteError}</span>}
-              {collaborators.length > 0 && (
-                <ul style={{ listStyle: 'none', padding: 0, margin: 0, width: '100%' }}>
-                  {collaborators.map(c => (
-                    <li key={c.uno} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '4px 0', fontSize: '13px' }}>
-                      <span>{c.email}</span>
-                      <button onClick={() => handleRemove(c.uno)} className="btn-ghost" style={{ padding: '2px 4px' }}>
-                        <Trash2 size={14} />
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          </div>
-        )}
 
         <div className="settings-section">
           <h3>À propos</h3>

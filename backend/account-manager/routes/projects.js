@@ -147,6 +147,7 @@ router.get('/:pno', async (req, res) => {
             name: project.name,
             description: project.description,
             created_at: project.created_at,
+            is_owner: isOwner,
             files
         });
     } catch (err) {

@@ -29,6 +29,7 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt, autoSa
   });
   const [loading, setLoading] = useState(false);
   const [lastSavedAt, setLastSavedAt] = useState(null);
+  const [isOwner, setIsOwner] = useState(false);
   const quotaErrorShown = useRef(false);
   const skipDraftSaveRef = useRef(false);
   const projectRef = useRef(project);
@@ -69,7 +70,7 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt, autoSa
     });
 
   useEffect(() => {
-    if (!currentProjectId || !isAuthenticated || !autoSaveEnabled) return;
+    if (!currentProjectId || !isAuthenticated || !autoSaveEnabled || !isOwner) return;
     const interval = setInterval(async () => {
       try {
         const files = resolveFiles().map(f => ({ filename: f.path, content: f.content, file_type: f.type }));
@@ -78,12 +79,17 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt, autoSa
       } catch {}
     }, autoSaveInterval * 60 * 1000);
     return () => clearInterval(interval);
-  }, [currentProjectId, isAuthenticated, autoSaveEnabled, autoSaveInterval]);
+  }, [currentProjectId, isAuthenticated, autoSaveEnabled, autoSaveInterval, isOwner]);
 
   const handleSaveProject = async () => {
     if (!isAuthenticated) {
       showAlert('Authentification requise', 'Vous devez vous connecter pour sauvegarder votre projet.');
       return { requiresAuth: true };
+    }
+
+    if (currentProjectId && !isOwner) {
+      showAlert('Accès refusé', 'Seul le propriétaire du projet peut le sauvegarder.');
+      return { success: false };
     }
 
     return new Promise((resolve) => {
@@ -136,6 +142,7 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt, autoSa
       setProject(newProject);
       setCurrentProjectId(data.pno);
       setProjectName(data.name);
+      setIsOwner(data.is_owner || false);
       setLastSavedAt(new Date());
       UserStorage.clearProjectDraft();
       showAlert('Succès', 'Le projet a été chargé avec succès.');
@@ -152,6 +159,7 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt, autoSa
     setProject(Project.createDefault());
     setCurrentProjectId(null);
     setProjectName('Nouveau projet');
+    setIsOwner(false);
     UserStorage.saveLastProject(null, null);
   };
 
@@ -160,6 +168,7 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt, autoSa
     setCurrentProjectId(null);
     setProject(Project.createDefault());
     setProjectName('Nouveau projet');
+    setIsOwner(false);
   };
 
   const handleMergeWithProject = async (pno) => {
@@ -177,6 +186,7 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt, autoSa
       setProject(merged);
       setCurrentProjectId(data.pno);
       setProjectName(data.name);
+      setIsOwner(data.is_owner || false);
       setLastSavedAt(null);
       UserStorage.clearProjectDraft();
       return { success: true };
@@ -225,6 +235,7 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt, autoSa
     handleDownloadProject,
     handleMergeWithProject,
     filesMapsRef,
-    resolveFiles
+    resolveFiles,
+    isOwner
   };
 };

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { User, ChevronDown, Download, Save, FolderOpen, Play, AlertCircle, FileUp, FolderUp, Settings, FileText, LogOut, Plus, Menu, X } from 'lucide-react';
+import { User, ChevronDown, Download, Save, FolderOpen, Play, AlertCircle, FileUp, FolderUp, Settings, FileText, LogOut, Plus, Menu, X, Users } from 'lucide-react';
 import FileTree from './components/FileTree';
 import Auth from './components/Auth';
 import ProjectList from './components/ProjectList';
@@ -13,6 +13,7 @@ import FigureInsertModal from './components/modals/FigureInsertModal';
 import CreateItemModal from './components/modals/CreateItemModal';
 import PdfViewer from './components/PdfViewer';
 import SettingsModal from './components/SettingsModal';
+import CollaboratorsModal from './components/modals/CollaboratorsModal';
 import { getApiUrl, setApiUrl } from './config/settings';
 import { UserStorage } from './storage/UserStorage';
 import { useAuthentication } from './hooks/useAuthentication';
@@ -28,6 +29,7 @@ export default function App() {
   const [showAuth, setShowAuth] = useState(false);
   const [showProjectList, setShowProjectList] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showCollaborators, setShowCollaborators] = useState(false);
   const [apiUrl, setApiUrlState] = useState(() => getApiUrl());
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
   const [autoSaveEnabled, setAutoSaveEnabled] = useState(() => localStorage.getItem('autoSave') !== 'false');
@@ -99,7 +101,8 @@ export default function App() {
     handleDownloadProject,
     handleMergeWithProject,
     filesMapsRef,
-    resolveFiles
+    resolveFiles,
+    isOwner
   } = useProjectManager(isAuthenticated, showAlert, showPrompt, autoSaveEnabled, autoSaveInterval);
 
   const { filesMap, filesMeta, awareness, isConnected, synced } = useCollaboration(currentProjectId, project, setProject);
@@ -425,18 +428,20 @@ export default function App() {
                 <Play size={14} />
                 <span>Compiler</span>
               </button>
-              <button onClick={handleSaveProject} disabled={loading || !isAuthenticated} className="btn-icon" title="Sauvegarder">
+              <button onClick={handleSaveProject} disabled={loading || !isAuthenticated || !isOwner} className="btn-icon" title={!isOwner && currentProjectId ? "Seul le propriétaire peut sauvegarder" : "Sauvegarder"}>
                 <Save size={14} />
                 <span>Sauvegarder</span>
               </button>
             </div>
             {currentProjectId && (
-              <span style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px', display: 'block' }}>
-                {!autoSaveEnabled
-                  ? 'Sauvegarde automatique désactivée'
-                  : lastSavedAt
-                    ? `Sauvegardé ${formatLastSaved(lastSavedAt)}`
-                    : null}
+              <span style={{ fontSize: '11px', color: !isOwner ? 'var(--danger)' : 'var(--text-muted)', marginTop: '4px', display: 'block' }}>
+                {!isOwner
+                  ? 'Seul le propriétaire peut sauvegarder'
+                  : !autoSaveEnabled
+                    ? 'Sauvegarde automatique désactivée'
+                    : lastSavedAt
+                      ? `Sauvegardé ${formatLastSaved(lastSavedAt)}`
+                      : null}
               </span>
             )}
             {compilationErrors.length > 0 && (
@@ -465,6 +470,12 @@ export default function App() {
                   <button onClick={handleDownloadProject} disabled={loading} className="btn-icon btn-ghost" style={{ justifyContent: 'flex-start' }}>
                     <Download size={14} />
                     <span>Exporter ZIP</span>
+                  </button>
+                )}
+                {currentProjectId && isOwner && (
+                  <button onClick={() => setShowCollaborators(true)} className="btn-icon btn-ghost" style={{ justifyContent: 'flex-start' }}>
+                    <Users size={14} />
+                    <span>Inviter un collaborateur</span>
                   </button>
                 )}
               </div>
@@ -624,8 +635,12 @@ export default function App() {
         onAutoSaveChange={handleAutoSaveChange}
         autoSaveInterval={autoSaveInterval}
         onAutoSaveIntervalChange={handleAutoSaveIntervalChange}
+      />
+
+      <CollaboratorsModal
+        isOpen={showCollaborators}
+        onClose={() => setShowCollaborators(false)}
         currentProjectId={currentProjectId}
-        isOwner={!!currentProjectId && isAuthenticated}
       />
     </div>
   );
