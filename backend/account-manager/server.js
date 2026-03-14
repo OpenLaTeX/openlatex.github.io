@@ -53,6 +53,13 @@ app.get('/health', (req, res) => {
 app.use('/auth', authLimiter, authRoutes);
 app.use('/projects', projectsRoutes);
 
+app.use((err, req, res, next) => {
+  if (err.type === 'entity.too.large') {
+    return res.status(413).json({ error: 'Le projet dépasse la limite de 10 Mo' });
+  }
+  next(err);
+});
+
 const PORT = process.env.PORT || 8000;
 
 app.listen(PORT, () => {
