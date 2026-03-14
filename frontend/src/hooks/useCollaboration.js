@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import * as Y from 'yjs';
 import { WebsocketProvider } from 'y-websocket';
+import { getApiUrl } from '../config/settings';
 
 export const useCollaboration = (projectId) => {
   const ydocRef = useRef(null);
@@ -14,7 +15,7 @@ export const useCollaboration = (projectId) => {
     const ydoc = new Y.Doc();
     ydocRef.current = ydoc;
 
-    const wsUrl = `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}/collab/${projectId}`;
+    const wsUrl = getApiUrl().replace(/^https/, 'wss') + '/collab';
     const provider = new WebsocketProvider(wsUrl, projectId, ydoc, { connect: true });
     providerRef.current = provider;
 
