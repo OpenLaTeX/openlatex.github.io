@@ -25,24 +25,31 @@
         "type": "prometheus",
         "uid": "prometheus"
       },
-      "description": "Durée de fonctionnement du service depuis son dernier démarrage",
+      "description": "Pourcentage de disponibilité du service sur les 30 derniers jours",
       "fieldConfig": {
         "defaults": {
           "color": {
-            "fixedColor": "green",
-            "mode": "fixed"
+            "mode": "thresholds"
           },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "red",
                 "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 95
+              },
+              {
+                "color": "green",
+                "value": 99
               }
             ]
           },
-          "unit": "dtdhms"
+          "unit": "percent"
         },
         "overrides": []
       },
@@ -77,14 +84,14 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "process_uptime_seconds{job=\"compiler\"}",
+          "expr": "avg_over_time(up{job=\"compiler\"}[30d]) * 100",
           "instant": true,
-          "legendFormat": "Uptime",
+          "legendFormat": "Disponibilité (30j)",
           "range": false,
           "refId": "A"
         }
       ],
-      "title": "Uptime",
+      "title": "Disponibilité (30j)",
       "type": "stat"
     },
     {
