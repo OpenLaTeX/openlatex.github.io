@@ -12,6 +12,7 @@ on:
       - 'backend/monitoring/**'
       - 'backend/docker-compose.yml'
       - 'backend/package*.json'
+      - 'backend/collab/**'
     branches: [main, backend/*]
   workflow_dispatch:
 

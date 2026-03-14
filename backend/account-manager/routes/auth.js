@@ -61,7 +61,7 @@ router.post('/login', async (req, res) => {
             { expiresIn: process.env.JWT_EXPIRES_IN }
         );
 
-        res.cookie('token', token, { httpOnly: true, secure: true, sameSite: 'lax' });
+        res.cookie('token', token, { httpOnly: true, secure: true, sameSite: 'none' });
         res.json({ token });
     } catch (err) {
         console.error('erreur login:', err);
