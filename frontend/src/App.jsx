@@ -429,7 +429,7 @@ export default function App() {
                 <Play size={14} />
                 <span>{t.compile}</span>
               </button>
-              <button onClick={handleSaveProject} disabled={loading || !isAuthenticated || !isOwner} className="btn-icon" title={!isOwner && currentProjectId ? t.ownerOnly : t.save}>
+              <button onClick={handleSaveProject} disabled={loading || !isAuthenticated || (!!currentProjectId && !isOwner)} className="btn-icon" title={!isOwner && currentProjectId ? t.ownerOnly : t.save}>
                 <Save size={14} />
                 <span>{t.save}</span>
               </button>
