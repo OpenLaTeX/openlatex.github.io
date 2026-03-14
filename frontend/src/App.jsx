@@ -101,7 +101,7 @@ export default function App() {
     filesMapsRef
   } = useProjectManager(isAuthenticated, showAlert, showPrompt, autoSaveEnabled, autoSaveInterval);
 
-  const { filesMap, awareness, isConnected } = useCollaboration(currentProjectId);
+  const { filesMap, filesMeta, awareness, isConnected, synced } = useCollaboration(currentProjectId, project, setProject);
 
   useEffect(() => {
     filesMapsRef.current = filesMap;
@@ -121,7 +121,7 @@ export default function App() {
     handleCreateItem,
     handleMoveFile,
     handleMoveToRoot
-  } = useFileManager(project, setProject, showPrompt, showConfirm);
+  } = useFileManager(project, setProject, showPrompt, showConfirm, filesMap, filesMeta);
 
   const {
     pdfUrl,
