@@ -6,7 +6,7 @@ require('dotenv').config();
 const guestLimiter = rateLimit({
     windowMs: 1 * 60 * 1000,
     max: 10,
-    message: { error: '10 compilations max par minute pour les invités, réessayez plus tard ou créez un compte.' },
+    message: { error: '10 compilations max per minute for guests, try again later or create an account.' },
     standardHeaders: true,
     legacyHeaders: false,
 });
@@ -15,7 +15,7 @@ const guestLimiter = rateLimit({
 const userLimiter = rateLimit({
     windowMs: 1 * 60 * 1000,
     max: 30,
-    message: { error: '30 compilations max par minute pour les utilisateurs connectés, réessayez plus tard.' },
+    message: { error: '30 compilations max per minute for logged-in users, try again later.' },
     standardHeaders: true,
     legacyHeaders: false,
     keyGenerator: (req) => {
@@ -39,7 +39,7 @@ const userLimiter = rateLimit({
 const defaultProtectionLimiter = rateLimit({
     windowMs: 1 * 60 * 1000,
     max: 30,
-    message: { error: 'Trop de requêtes, réessayez dans une minute.' },
+    message: { error: 'Too many requests, try again in one minute.' },
     standardHeaders: true,
     legacyHeaders: false,
 });
@@ -47,7 +47,7 @@ const defaultProtectionLimiter = rateLimit({
 const authLimiter = rateLimit({
     windowMs: 5 * 60 * 1000,
     max: 15,
-    message: { error: 'Trop de tentatives, réessayez dans 5 minutes.' },
+    message: { error: 'Too many attempts, try again in 5 minutes.' },
     standardHeaders: true,
     legacyHeaders: false,
 });

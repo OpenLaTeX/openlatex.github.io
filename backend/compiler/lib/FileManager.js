@@ -11,14 +11,14 @@ class FileManager {
     static async writeFiles(workDir, files) {
         for (const file of files) {
             if (file.path.includes('..') || path.isAbsolute(file.path)) {
-                throw new Error('chemin de fichier invalide');
+                throw new Error('Invalid file path');
             }
 
             const filePath = path.join(workDir, file.path);
             const normalizedPath = path.normalize(filePath);
 
             if (!normalizedPath.startsWith(path.normalize(workDir))) {
-                throw new Error('chemin de fichier en dehors du répertoire de travail');
+                throw new Error('File path outside working directory');
             }
 
             const fileDir = path.dirname(filePath);

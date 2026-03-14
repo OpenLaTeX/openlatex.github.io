@@ -9,8 +9,8 @@ router.use(authMiddleware);
 const getConstraintMessage = (err) => {
     if (err.code !== '23514') return null;
     const messages = {
-        chk_project_limit: 'Limite de 5 projets atteinte',
-        chk_project_size: 'Le projet dépasse la limite de 10 Mo',
+        chk_project_limit: '5 project limit reached',
+        chk_project_size: 'Project exceeds the 10 MB limit',
     };
     return messages[err.constraint] || null;
 };
@@ -48,7 +48,7 @@ router.get('/', async (req, res) => {
         res.json(result.rows);
     } catch (err) {
         console.error('erreur get projects:', err);
-        res.status(500).json({ error: 'erreur serveur' });
+        res.status(500).json({ error: 'Server error' });
     }
 });
 
@@ -57,11 +57,11 @@ router.post('/', async (req, res) => {
     const { name, description, files } = req.body;
 
     if (!name || !files || !Array.isArray(files)) {
-        return res.status(400).json({ error: 'name et files requis !' });
+        return res.status(400).json({ error: 'Name and files required' });
     }
 
     if (name.length > 100) {
-        return res.status(400).json({ error: 'le nom du projet ne doit pas depasser 100 caracteres' });
+        return res.status(400).json({ error: 'Project name must not exceed 100 characters' });
     }
 
     try {
@@ -103,7 +103,7 @@ router.post('/', async (req, res) => {
         const constraintMsg = getConstraintMessage(err);
         if (constraintMsg) return res.status(400).json({ error: constraintMsg });
         console.error('erreur create project:', err);
-        res.status(500).json({ error: 'erreur serveur' });
+        res.status(500).json({ error: 'Server error' });
     }
 });
 
@@ -116,7 +116,7 @@ router.get('/:pno', async (req, res) => {
         const projectResult = await SQLquery('select pno, uno, name, description, created_at from projects where pno = $1',[pno]);
 
         if (projectResult.rows.length === 0) {
-            return res.status(404).json({ error: 'projet non trouve' });
+            return res.status(404).json({ error: 'Project not found' });
         }
 
         const project = projectResult.rows[0];
@@ -128,7 +128,7 @@ router.get('/:pno', async (req, res) => {
                 [pno, req.userId]
             );
             if (collabCheck.rows.length === 0) {
-                return res.status(403).json({ error: 'acces interdit' });
+                return res.status(403).json({ error: 'Access forbidden' });
             }
         }
 
@@ -152,7 +152,7 @@ router.get('/:pno', async (req, res) => {
         });
     } catch (err) {
         console.error('erreur get project:', err);
-        res.status(500).json({ error: 'erreur serveur' });
+        res.status(500).json({ error: 'Server error' });
     }
 });
 
@@ -162,11 +162,11 @@ router.put('/:pno', async (req, res) => {
     const { name, description, files } = req.body;
 
     if (!name || !files || !Array.isArray(files)) {
-        return res.status(400).json({ error: 'name et files requis' });
+        return res.status(400).json({ error: 'Name and files required' });
     }
 
     if (name.length > 100) {
-        return res.status(400).json({ error: 'le nom du projet ne doit pas depasser 100 caracteres' });
+        return res.status(400).json({ error: 'Project name must not exceed 100 characters' });
     }
 
     try {
@@ -221,7 +221,7 @@ router.put('/:pno', async (req, res) => {
         const constraintMsg = getConstraintMessage(err);
         if (constraintMsg) return res.status(400).json({ error: constraintMsg });
         console.error('erreur update project:', err);
-        res.status(500).json({ error: 'erreur serveur' });
+        res.status(500).json({ error: 'Server error' });
     }
 });
 
@@ -229,8 +229,8 @@ router.get('/:pno/collaborators', async (req, res) => {
     const { pno } = req.params;
     try {
         const check = await SQLquery('select uno from projects where pno = $1', [pno]);
-        if (check.rows.length === 0) return res.status(404).json({ error: 'projet non trouve' });
-        if (check.rows[0].uno !== req.userId) return res.status(403).json({ error: 'acces interdit' });
+        if (check.rows.length === 0) return res.status(404).json({ error: 'Project not found' });
+        if (check.rows[0].uno !== req.userId) return res.status(403).json({ error: 'Access forbidden' });
 
         const result = await SQLquery(
             'select u.email from project_collaborators pc join users u on u.uno = pc.uno where pc.pno = $1',
@@ -239,7 +239,7 @@ router.get('/:pno/collaborators', async (req, res) => {
         res.json(result.rows);
     } catch (err) {
         console.error('erreur get collaborators:', err);
-        res.status(500).json({ error: 'erreur serveur' });
+        res.status(500).json({ error: 'Server error' });
     }
 });
 
@@ -247,27 +247,27 @@ router.post('/:pno/collaborators', async (req, res) => {
     const { pno } = req.params;
     const { email } = req.body;
 
-    if (!email) return res.status(400).json({ error: 'email requis' });
+    if (!email) return res.status(400).json({ error: 'Email required' });
 
     try {
         const check = await SQLquery('select uno from projects where pno = $1', [pno]);
-        if (check.rows.length === 0) return res.status(404).json({ error: 'projet non trouve' });
-        if (check.rows[0].uno !== req.userId) return res.status(403).json({ error: 'acces interdit' });
+        if (check.rows.length === 0) return res.status(404).json({ error: 'Project not found' });
+        if (check.rows[0].uno !== req.userId) return res.status(403).json({ error: 'Access forbidden' });
 
         const userResult = await SQLquery('select uno from users where email = $1', [email]);
-        if (userResult.rows.length === 0) return res.status(201).json({ message: 'collaborateur ajouté (s\'il existe)' });
+        if (userResult.rows.length === 0) return res.status(201).json({ message: 'Collaborator added (if they exist)' });
 
         const targetUno = userResult.rows[0].uno;
-        if (targetUno === req.userId) return res.status(400).json({ error: 'impossible d\'ajouter le proprietaire' });
+        if (targetUno === req.userId) return res.status(400).json({ error: 'Cannot add the project owner' });
 
         await SQLquery(
             'insert into project_collaborators (pno, uno) values ($1, $2) on conflict do nothing',
             [pno, targetUno]
         );
-        res.status(201).json({ message: 'collaborateur ajouté (s\'il existe)' });
+        res.status(201).json({ message: 'Collaborator added (if they exist)' });
     } catch (err) {
         console.error('erreur add collaborator:', err);
-        res.status(500).json({ error: 'erreur serveur' });
+        res.status(500).json({ error: 'Server error' });
     }
 });
 
@@ -275,8 +275,8 @@ router.delete('/:pno/collaborators/:email', async (req, res) => {
     const { pno, email } = req.params;
     try {
         const check = await SQLquery('select uno from projects where pno = $1', [pno]);
-        if (check.rows.length === 0) return res.status(404).json({ error: 'projet non trouve' });
-        if (check.rows[0].uno !== req.userId) return res.status(403).json({ error: 'acces interdit' });
+        if (check.rows.length === 0) return res.status(404).json({ error: 'Project not found' });
+        if (check.rows[0].uno !== req.userId) return res.status(403).json({ error: 'Access forbidden' });
 
         await SQLquery(
             'delete from project_collaborators where pno = $1 and uno = (select uno from users where email = $2)',
@@ -285,7 +285,7 @@ router.delete('/:pno/collaborators/:email', async (req, res) => {
         res.json({ message: 'collaborateur retire' });
     } catch (err) {
         console.error('erreur remove collaborator:', err);
-        res.status(500).json({ error: 'erreur serveur' });
+        res.status(500).json({ error: 'Server error' });
     }
 });
 
@@ -311,7 +311,7 @@ router.delete('/:pno', async (req, res) => {
         res.json({ message: 'projet supprime' });
     } catch (err) {
         console.error('erreur delete project:', err);
-        res.status(500).json({ error: 'erreur serveur' });
+        res.status(500).json({ error: 'Server error' });
     }
 });
 
