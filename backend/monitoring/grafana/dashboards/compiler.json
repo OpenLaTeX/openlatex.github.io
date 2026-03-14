@@ -170,8 +170,7 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "fixedColor": "blue",
-            "mode": "fixed"
+            "mode": "thresholds"
           },
           "mappings": [],
           "thresholds": {
@@ -180,28 +179,11 @@
               {
                 "color": "green",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
           }
         },
-        "overrides": [
-          {
-            "matcher": { "id": "byName", "options": "success" },
-            "properties": [{ "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } }]
-          },
-          {
-            "matcher": { "id": "byName", "options": "server_failure" },
-            "properties": [{ "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }]
-          },
-          {
-            "matcher": { "id": "byName", "options": "user_failure" },
-            "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }]
-          }
-        ]
+        "overrides": []
       },
       "gridPos": {
         "h": 4,
@@ -234,14 +216,14 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "latex_compile_total",
+          "expr": "sum(latex_compile_total)",
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "Total",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Total des compilations des 5 dernieres jours",
+      "title": "Total des compilations des 5 derniers jours",
       "type": "stat"
     },
     {
