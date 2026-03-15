@@ -45,6 +45,11 @@ services:
       FRONTEND_URL: ${FRONTEND_URL}
       JWT_SECRET: ${JWT_SECRET}
       PORT: 9000
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 768M
     networks:
       - openlatex
 

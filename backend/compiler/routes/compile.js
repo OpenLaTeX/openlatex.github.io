@@ -5,6 +5,9 @@ const Compiler = require('../lib/Compiler');
 
 const router = express.Router();
 
+const MAX_CONCURRENT = 5;
+let activeCompilations = 0;
+
 const compileDuration = new promClient.Histogram({
   name: 'latex_compile_duration_seconds',
   help: 'Durée des compilations LaTeX',
@@ -27,9 +30,14 @@ router.post('/', async (req, res) => {
         return res.status(400).json({ error: 'Files and mainFile required' });
     }
 
+    if (activeCompilations >= MAX_CONCURRENT) {
+        return res.status(503).json({ error: 'Server busy, retry later' });
+    }
+
     const projectId = Date.now().toString();
     let workDir;
 
+    activeCompilations++;
     try {
         workDir = await FileManager.createProjectDir(projectId);
         await FileManager.writeFiles(workDir, files);
@@ -61,6 +69,8 @@ router.post('/', async (req, res) => {
             await FileManager.cleanup(workDir);
         }
         res.status(500).json({ error: error.message });
+    } finally {
+        activeCompilations--;
     }
 });
 
