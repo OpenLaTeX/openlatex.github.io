@@ -44,6 +44,7 @@ services:
     environment:
       FRONTEND_URL: ${FRONTEND_URL}
       JWT_SECRET: ${JWT_SECRET}
+      TEST_BYPASS_SECRET: ${TEST_BYPASS_SECRET}
       PORT: 9000
     deploy:
       resources:
