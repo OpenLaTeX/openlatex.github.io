@@ -5,9 +5,40 @@ const Compiler = require('../lib/Compiler');
 
 const router = express.Router();
 
-// ne pas surcharger la ram
 const MAX_CONCURRENT = 2;
+const MAX_QUEUE = 10;
+const QUEUE_TIMEOUT_MS = 60000;
+
 let activeCompilations = 0;
+const queue = [];
+
+function acquireSlot() {
+    if (activeCompilations < MAX_CONCURRENT) {
+        activeCompilations++;
+        return Promise.resolve();
+    }
+    if (queue.length >= MAX_QUEUE) {
+        return Promise.reject(Object.assign(new Error('Server busy, retry later'), { status: 503 }));
+    }
+    return new Promise((resolve, reject) => {
+        const entry = { resolve, reject, timer: null };
+        entry.timer = setTimeout(() => {
+            queue.splice(queue.indexOf(entry), 1);
+            reject(Object.assign(new Error('Queue timeout'), { status: 503 }));
+        }, QUEUE_TIMEOUT_MS);
+        queue.push(entry);
+    });
+}
+
+function releaseSlot() {
+    activeCompilations--;
+    if (queue.length > 0) {
+        const { resolve, timer } = queue.shift();
+        clearTimeout(timer);
+        activeCompilations++;
+        resolve();
+    }
+}
 
 const compileDuration = new promClient.Histogram({
   name: 'latex_compile_duration_seconds',
@@ -31,14 +62,15 @@ router.post('/', async (req, res) => {
         return res.status(400).json({ error: 'Files and mainFile required' });
     }
 
-    if (activeCompilations >= MAX_CONCURRENT) {
-        return res.status(503).json({ error: 'Server busy, retry later' });
+    try {
+        await acquireSlot();
+    } catch (err) {
+        return res.status(err.status || 503).json({ error: err.message });
     }
 
     const projectId = Date.now().toString();
     let workDir;
 
-    activeCompilations++;
     try {
         workDir = await FileManager.createProjectDir(projectId);
         await FileManager.writeFiles(workDir, files);
@@ -71,7 +103,7 @@ router.post('/', async (req, res) => {
         }
         res.status(500).json({ error: error.message });
     } finally {
-        activeCompilations--;
+        releaseSlot();
     }
 });
 
