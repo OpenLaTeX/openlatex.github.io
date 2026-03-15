@@ -1,8 +1,9 @@
+logs
+*.log
 restore-sandbox/
 node_modules
 dist
 .c*
-C*.md
 .env
 .DS_Store
 github_deploy_key
@@ -10,6 +11,7 @@ github_deploy_key.pub
 backup-public.key
 *.dump
 *.gpg
+*U*.md
 
 terraform/azure
 terraform/digitalocean
