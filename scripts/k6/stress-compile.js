@@ -7,6 +7,7 @@
 
 import http from 'k6/http';
 import { check } from 'k6';
+import { textSummary } from 'https://jslib.k6.io/k6-summary/0.0.2/index.js';
 
 const BASE_URL = __ENV.BASE_URL || 'https://openlatex.v0id.nl';
 const TEST_KEY = __ENV.TEST_KEY || '';
@@ -15,8 +16,8 @@ export const options = {
   scenarios: {
     stress_compile: {
       executor: 'shared-iterations',
-      vus: 1,
-      iterations: parseInt(__ENV.BURST_RATE || '5', 10),
+      vus: 2,
+      iterations: parseInt(__ENV.BURST_RATE || '65', 10),
       maxDuration: '2m',
     },
   },
@@ -47,7 +48,19 @@ export default function () {
     timeout: '60s',
   });
 
-  check(res, {
+  const ok = check(res, {
     'status 200 ou 500': (r) => r.status === 200 || r.status === 500,
   });
+
+  console.log(`[compile] status=${res.status} duration=${res.timings.duration.toFixed(0)}ms ok=${ok}`);
+}
+
+export function handleSummary(data) {
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+  const logPath = `logs/stress-compile-${timestamp}.log`;
+
+  return {
+    stdout: textSummary(data, { indent: ' ', enableColors: true }),
+    [logPath]: textSummary(data, { indent: ' ', enableColors: false }),
+  };
 }

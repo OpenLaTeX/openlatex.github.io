@@ -5,7 +5,8 @@ const Compiler = require('../lib/Compiler');
 
 const router = express.Router();
 
-const MAX_CONCURRENT = 5;
+// ne pas surcharger la ram
+const MAX_CONCURRENT = 2;
 let activeCompilations = 0;
 
 const compileDuration = new promClient.Histogram({
