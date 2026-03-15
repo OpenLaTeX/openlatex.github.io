@@ -4,6 +4,9 @@ name: (DOCKER/BACKEND) - Construction et déploiement des images spécifiques
 # Postgres (build local léger) et Caddy (image publique) ne changent quasiment jamais donc ils sont gérés directement par docker-compose sur le VPS
 
 on:
+  workflow_run:
+    workflows: ["(BACKEND) Tests critiques (autorisation / limitation des accès, compilation...)"]
+    types: [completed]
   push:
     paths:
       - 'backend/account-manager/**'
@@ -17,6 +20,18 @@ on:
   workflow_dispatch:
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci
+        working-directory: backend
+      - run: npm test
+        working-directory: backend
+
   detect-changes:
     runs-on: ubuntu-latest
     outputs:
@@ -35,7 +50,7 @@ jobs:
               - 'backend/compiler/**'
 
   build-manager:
-    needs: detect-changes
+    needs: [detect-changes, test]
     if: needs.detect-changes.outputs.manager == 'true'
     runs-on: ubuntu-latest
     permissions:
@@ -63,7 +78,7 @@ jobs:
           tags: ghcr.io/${{ env.OWNER_LC }}/openlatex-account-manager:latest
 
   build-compiler:
-    needs: detect-changes
+    needs: [detect-changes, test]
     if: needs.detect-changes.outputs.compiler == 'true'
     runs-on: ubuntu-latest
     permissions:
@@ -96,7 +111,7 @@ jobs:
           cache-to: type=gha,mode=max
 
   deploy:
-    needs: [build-manager, build-compiler]
+    needs: [build-manager, build-compiler, test]
     if: always() && !failure() && !cancelled()
     runs-on: ubuntu-latest
     steps:
