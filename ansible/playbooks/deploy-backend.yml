@@ -33,6 +33,7 @@
       ansible.builtin.apt:
         name: python3-docker
         state: present
+      become: true
 
     # le module gère l'idempotence (c'est mieux qu'un ansible builtin shell)
     - name: Déployer les conteneurs
