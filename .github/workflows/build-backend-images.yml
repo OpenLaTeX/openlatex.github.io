@@ -9,13 +9,14 @@ on:
     types: [completed]
   push:
     paths:
-      - 'backend/account-manager/**'
-      - 'backend/compiler/**'
-      - 'backend/caddy/**'
-      - 'backend/monitoring/**'
-      - 'backend/docker-compose.yml'
-      - 'backend/package*.json'
-      - 'backend/collab/**'
+      - 'backend/**'
+      # - 'backend/account-manager/**'
+      # - 'backend/compiler/**'
+      # - 'backend/caddy/**'
+      # - 'backend/monitoring/**'
+      # - 'backend/docker-compose.yml'
+      # - 'backend/package*.json'
+      # - 'backend/collab/**'
     branches: [main, backend/*]
   workflow_dispatch:
 
@@ -126,11 +127,17 @@ jobs:
           echo "${{ secrets.VPS_SSH_KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
           chmod 644 ~/.ssh/known_hosts
 
-      - name: deploiement sur VPS
+      - uses: actions/checkout@v4
+
+      - name: Installer ansible
+        run: pip install ansible-core
+
+      - name: Déployer sur le VPS
         env:
-          DEPLOY_BRANCH: ${{ github.ref_name }}
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_USER: ${{ secrets.VPS_USER }}
+          DEPLOY_BRANCH: ${{ github.ref_name }}
+          REPO_URL: https://github.com/${{ github.repository }}.git
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
@@ -142,28 +149,6 @@ jobs:
           GRAFANA_ADMIN_PASSWORD: ${{ secrets.GRAFANA_ADMIN_PASSWORD }}
           TEST_BYPASS_SECRET: ${{ secrets.TEST_BYPASS_SECRET }}
         run: |
-          ssh $VPS_USER@$VPS_HOST <<EOF
-            cd /home/admin/OpenLatex 2>/dev/null || (cd /home/admin && git clone https://github.com/${{ github.repository }}.git OpenLatex && cd OpenLatex)
-            git fetch origin $DEPLOY_BRANCH
-            git checkout $DEPLOY_BRANCH 2>/dev/null || git checkout -b $DEPLOY_BRANCH origin/$DEPLOY_BRANCH
-            git reset --hard origin/$DEPLOY_BRANCH
-            cd backend
-
-            umask 077
-            printf '%s\n' \
-              "POSTGRES_USER=$POSTGRES_USER" \
-              "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" \
-              "POSTGRES_DB=$POSTGRES_DB" \
-              "JWT_SECRET=$JWT_SECRET" \
-              "JWT_EXPIRES_IN=$JWT_EXPIRES_IN" \
-              "FRONTEND_URL=$FRONTEND_URL" \
-              "RESEND_API_KEY=$RESEND_API_KEY" \
-              "GRAFANA_ADMIN_USER=$GRAFANA_ADMIN_USER" \
-              "GRAFANA_ADMIN_PASSWORD=$GRAFANA_ADMIN_PASSWORD" \
-              "TEST_BYPASS_SECRET=$TEST_BYPASS_SECRET" > .env
-
-            docker compose down
-            docker compose pull
-            docker compose up -d --build
-            docker image prune -f
-          EOF
+          ansible-playbook ansible/playbooks/deploy-backend.yml \
+            -i "$VPS_HOST," \
+            -u "$VPS_USER"

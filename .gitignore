@@ -17,3 +17,5 @@ terraform/azure
 terraform/digitalocean
 procedures
 .gitattributes
+
+DIST-OPS.sh
