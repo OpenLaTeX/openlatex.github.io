@@ -22,7 +22,12 @@ jobs:
           echo "${{ secrets.VPS_SSH_KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
           chmod 644 ~/.ssh/known_hosts
 
-      - name: configuration backup sur VPS
+      - uses: actions/checkout@v4
+
+      - name: Installer ansible
+        run: pip install ansible-core
+
+      - name: Configurer la mise à jour du script backup par ansible
         env:
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_USER: ${{ secrets.VPS_USER }}
@@ -30,31 +35,6 @@ jobs:
           B2_APPLICATION_KEY_ID: ${{ secrets.B2_APPLICATION_KEY_ID }}
           B2_APPLICATION_KEY: ${{ secrets.B2_APPLICATION_KEY }}
         run: |
-          ssh $VPS_USER@$VPS_HOST <<EOF
-            # dossier de backup (dans home, pas besoin de sudo)
-            mkdir -p /home/admin/backups
-
-            # installer b2 cli si absent (Solution de cloud storage Backblaze)
-            if ! command -v b2 &> /dev/null; then
-                sudo apt-get install -y pipx
-                pipx install b2
-                export PATH="\$HOME/.local/bin:\$PATH"
-            fi
-
-            # importer cle gpg publique
-            echo "$GPG_PUBLIC_KEY" | gpg --import --batch 2>/dev/null || true
-
-            # configurer b2 (Solution de cloud storage Backblaze)
-            b2 authorize-account "$B2_APPLICATION_KEY_ID" "$B2_APPLICATION_KEY" > /dev/null 2>&1
-
-            chmod +x /home/admin/OpenLatex/backend/db-save/dump_db.sh
-
-            # config le cron via crontab utilisateur (pour tester on peut mettre : * * * * *)
-            (crontab -l 2>/dev/null | grep -v 'dump_db.sh' | grep -v 'CRON_TIMEZONE'; printf 'CRON_TIMEZONE=Europe/Paris\n0 2,11,20 * * * /home/admin/OpenLatex/backend/db-save/dump_db.sh\n') | crontab -
-
-            # verif
-            echo "Crontab configuré :"
-            crontab -l
-            echo "Script présent :"
-            ls -la /home/admin/OpenLatex/backend/db-save/dump_db.sh
-          EOF
+          ansible-playbook ansible/playbooks/setup-backup.yml \
+            -i "$VPS_HOST," \
+            -u "$VPS_USER" 

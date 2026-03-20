@@ -2,31 +2,25 @@
 
 # Choix du serveur
 echo "=== Choix du serveur ==="
-echo "1) DigitalOcean (159.65.196.71) (il est down suite à la transition)"
-echo "2) AWS (terraform output)"
+echo "1) AWS (terraform output)"
 read -p "Choix (1-2) : " serveur
 
 case $serveur in
     1)
-        VPS_IP="159.65.196.71"
-        ;;
-    2)
         VPS_IP=$(cd terraform/aws 2>/dev/null && terraform output -raw public_ip 2>/dev/null)
         if [ -z "$VPS_IP" ]; then
             read -p "IP AWS : " VPS_IP
         fi
         ;;
     *)
-        echo "Choix invalide, utilisation de DigitalOcean par défaut"
-        VPS_IP="159.65.196.71"
-        ;;
+        echo "Choix invalide"
 esac
 
 echo "Serveur sélectionné : $VPS_IP"
 echo
 
 while true; do
-    echo "=== Menu ==="
+    echo "=== Menu ADMIN ==="
     echo "1) Se connecter en root sur le VPS"
     echo "2) Se connecter en admin"
     echo "3) Voir les logs d'un conteneur"
