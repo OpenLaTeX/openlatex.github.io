@@ -23,4 +23,4 @@ runcmd:
   - usermod -aG docker admin
 
   # clone
-  - su - admin -c "git clone https://github.com/openlatex/openlatex.github.io.git /home/admin/OpenLatex"
+  - su - admin -c "git clone https://github.com/openlatex/openlatex.github.io.git /home/admin/openlatex"

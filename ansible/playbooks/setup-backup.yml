@@ -34,7 +34,7 @@
 
     - name: Dump db devient executable
       ansible.builtin.file:
-        path: /home/admin/OpenLatex/backend/db-save/dump_db.sh
+        path: /home/admin/openlatex/backend/db-save/dump_db.sh
         mode: '0755'
 
     - name: Mettre la CRON_TIMEZONE (évite un décalage d'une heure)
@@ -48,4 +48,4 @@
         name: dump_db backup
         minute: "0"
         hour: "2,11,20"
-        job: /home/admin/OpenLatex/backend/db-save/dump_db.sh
+        job: /home/admin/openlatex/backend/db-save/dump_db.sh
