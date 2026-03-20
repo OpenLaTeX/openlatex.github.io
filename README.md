@@ -36,16 +36,16 @@ L'objectif de ce projet, au delà de son utilité primaire, est de m'entraîner 
 
 ### Récemment réalisées
 
+- Collaboration d'écriture de documents (Yjs) grâce à l'éditeur JS CodeMirror
 - Monitoring Grafana / Prometheus (PromQL) de l'infrastructure : [Lien backend](https://openlatex.v0id.nl/grafana/dashboards)
 - Sauvegarde automatique chiffrée GPG (RSA x2) vers cloud storage (BackBlaze)
 - Transition du cloud provider/BDD de DigitalOcean vers AWS
 - Terraform pour AWS
+- Fix de bugs frontend - voir le tableau d'issues GitHub
 
 ### À venir
 
-- Collaboration d'écriture de documents (Yjs) grâce à l'éditeur JS CodeMirror
 - Écrire/relire les procédures de maintenance
-- Fix de bugs frontend - voir le tableau d'issues GitHub
 
 
 ## Informations de production
