@@ -8,15 +8,15 @@ on:
     workflows: ["(BACKEND) Tests critiques (autorisation / limitation des accès, compilation...)"]
     types: [completed]
   push:
-    paths:
-      - 'backend/**'
-      # - 'backend/account-manager/**'
-      # - 'backend/compiler/**'
-      # - 'backend/caddy/**'
-      # - 'backend/monitoring/**'
-      # - 'backend/docker-compose.yml'
-      # - 'backend/package*.json'
-      # - 'backend/collab/**'
+    # paths:
+    #   - 'backend/**'
+    #   # - 'backend/account-manager/**'
+    #   # - 'backend/compiler/**'
+    #   # - 'backend/caddy/**'
+    #   # - 'backend/monitoring/**'
+    #   # - 'backend/docker-compose.yml'
+    #   # - 'backend/package*.json'
+    #   # - 'backend/collab/**'
     branches: [main, backend/*]
   workflow_dispatch:
 
