@@ -27,22 +27,24 @@
         src: ../templates/backend-env.j2
         dest: /home/admin/openlatex/backend/.env
         mode: '0600'
+      no_log: true
 
-    - name: Stop tous les conteneurs
-      ansible.builtin.command:
-        cmd: docker compose down
-        chdir: /home/admin/openlatex/backend
+    - name: Installer le SDK Python Docker (requis par community.docker)
+      ansible.builtin.pip:
+        name: docker
+        state: present
 
-    - name: Recuperation des images
-      ansible.builtin.command:
-        cmd: docker compose pull
-        chdir: /home/admin/openlatex/backend
-
-    - name: Démarrer les conteneurs
-      ansible.builtin.command:
-        cmd: docker compose up -d --build
-        chdir: /home/admin/openlatex/backend
+    # le module gère l'idempotence (c'est mieux qu'un ansible builtin shell)
+    - name: Déployer les conteneurs
+      community.docker.docker_compose_v2:
+        project_src: /home/admin/openlatex/backend
+        state: present
+        pull: always
+        build: always
+        recreate: always
 
     - name: Nettoyer les images inutilisées (pour eviter trop de stockage des anciennes distributions latex assez volumineuses)
-      ansible.builtin.command:
-        cmd: docker image prune -f
+      community.docker.docker_prune:
+        images: true
+        images_filters:
+          dangling: "true"
