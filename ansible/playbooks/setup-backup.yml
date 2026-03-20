@@ -1,0 +1,51 @@
+---
+- hosts: all
+  gather_facts: false
+  vars:
+    b2_key_id: "{{ lookup('env', 'B2_APPLICATION_KEY_ID') }}"
+    b2_key: "{{ lookup('env', 'B2_APPLICATION_KEY') }}"
+  tasks:
+    - name: Créer le dossier backups
+      ansible.builtin.file:
+        path: /home/admin/backups
+        state: directory
+
+    - name: Installer pipx
+      ansible.builtin.apt:
+        name: pipx
+        state: present
+        update_cache: false
+      become: true
+
+    - name: Installer b2 via pipx (c'est backblaze)
+      ansible.builtin.shell:
+        cmd: pipx install b2
+        creates: /home/admin/.local/bin/b2
+
+    - name: Importer la clé publique GPG
+      ansible.builtin.shell:
+        cmd: gpg --import --batch
+        stdin: "{{ lookup('env', 'GPG_PUBLIC_KEY') }}"
+
+    - name: Valider les credentials b2 (backblaze)
+      ansible.builtin.shell:
+        cmd: /home/admin/.local/bin/b2 authorize-account "{{ b2_key_id }}" "{{ b2_key }}"
+      no_log: true
+
+    - name: Dump db devient executable
+      ansible.builtin.file:
+        path: /home/admin/OpenLatex/backend/db-save/dump_db.sh
+        mode: '0755'
+
+    - name: Mettre la CRON_TIMEZONE (évite un décalage d'une heure)
+      ansible.builtin.cron:
+        name: CRON_TIMEZONE
+        env: true
+        job: Europe/Paris
+
+    - name: Faire le cron job du backup 
+      ansible.builtin.cron:
+        name: dump_db backup
+        minute: "0"
+        hour: "2,11,20"
+        job: /home/admin/OpenLatex/backend/db-save/dump_db.sh
