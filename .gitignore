@@ -11,11 +11,10 @@ github_deploy_key.pub
 backup-public.key
 *.dump
 *.gpg
-*U*.md
+*de.md
 
 terraform/azure
 terraform/digitalocean
-procedures
 .gitattributes
 
 DIST-OPS.sh
