@@ -2,7 +2,7 @@
 
 ## Fonctionnement automatique
 
-Le script `backend/db-save/dump_db.sh` tourne via cron, 3 fois par jour.
+Le script `backend/db-save/dump_db.sh` tourne via cron (un planificateur automatique de tâches), 3 fois par jour.
 
 Ce qu'il fait à chaque exécution :
 1. Dump PostgreSQL du container `openlatex_postgres` au format custom (`-Fc`)
@@ -84,3 +84,15 @@ docker exec openlatex_postgres pg_isready -U $POSTGRES_USER -d $POSTGRES_DB
 # Vérifier l'espace disque
 df -h /home/admin/backups
 ```
+
+## Envoyer un mail à chaque fois : un autre paradigme
+
+En réalité, ne déclencher un envoie de mail qu'en cas d'échec peut être un problème. En effet, si il y a un bug avec l'envoi du mail, ça échoue silencieusement et on ne saura pas s'il y a une erreur.
+
+Une solution serait alors de TOUJOURS prévenir du succès d'une sauvegarde, donc envoyer un mail à chaque réussite. De ce fait si l'on ne reçoit pas de mail, alors on sait qu'il y a eu un problème quelque part (problème machine, de mail, de cron job...).
+
+Pour cela il y a une deuxième version du script qui envoie un mail à chaque succès d'une sauvegarde. 
+
+## Pour aller plus loin
+
+On peut imaginer d'autres modes de notification d'échec (application mobile, affichage sur un écran à part, status affiché en grand sur le site...). L'objectif très clair, c'est qu'aucun échec silencieux ne soit possible, alors on partirait du principe qu'on doit toujours être prévenu d'un succès, plutôt que d'être toujours prévenu d'un échec.

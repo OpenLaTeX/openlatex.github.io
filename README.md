@@ -60,7 +60,6 @@ Le backend tourne sur un VPS Debian distant en continu avec sept conteneurs Dock
 - **Caddy** : Reverse proxy HTTPS avec en-têtes de sécurité stricts
 - **Grafana (Monitoring) - nécessitant Prometheus + Postgres Exporter** : Dashboards de métriques de l'application accessibles à [Lien backend](https://openlatex.v0id.nl/grafana/dashboards)
 
-
 Le conteneur Node.js de gestion communique avec le conteneur SQL afin de renvoyer les projets lorsque l'utilisateur le demande. Ce conteneur est exposé en HTTPS par un DNS simple (afraid.org).
 
 Le conteneur PostgreSQL stocke les données dans un volume (les données restent même après arrêt du conteneur). 
@@ -84,12 +83,13 @@ Les informations secrètes (clés privées) sont une priorité.
 
 - La clé JWT (tokens d'authentification) est reconstruite via les secrets GitHub Actions ([Script de déploiement](https://github.com/OpenLaTeX/openlatex.github.io/blob/main/.github/workflows/build-backend-images.yml))
 - La clé SSH pour accéder à l'utilisateur de déploiement sur le VPS n'est pas celle de mon ordinateur mais une clé spéciale pour l'occasion
+- Le SSH est configuré (SSH Hardening + fail2ban) pour réduire la surface d'attaque (nombre de tentatives maximum autorisées). 
 
 Les clés n'apparaissent nulle part pour le public, que ce soit dans le code, dans l'historique git, etc.
 
 Des en-têtes de sécurité HTTP sont configurés dans Caddy : HSTS, X-Content-Type-Options, X-Frame-Options, Referrer-Policy et Permissions-Policy. Les conteneurs Node.js tournent en utilisateur non-root.
 
-Enfin, les sauvegardes sont toujours chiffrées avec GPG (en RSA x2 4096 bits) avec la clé publique. La base ne peut être reproduite que par l'administrateur possédant la clé privée (on peut également tester les sauvegardes avec un script). De ce fait, aucune information présente sur le VPS / Cloud storage ne permet de déchiffrer les sauvegardes.
+Enfin, les sauvegardes sont toujours chiffrées avec GPG (en RSA x2 4096 bits) avec la clé publique. La base ne peut être reproduite que par l'administrateur possédant la clé privée (on peut également tester les sauvegardes avec un [script](backend/db-save/admin-test-save.sh)). De ce fait, aucune information présente sur le VPS / Cloud storage ne permet de déchiffrer les sauvegardes.
 
 ## Monitoring
 
@@ -111,7 +111,7 @@ Des limites sont instaurées pour ne pas surcharger étant donné la puissance d
 - 30 compilations par minute pour les personnes connectées
 - 5 projets maximum par compte
 - 10 mb maximum par projet
-- Limites contre le bruteforce
+- Rate limiting global pour empêcher le spam de requêtes
 
 ## Installation
 
