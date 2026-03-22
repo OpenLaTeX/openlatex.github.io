@@ -7,6 +7,26 @@ packages:
   - curl
   - gnupg # sauvegardes
   - git
+  - fail2ban
+
+write_files:
+  - path: /etc/ssh/sshd_config.d/99-hardening.conf
+    content: |
+      PermitRootLogin no
+      PasswordAuthentication no
+      X11Forwarding no
+      MaxAuthTries 3
+      LoginGraceTime 30
+      AllowAgentForwarding no
+      AllowTcpForwarding no
+  - path: /etc/fail2ban/jail.d/sshd.conf
+    content: |
+      [sshd]
+      enabled = true
+      backend = systemd
+      maxretry = 5
+      bantime = 1h
+      findtime = 10m
 
 runcmd:
   # on installe docker en officiel plutôt que par défaut
@@ -21,6 +41,13 @@ runcmd:
   - systemctl enable docker
   - systemctl start docker
   - usermod -aG docker admin
+
+  # ssh hardening
+  - systemctl restart ssh
+
+  # fail2ban
+  - systemctl enable fail2ban
+  - systemctl start fail2ban
 
   # clone
   - su - admin -c "git clone https://github.com/openlatex/openlatex.github.io.git /home/admin/openlatex"

@@ -38,13 +38,13 @@ Lorsqu'il a été effectué la transition de DigitalOcean vers AWS, la BDD origi
 
 ### Transférer les données
 
-Pour du test il est acceptable de faire un pg_dump rapide en fichier.sql clair, puis de le transférer avec :
+Pour du test il est acceptable de faire un pg_dump rapide en fichier.sql clair (*même si le format dump est plus rapide, ça peut être l'occasion de découvrir comment la sauvegarde se fait puisque c'est en clair*), puis de le transférer avec :
 
 ```bash
 scp /chemin/backup.sql admin@IP_AWS:/home/admin/
 ```
 
-En production, on ne va pas vraiment faire ça puisqu'il y a un risque de montrer la BDD en clair dans le processus.
+En production, on ne va pas vraiment faire ça puisqu'il y a un risque de montrer la BDD en clair dans le processus de communication entre l'ancien et le nouveau serveur.
 
 La bonne méthode est de passer par le script de sauvegarde sur l'ancien serveur, puis de télécharger le fichier chiffré depuis B2 sur le nouveau serveur. Se référer alors au Cas 1 pour le téléchargement et le déchiffrement.
 
