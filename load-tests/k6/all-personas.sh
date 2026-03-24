@@ -13,7 +13,7 @@ run_persona() {
   local max=$(( base * 4 / 3 ))
   local burst=$(( min + RANDOM % (max - min + 1) ))
   echo "[$(date -Iseconds)] persona=$persona burst_rate=$burst"
-  k6 run -e TEST_KEY="$FAILING_ON_PURPOSE" -e BASE_URL="$BASE_URL" -e BURST_RATE="$burst" stress-compile.js
+  k6 run -e TEST_KEY="$TEST_BYPASS_SECRET" -e BASE_URL="$BASE_URL" -e BURST_RATE="$burst" stress-compile.js
 }
 
 PERSONA="EVERYONE"
