@@ -13,6 +13,9 @@ const BASE_URL = __ENV.BASE_URL || 'https://openlatex.v0id.nl';
 const TEST_KEY = __ENV.TEST_KEY || '';
 
 export const options = {
+  thresholds: {
+    checks: ['rate>0.95'],
+  },
   scenarios: {
     stress_compile: {
       executor: 'shared-iterations',
