@@ -18,3 +18,4 @@ terraform/digitalocean
 .gitattributes
 
 DIST-OPS.sh
+cron-traffic.sh
