@@ -1,0 +1,184 @@
+name: (DOCKER/BACKEND) - Construction et déploiement des images spécifiques + test infra
+# Les images "account-manager" et "compiler" sont construites en CI et publiées sur GHCR
+# pour éviter de consommer les ressources du VPS pendant le build.
+# Postgres (build local léger) et Caddy (image publique) ne changent quasiment jamais donc ils sont gérés directement par docker-compose sur le VPS
+
+on:
+  workflow_run:
+    workflows: ["(BACKEND) Tests critiques (autorisation / limitation des accès, compilation...)"]
+    types: [completed]
+  push:
+    # paths:
+    #   - 'backend/**'
+    #   # - 'backend/account-manager/**'
+    #   # - 'backend/compiler/**'
+    #   # - 'backend/caddy/**'
+    #   # - 'backend/monitoring/**'
+    #   # - 'backend/docker-compose.yml'
+    #   # - 'backend/package*.json'
+    #   # - 'backend/collab/**'
+    branches: [main, backend/*]
+  workflow_dispatch:
+
+jobs:
+  code-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci
+        working-directory: backend
+      - run: npm test
+        working-directory: backend
+
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      manager: ${{ steps.filter.outputs.manager }}
+      compiler: ${{ steps.filter.outputs.compiler }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            manager:
+              - 'backend/account-manager/**'
+              - 'backend/package*.json'
+            compiler:
+              - 'backend/compiler/**'
+
+  build-manager:
+    needs: [detect-changes, code-test]
+    if: needs.detect-changes.outputs.manager == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set lowercase owner
+        run: echo "OWNER_LC=${GITHUB_REPOSITORY_OWNER,,}" >> $GITHUB_ENV
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          file: ./backend/account-manager/Dockerfile
+          push: true
+          tags: ghcr.io/${{ env.OWNER_LC }}/openlatex-account-manager:latest
+
+  build-compiler:
+    needs: [detect-changes, code-test]
+    if: needs.detect-changes.outputs.compiler == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set lowercase owner
+        run: echo "OWNER_LC=${GITHUB_REPOSITORY_OWNER,,}" >> $GITHUB_ENV
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          file: ./backend/compiler/Dockerfile
+          push: true
+          tags: ghcr.io/${{ env.OWNER_LC }}/openlatex-compile:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy:
+    needs: [build-manager, build-compiler, code-test]
+    if: always() && !failure() && !cancelled()
+    runs-on: ubuntu-latest
+    steps:
+      - name: config ssh
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
+
+      - name: Setup known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VPS_SSH_KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
+      - uses: actions/checkout@v4
+
+      - name: Installer ansible
+        run: |
+          pip install ansible-core
+          ansible-galaxy collection install community.docker
+
+      - name: Déployer sur le VPS
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          DEPLOY_BRANCH: ${{ github.ref_name }}
+          REPO_URL: https://github.com/${{ github.repository }}.git
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          JWT_EXPIRES_IN: ${{ secrets.JWT_EXPIRES_IN }}
+          FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          GRAFANA_ADMIN_USER: ${{ secrets.GRAFANA_ADMIN_USER }}
+          GRAFANA_ADMIN_PASSWORD: ${{ secrets.GRAFANA_ADMIN_PASSWORD }}
+          TEST_BYPASS_SECRET: ${{ secrets.TEST_BYPASS_SECRET }}
+        run: |
+          ansible-playbook ansible/playbooks/deploy-backend.yml \
+            -i "$VPS_HOST," \
+            -u "$VPS_USER"
+
+  infra-load-tests:
+    needs: [deploy]
+    if: always() && !failure() && !cancelled()
+    runs-on: ubuntu-latest
+    steps:
+      - name: config ssh
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
+
+      - uses: actions/checkout@v4
+
+      - name: Installer k6
+        run: |
+          sudo gpg -k
+          sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update
+          sudo apt-get install k6
+
+      - name: Test de charge (3 personas) pour vérifier que l'infra tient (Environ 250 compilations, devrait se faire en 1 min 30)
+        env:
+          TEST_BYPASS_SECRET: ${{ secrets.TEST_BYPASS_SECRET }}
+        run: |
+          cd load-tests/k6 &&
+          chmod +x all-personas.sh &&
+          bash all-personas.sh

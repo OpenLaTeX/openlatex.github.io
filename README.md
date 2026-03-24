@@ -81,7 +81,7 @@ Le frontend est hébergé sur GitHub Pages et se redéploie depuis la branche `f
 
 Les informations secrètes (clés privées) sont une priorité.
 
-- La clé JWT (tokens d'authentification) est reconstruite via les secrets GitHub Actions ([Script de déploiement](https://github.com/OpenLaTeX/openlatex.github.io/blob/main/.github/workflows/build-backend-images.yml))
+- La clé JWT (tokens d'authentification) est reconstruite via les secrets GitHub Actions ([Script de déploiement](https://github.com/OpenLaTeX/openlatex.github.io/blob/main/.github/workflows/main-build-deploy.yml))
 - La clé SSH pour accéder à l'utilisateur de déploiement sur le VPS n'est pas celle de mon ordinateur mais une clé spéciale pour l'occasion
 - Le SSH est configuré (SSH Hardening + fail2ban) pour réduire la surface d'attaque (nombre de tentatives maximum autorisées). 
 
