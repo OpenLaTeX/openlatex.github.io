@@ -28,7 +28,7 @@
 Ce projet offre un moyen simple de déployer un serveur LaTeX open-source accessible par le Web, permettant d’utiliser LaTeX sans aucune installation locale.
 Il met également à disposition une base de données intégrée pour que les utilisateurs puissent enregistrer et gérer leurs projets d'où qu'ils soient !
 
-La stack permet également d'observer les métriques de l'application ([Grafana](https://openlatex.v0id.nl/grafana/dashboards)) et de mieux la sécuriser / maintenir (Chiffrement, sauvegarde automatique, reverse proxy...).
+La stack permet également d'observer les métriques de l'application ([Grafana](https://openlatex.privatedns.org/grafana/dashboards)) et de mieux la sécuriser / maintenir (Chiffrement, sauvegarde automatique, reverse proxy...).
 
 L'objectif de ce projet, au delà de son utilité primaire, est de m'entraîner à petite échelle sur ce que je peux être amené à retrouver dans ma poursuite d'études ou mon alternance, afin de m'y préparer au mieux.
 
@@ -37,7 +37,7 @@ L'objectif de ce projet, au delà de son utilité primaire, est de m'entraîner 
 ### Récemment réalisées
 
 - Collaboration d'écriture de documents (Yjs) grâce à l'éditeur JS CodeMirror
-- Monitoring Grafana / Prometheus (PromQL) de l'infrastructure : [Lien backend](https://openlatex.v0id.nl/grafana/dashboards)
+- Monitoring Grafana / Prometheus (PromQL) de l'infrastructure : [Lien backend](https://openlatex.privatedns.org/grafana/dashboards)
 - Sauvegarde automatique chiffrée GPG (RSA x2) vers cloud storage (BackBlaze)
 - Transition du cloud provider/BDD de DigitalOcean vers AWS
 - Terraform pour AWS
@@ -58,7 +58,7 @@ Le backend tourne sur un VPS Debian distant en continu avec sept conteneurs Dock
 - **Node.js (Account Manager)** : Gestion des comptes, projets et communication avec la BDD
 - **Node.js (Compilateur)** : Compilateur LaTeX (conteneur séparé avec texlive)
 - **Caddy** : Reverse proxy HTTPS avec en-têtes de sécurité stricts
-- **Grafana (Monitoring) - nécessitant Prometheus + Postgres Exporter** : Dashboards de métriques de l'application accessibles à [Lien backend](https://openlatex.v0id.nl/grafana/dashboards)
+- **Grafana (Monitoring) - nécessitant Prometheus + Postgres Exporter** : Dashboards de métriques de l'application accessibles à [Lien backend](https://openlatex.privatedns.org/grafana/dashboards)
 
 Le conteneur Node.js de gestion communique avec le conteneur SQL afin de renvoyer les projets lorsque l'utilisateur le demande. Ce conteneur est exposé en HTTPS par un DNS simple (afraid.org).
 
@@ -95,7 +95,7 @@ Enfin, les sauvegardes sont toujours chiffrées avec GPG (en RSA x2 4096 bits) a
 
 Le stack de monitoring tourne sur trois conteneurs supplémentaires : Prometheus, Grafana et postgres-exporter.
 
-Grafana est accessible publiquement en lecture seule sur [`/grafana/`](https://openlatex.v0id.nl/grafana/dashboards).
+Grafana est accessible publiquement en lecture seule sur [`/grafana/`](https://openlatex.privatedns.org/grafana/dashboards).
 
 Les dashboards présents mesurent :
 - **Account Manager** : durée des requêtes HTTP (p50/p95), débit, mémoire, event loop lag

@@ -40,6 +40,7 @@ export default function () {
   });
 
   const headers = { 'Content-Type': 'application/json' };
+  // bypass la limite de compilation grace à un secret de dév
   if (TEST_KEY) headers['X-Test-Key'] = TEST_KEY;
 
   const res = http.post(`${BASE_URL}/compile`, payload, {
