@@ -13,7 +13,7 @@ run_persona() {
   local max=$(( base * 4 / 3 ))
   local burst=$(( min + RANDOM % (max - min + 1) ))
   echo "[$(date -Iseconds)] persona=$persona burst_rate=$burst"
-  k6 run -e TEST_KEY="$TEST_KEY" -e BASE_URL="$BASE_URL" -e BURST_RATE="$burst" stress-compile.js
+  k6 run -e TEST_KEY="$FAILING_ON_PURPOSE" -e BASE_URL="$BASE_URL" -e BURST_RATE="$burst" stress-compile.js
 }
 
 PERSONA="EVERYONE"
@@ -24,9 +24,11 @@ case "$PERSONA" in
   Charlie)  run_persona Charlie 200 ;;
   EVERYONE)
     echo "[$(date -Iseconds)] persona=EVERYONE (3 runs en parallèle)"
-    run_persona Alice   15  &
-    run_persona Bob     60  &
-    run_persona Charlie 200 &
-    wait
+    run_persona Alice   15  & pids=($!)
+    run_persona Bob     60  & pids+=($!)
+    run_persona Charlie 200 & pids+=($!)
+    status=0
+    for pid in "${pids[@]}"; do wait "$pid" || status=$?; done
+    exit $status
     ;;
 esac

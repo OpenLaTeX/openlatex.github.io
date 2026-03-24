@@ -18,7 +18,7 @@ ALERT_EMAIL="baptiste.lavogiez@proton.me"
 # config chiffrement + stockage distant
 GPG_RECIPIENT="baptiste.lavogiez@proton.me"
 B2_BUCKET_NAME="openlatex-backups"
-REMOTE_RETENTION_DAYS=365  # 365 pour test
+REMOTE_RETENTION_DAYS=30  # 30 : prod normale
 
 DATE=$(date +%Y%m%d_%H%M%S)
 BACKUP_FILE="${BACKUP_DIR}/openlatex_${DATE}.dump"
@@ -154,7 +154,7 @@ else
     exit 1
 fi
 
-# chiffrement gpg par clé publique du .env reconstruit par secrets
+# chiffrement gpg par clé publique du fichier dump (et suppression de la version claire)
 CURRENT_STEP="chiffrement"
 log "--- Chiffrement GPG ---"
 log "GPG version : $(gpg --version 2>/dev/null | head -1)"
