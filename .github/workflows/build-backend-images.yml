@@ -154,3 +154,31 @@ jobs:
           ansible-playbook ansible/playbooks/deploy-backend.yml \
             -i "$VPS_HOST," \
             -u "$VPS_USER"
+
+  load-tests:
+    needs: [deploy]
+    if: always() && !failure() && !cancelled()
+    runs-on: ubuntu-latest
+    steps:
+      - name: config ssh
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
+
+      - uses: actions/checkout@v4
+
+      - name: Installer k6
+        run: |
+          sudo gpg -k
+          sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update
+          sudo apt-get install k6
+
+      - name: Test de charge (3 personas) pour vérifier que l'infra tient
+        env:
+          TEST_BYPASS_SECRET: ${{ secrets.TEST_BYPASS_SECRET }}
+        run: |
+          cd load-tests/k6 &&
+          chmod +x all-personas.sh &&
+          bash all-personas.sh
