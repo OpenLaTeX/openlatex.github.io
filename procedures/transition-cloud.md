@@ -56,23 +56,17 @@ En résumé :
 
 ## Étape 4 : Mettre à jour le DNS
 
-Le domaine utilise DuckDNS. Mettre à jour l'enregistrement avec la nouvelle IP :
+Le domaine utilise afraid.org. Mettre à jour l'enregistrement avec la nouvelle IP :
 
-```bash
-curl "https://www.duckdns.org/update?domains=<votre-domaine>&token=<TOKEN>&ip=<IP>"
-```
+https://freedns.afraid.org/zc.php?from=L3N1YmRvbWFpbi8=
 
-La propagation est quasi-immédiate sur DuckDNS. Vérifier avec :
-
-```bash
-dig <votre-domaine>.duckdns.org
-```
+La propagation est quasi-immédiate sur afraid.org. Vérifiez en faisant un ping sur le domaine choisi, qui devrait retourne l'ip du vps.
 
 ## Étape 5 : Déclencher le déploiement CI/CD et couper l'ancien serveur
 
 Déclencher manuellement le workflow de déploiement backend depuis GitHub Actions :
 
-**Actions --> (DOCKER/BACKEND) - Construction et déploiement des images spécifiques --> Run workflow**
+**Actions --> (DOCKER/BACKEND) - (DOCKER/BACKEND) - Construction et déploiement des images spécifiques + test infra --> Run workflow**
 
 Ce workflow clone le dépôt sur le nouveau serveur, crée le `.env`, lance `docker compose up -d` et configure ensuite la sauvegarde automatique via `db-deploy-save.yml`.
 
