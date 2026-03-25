@@ -35,14 +35,19 @@
         state: present
       become: true
 
+    - name: Arrêter les conteneurs pour libérer la RAM avant le pull/build
+      community.docker.docker_compose_v2:
+        project_src: /home/admin/openlatex/backend
+        state: absent
+
     # le module gère l'idempotence (c'est mieux qu'un ansible builtin shell)
     - name: Déployer les conteneurs
       community.docker.docker_compose_v2:
         project_src: /home/admin/openlatex/backend
         state: present
         pull: always
-        build: always
-        recreate: always
+        build: policy
+        recreate: auto
 
     - name: Nettoyer les images inutilisées (pour eviter trop de stockage des anciennes distributions latex assez volumineuses)
       community.docker.docker_prune:
