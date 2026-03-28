@@ -45,6 +45,7 @@ L'objectif de ce projet, au delà de son utilité primaire, est de m'entraîner 
 
 ### À venir
 
+- Migration Kubernetes multi-noeuds pour apprendre. (***Disclaimer : Je sais que Kubernetes est surdimensionné pour ce projet. Je l'intègre surtout pour apprendre en situation réelle et mesurer l'impact en performances sur les dashboards Grafana.***)
 - Écrire/relire les procédures de maintenance
 
 
