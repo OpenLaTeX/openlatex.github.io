@@ -15,6 +15,7 @@ const queue = [];
 function acquireSlot() {
     if (activeCompilations < MAX_CONCURRENT) {
         activeCompilations++;
+        compileActive.set(activeCompilations);
         return Promise.resolve();
     }
     if (queue.length >= MAX_QUEUE) {
@@ -24,9 +25,12 @@ function acquireSlot() {
         const entry = { resolve, reject, timer: null };
         entry.timer = setTimeout(() => {
             queue.splice(queue.indexOf(entry), 1);
+            compileQueueDepth.set(queue.length);
+            compileQueueTimeout.inc();
             reject(Object.assign(new Error('Queue timeout'), { status: 503 }));
         }, QUEUE_TIMEOUT_MS);
         queue.push(entry);
+        compileQueueDepth.set(queue.length);
     });
 }
 
@@ -38,6 +42,8 @@ function releaseSlot() {
         activeCompilations++;
         resolve();
     }
+    compileActive.set(activeCompilations);
+    compileQueueDepth.set(queue.length);
 }
 
 const compileDuration = new promClient.Histogram({
@@ -50,6 +56,21 @@ const compileResult = new promClient.Counter({
   name: 'latex_compile_total',
   help: 'Nombre total de compilations',
   labelNames: ['result']
+});
+
+const compileActive = new promClient.Gauge({
+  name: 'latex_compile_active',
+  help: 'Compilations en cours'
+});
+
+const compileQueueDepth = new promClient.Gauge({
+  name: 'latex_compile_queue_depth',
+  help: 'Nombre de compilations en attente dans la queue'
+});
+
+const compileQueueTimeout = new promClient.Counter({
+  name: 'latex_compile_queue_timeout_total',
+  help: 'Nombre de timeouts de queue'
 });
 
 // compilation qui recoit les fichiers en HTTP, pas de persistance SQL (Le SQL sert à sauvegarder et ce serait moins performant de compiler avec le SQL)
