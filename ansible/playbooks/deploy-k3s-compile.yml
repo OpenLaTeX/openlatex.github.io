@@ -44,6 +44,19 @@
                 annotations:
                   kubectl.kubernetes.io/restartedAt: "{{ now(utc=True, fmt='%Y-%m-%dT%H:%M:%SZ') }}"
 
+    - name: État des pods avant attente
+      kubernetes.core.k8s_info:
+        kind: Pod
+        namespace: default
+        label_selectors:
+          - app=latex-compile
+      register: pods_before
+
+    - name: Afficher l'état des pods
+      debug:
+        msg: "{{ item.metadata.name }} — {{ item.status.phase }} — {{ item.status.containerStatuses | default([]) | map(attribute='state') | list }}"
+      loop: "{{ pods_before.resources }}"
+
     - name: Attendre que le déploiement soit prêt
       kubernetes.core.k8s_info:
         kind: Deployment
@@ -53,4 +66,4 @@
         wait_condition:
           type: Available
           status: "True"
-        wait_timeout: 120
+        wait_timeout: 300
