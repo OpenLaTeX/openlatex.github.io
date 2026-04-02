@@ -9,12 +9,12 @@
   vars:
     frontend_url: "{{ lookup('env', 'FRONTEND_URL') }}"
     test_bypass_secret: "{{ lookup('env', 'TEST_BYPASS_SECRET') }}"
-    kubeconfig: "{{ lookup('env', 'KUBECONFIG') | default('./k3s.yaml') }}"
+  environment:
+    K8S_AUTH_KUBECONFIG: "{{ lookup('env', 'KUBECONFIG') | default('./k3s.yaml') }}"
   tasks:
     - name: Appliquer le secret latex-compile-env (bypass secret + frontend url pourle CORS)
       kubernetes.core.k8s:
         state: present
-        kubeconfig: "{{ kubeconfig }}"
         definition:
           apiVersion: v1
           kind: Secret
@@ -26,16 +26,14 @@
             TEST_BYPASS_SECRET: "{{ test_bypass_secret }}"
       no_log: true
 
-    - name: Déployer le manifest latex-compile
+    - name: Déployer le manifest latex-compile (il va déployer sur les workers qui ont été joints lors du user data terraform)
       kubernetes.core.k8s:
         state: present
-        kubeconfig: "{{ kubeconfig }}"
         src: "{{ playbook_dir }}/../../infra/kubernetes/latex-compile.yaml"
 
-    - name: Rollout restart pour appliquer le nouveau secret
+    - name: Rollout restart pour appliquer le nouveau secret ; pas trouvé de module adapté donc temporairement on fait en shell :(
       kubernetes.core.k8s:
         state: patched
-        kubeconfig: "{{ kubeconfig }}"
         kind: Deployment
         name: latex-compile
         namespace: default
@@ -48,7 +46,6 @@
 
     - name: Attendre que le déploiement soit prêt
       kubernetes.core.k8s_info:
-        kubeconfig: "{{ kubeconfig }}"
         kind: Deployment
         name: latex-compile
         namespace: default
