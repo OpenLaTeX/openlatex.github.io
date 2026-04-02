@@ -66,7 +66,7 @@ La propagation est quasi-immédiate sur afraid.org. Vérifiez en faisant un ping
 
 Déclencher manuellement le workflow de déploiement backend depuis GitHub Actions :
 
-**Actions --> (DOCKER/BACKEND) - (DOCKER/BACKEND) - Construction et déploiement des images spécifiques + test infra --> Run workflow**
+**Actions --> (DOCKER/BACKEND) - Construction et déploiement des images spécifiques + test infra --> Run workflow**
 
 Ce workflow clone le dépôt sur le nouveau serveur, crée le `.env`, lance `docker compose up -d` et configure ensuite la sauvegarde automatique via `db-deploy-save.yml`.
 
