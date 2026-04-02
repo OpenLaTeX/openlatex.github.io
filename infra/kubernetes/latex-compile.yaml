@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: latex-compile
 spec:
-  replicas: 5
+  replicas: 6
   selector:
     matchLabels:
       app: latex-compile
