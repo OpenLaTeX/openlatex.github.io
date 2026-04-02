@@ -2,7 +2,7 @@
 
 Il y a deux cas lors de la restauration d'une BDD ;
 
-## Cas 1 : Tout est perdu
+## Cas 1 : Tout est perdu localement
 
 Le serveur d'origine n'a plus rien ; c'est le pire cas.
 

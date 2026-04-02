@@ -87,7 +87,7 @@ df -h /home/admin/backups
 
 ## Envoyer un mail à chaque fois : un autre paradigme
 
-En réalité, ne déclencher un envoie de mail qu'en cas d'échec peut être un problème. En effet, si il y a un bug avec l'envoi du mail, ça échoue silencieusement et on ne saura pas s'il y a une erreur.
+En réalité, ne déclencher un envoi de mail qu'en cas d'échec peut être un problème. En effet, si il y a un bug avec l'envoi du mail, ça échoue silencieusement et on ne saura pas s'il y a une erreur.
 
 Une solution serait alors de TOUJOURS prévenir du succès d'une sauvegarde, donc envoyer un mail à chaque réussite. De ce fait si l'on ne reçoit pas de mail, alors on sait qu'il y a eu un problème quelque part (problème machine, de mail, de cron job...).
 
