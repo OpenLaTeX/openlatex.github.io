@@ -13,9 +13,10 @@ backup-public.key
 *.gpg
 *de.md
 
-terraform/azure
-terraform/digitalocean
+**/azure
+**/digitalocean
 .gitattributes
 
+infra/kubernetes/*
 DIST-OPS.sh
 cron-traffic.sh
