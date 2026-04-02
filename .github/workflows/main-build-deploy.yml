@@ -52,7 +52,7 @@ jobs:
 
   build-manager:
     needs: [detect-changes, code-test]
-    if: needs.detect-changes.outputs.manager == 'true'
+    if: needs.detect-changes.outputs.manager == 'false'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -180,7 +180,7 @@ jobs:
         run: KUBECONFIG=$HOME/.kube/config ansible-playbook ansible/playbooks/deploy-k3s-compile.yml
 
   infra-load-tests:
-    needs: [deploy]
+    needs: [deploy, deploy-k3s]
     if: always() && !failure() && !cancelled()
     runs-on: ubuntu-latest
     steps:
