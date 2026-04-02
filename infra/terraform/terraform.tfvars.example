@@ -1,0 +1,11 @@
+# DigitalOcean API token (get it from https://cloud.digitalocean.com/account/api/tokens)
+do_token = "dop_v1_xxx"
+
+# Region (fra1 = Frankfurt)
+region = "fra1"
+
+# Droplet size (s-1vcpu-1gb = $6/month)
+size = "s-1vcpu-1gb"
+
+# SSH key IDs (get them with: doctl compute ssh-key list)
+ssh_key_ids = ["12345678"]
