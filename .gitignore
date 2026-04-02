@@ -15,8 +15,9 @@ backup-public.key
 
 **/azure
 **/digitalocean
+**/k3s.yaml
+
 .gitattributes
 
-infra/kubernetes/*
 DIST-OPS.sh
 cron-traffic.sh
