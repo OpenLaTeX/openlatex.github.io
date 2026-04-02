@@ -52,7 +52,7 @@ jobs:
 
   build-manager:
     needs: [detect-changes, code-test]
-    if: needs.detect-changes.outputs.manager == 'false'
+    if: needs.detect-changes.outputs.manager == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
