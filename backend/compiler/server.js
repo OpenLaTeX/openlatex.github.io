@@ -8,7 +8,7 @@ require('dotenv').config();
 
 const promClient = require('prom-client');
 const compileRoutes = require('./routes/compile');
-const { defaultProtectionLimiter, guestLimiter, userLimiter, tokenMiddleware } = require('./middleware/rateLimiter');
+const { defaultProtectionLimiter, guestLimiter } = require('./middleware/rateLimiter');
 
 promClient.collectDefaultMetrics();
 
@@ -47,7 +47,6 @@ app.use((req, res, next) => {
 });
 
 app.use(defaultProtectionLimiter);
-app.use(tokenMiddleware);
 
 app.get('/health', (req, res) => {
   exec('which pdflatex && pdflatex --version', { timeout: 5000 }, (error, stdout, stderr) => {
@@ -68,9 +67,7 @@ app.get('/health', (req, res) => {
 });
 
 // compilation avec rate limiting: 10/min pour users authentifies, 3/min pour invites
-app.use('/compile', (req, res, next) => {
-    (req.userId ? userLimiter : guestLimiter)(req, res, next);
-}, compileRoutes);
+app.use('/compile', guestLimiter, compileRoutes);
 
 const PORT = process.env.PORT || 9000;
 

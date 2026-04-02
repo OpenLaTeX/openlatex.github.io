@@ -10,7 +10,7 @@ import { check } from 'k6';
 import { textSummary } from 'https://jslib.k6.io/k6-summary/0.0.2/index.js';
 
 //const BASE_URL = __ENV.BASE_URL || 'https://openlatex.v0id.nl';
-const BASE_URL = __ENV.BASE_URL || 'http://localhost:9000';
+const BASE_URL = __ENV.BASE_URL || 'http://13.39.204.79';
 const TEST_KEY = __ENV.TEST_KEY || '';
 
 export const options = {
