@@ -73,11 +73,11 @@ resource "aws_security_group" "k3s" {
   }
 
   ingress {
-    description = "k3s API server operateur"
+    description = "k3s API server"
     from_port   = 6443
     to_port     = 6443
     protocol    = "tcp"
-    cidr_blocks = [var.my_ip]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
