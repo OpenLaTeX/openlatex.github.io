@@ -31,6 +31,11 @@
         state: present
         src: "{{ playbook_dir }}/../../infra/kubernetes/latex-compile.yaml"
 
+    - name: Déployer l'ingress latex-compile
+      kubernetes.core.k8s:
+        state: present
+        src: "{{ playbook_dir }}/../../infra/kubernetes/latex-compile-ingress.yaml"
+
     - name: Rollout restart pour appliquer le nouveau secret ; pas trouvé de module adapté donc temporairement on fait en shell :(
       kubernetes.core.k8s:
         state: patched
