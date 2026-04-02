@@ -16,6 +16,7 @@ spec:
       containers:
       - name: latex-compile
         image: ghcr.io/openlatex/openlatex-compile:latest
+        imagePullPolicy: IfNotPresent
         ports:
           - containerPort: 9000
         envFrom:
