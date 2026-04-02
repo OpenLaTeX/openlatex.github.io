@@ -10,7 +10,7 @@ openlatex.v0id.nl {
         reverse_proxy collab:7000
     }
     handle /compile* {
-        reverse_proxy compile:9000
+        reverse_proxy 13.39.204.79
     }
     handle /metrics {
         respond 404
@@ -35,7 +35,7 @@ openlatex.privatedns.org {
         reverse_proxy collab:7000
     }
     handle /compile* {
-        reverse_proxy compile:9000
+        reverse_proxy 13.39.204.79
     }
     handle /metrics {
         respond 404
