@@ -175,6 +175,7 @@ jobs:
 
       - name: Déployer sur k3s
         env:
+          KUBECONFIG: ${{ env.HOME }}/.kube/config
           FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
           TEST_BYPASS_SECRET: ${{ secrets.TEST_BYPASS_SECRET }}
         run: ansible-playbook ansible/playbooks/deploy-k3s-compile.yml
