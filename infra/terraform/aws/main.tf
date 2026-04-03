@@ -69,7 +69,7 @@ resource "aws_security_group" "k3s" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = [var.my_ip]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
@@ -131,6 +131,8 @@ resource "aws_security_group" "k3s" {
   tags = { Name = "k3s-sg" }
 }
 
+data "aws_caller_identity" "current" {}
+
 # IAM
 resource "aws_iam_role" "k3s_node" {
   name = "k3s-node-role"
@@ -153,7 +155,10 @@ resource "aws_iam_role_policy" "ssm_parameters" {
     Statement = [{
       Effect   = "Allow"
       Action   = ["ssm:GetParameter", "ssm:GetParametersByPath"]
-      Resource = "arn:aws:ssm:${var.region}:*:parameter/openlatex/*"
+      Resource = [
+        "arn:aws:ssm:${var.region}:${data.aws_caller_identity.current.account_id}:parameter/openlatex",
+        "arn:aws:ssm:${var.region}:${data.aws_caller_identity.current.account_id}:parameter/openlatex/*"
+      ]
     }]
   })
 }
