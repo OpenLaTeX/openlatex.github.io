@@ -133,6 +133,8 @@ resource "aws_iam_role" "openlatex" {
   tags = { Name = "openlatex-node-role" }
 }
 
+data "aws_caller_identity" "current" {}
+
 resource "aws_iam_role_policy" "ssm_parameters" {
   name = "openlatex-ssm-parameters"
   role = aws_iam_role.openlatex.id
@@ -141,7 +143,10 @@ resource "aws_iam_role_policy" "ssm_parameters" {
     Statement = [{
       Effect   = "Allow"
       Action   = ["ssm:GetParameter", "ssm:GetParametersByPath"]
-      Resource = "arn:aws:ssm:${var.region}:*:parameter/openlatex/*"
+      Resource = [
+        "arn:aws:ssm:${var.region}:${data.aws_caller_identity.current.account_id}:parameter/openlatex",
+        "arn:aws:ssm:${var.region}:${data.aws_caller_identity.current.account_id}:parameter/openlatex/*"
+      ]
     }]
   })
 }
