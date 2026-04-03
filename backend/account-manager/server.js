@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 require('dotenv').config();
+const { loadSecrets } = require('./secrets');
 
 const promClient = require('prom-client');
 const authRoutes = require('./routes/auth');
@@ -25,7 +26,7 @@ const httpDuration = new promClient.Histogram({
 
 const app = express();
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  origin: (origin, callback) => callback(null, process.env.FRONTEND_URL || 'http://localhost:5173'),
   credentials: true
 }));
 app.use(cookieParser());
@@ -60,8 +61,12 @@ app.use((err, req, res, next) => {
   next(err);
 });
 
-const PORT = process.env.PORT || 8000;
-
-app.listen(PORT, () => {
-  console.log('backend demarre sur le port', PORT);
+loadSecrets().then(() => {
+  const PORT = process.env.PORT || 8000;
+  app.listen(PORT, () => {
+    console.log('backend demarre sur le port', PORT);
+  });
+}).catch(err => {
+  console.error('Erreur chargement secrets:', err);
+  process.exit(1);
 });

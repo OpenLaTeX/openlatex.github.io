@@ -2,10 +2,11 @@ FROM node:22-slim
 
 WORKDIR /app
 
-COPY package*.json ./
+COPY collab/package*.json ./
 RUN npm install --omit=dev
 
-COPY . ./
+COPY shared/ ./shared/
+COPY collab/ ./
 
 USER node
 

@@ -119,12 +119,45 @@ data "aws_ami" "debian" {
   }
 }
 
+# IAM
+resource "aws_iam_role" "openlatex" {
+  name = "openlatex-node-role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect    = "Allow"
+      Principal = { Service = "ec2.amazonaws.com" }
+      Action    = "sts:AssumeRole"
+    }]
+  })
+  tags = { Name = "openlatex-node-role" }
+}
+
+resource "aws_iam_role_policy" "ssm_parameters" {
+  name = "openlatex-ssm-parameters"
+  role = aws_iam_role.openlatex.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect   = "Allow"
+      Action   = ["ssm:GetParameter", "ssm:GetParametersByPath"]
+      Resource = "arn:aws:ssm:${var.region}:*:parameter/openlatex/*"
+    }]
+  })
+}
+
+resource "aws_iam_instance_profile" "openlatex" {
+  name = "openlatex-node-profile"
+  role = aws_iam_role.openlatex.name
+}
+
 resource "aws_instance" "openlatex" {
   ami                    = data.aws_ami.debian.id
   instance_type          = var.instance_type
   key_name               = aws_key_pair.openlatex.key_name
   subnet_id              = aws_subnet.openlatex.id
   vpc_security_group_ids = [aws_security_group.openlatex.id]
+  iam_instance_profile   = aws_iam_instance_profile.openlatex.name
 
   root_block_device {
     volume_size = 30

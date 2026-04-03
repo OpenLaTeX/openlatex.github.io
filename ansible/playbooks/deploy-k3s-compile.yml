@@ -6,26 +6,9 @@
 - hosts: localhost
   connection: local
   gather_facts: false
-  vars:
-    frontend_url: "{{ lookup('env', 'FRONTEND_URL') }}"
-    test_bypass_secret: "{{ lookup('env', 'TEST_BYPASS_SECRET') }}"
   environment:
     K8S_AUTH_KUBECONFIG: "{{ lookup('env', 'KUBECONFIG') | default('./k3s.yaml') }}"
   tasks:
-    - name: Appliquer le secret latex-compile-env (bypass secret + frontend url pourle CORS)
-      kubernetes.core.k8s:
-        state: present
-        definition:
-          apiVersion: v1
-          kind: Secret
-          metadata:
-            name: latex-compile-env
-            namespace: default
-          stringData:
-            FRONTEND_URL: "{{ frontend_url }}"
-            TEST_BYPASS_SECRET: "{{ test_bypass_secret }}"
-      no_log: true
-
     - name: Déployer le manifest latex-compile (il va déployer sur les workers qui ont été joints lors du user data terraform)
       kubernetes.core.k8s:
         state: present
