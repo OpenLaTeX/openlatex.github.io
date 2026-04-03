@@ -143,13 +143,8 @@ jobs:
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          JWT_EXPIRES_IN: ${{ secrets.JWT_EXPIRES_IN }}
-          FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
-          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           GRAFANA_ADMIN_USER: ${{ secrets.GRAFANA_ADMIN_USER }}
           GRAFANA_ADMIN_PASSWORD: ${{ secrets.GRAFANA_ADMIN_PASSWORD }}
-          TEST_BYPASS_SECRET: ${{ secrets.TEST_BYPASS_SECRET }}
         run: |
           ansible-playbook ansible/playbooks/deploy-backend.yml \
             -i "$VPS_HOST," \
@@ -167,16 +162,19 @@ jobs:
           pip install ansible-core kubernetes openshift
           ansible-galaxy collection install kubernetes.core
 
-      - name: Écrire le kubeconfig
+      - name: Config SSH
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
+
+      - name: Récupérer le kubeconfig depuis le master
         run: |
           mkdir -p ~/.kube
-          echo "${{ secrets.K3S_KUBECONFIG }}" | base64 -d > ~/.kube/config
+          ssh -o StrictHostKeyChecking=no admin@${{ vars.K3S_MASTER_IP }} cat /etc/rancher/k3s/k3s.yaml > ~/.kube/config
+          sed -i "s/127.0.0.1/${{ vars.K3S_MASTER_IP }}/g" ~/.kube/config
           chmod 600 ~/.kube/config
 
       - name: Déployer sur k3s
-        env:
-          FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
-          TEST_BYPASS_SECRET: ${{ secrets.TEST_BYPASS_SECRET }}
         run: KUBECONFIG=$HOME/.kube/config ansible-playbook ansible/playbooks/deploy-k3s-compile.yml
 
   infra-load-tests:

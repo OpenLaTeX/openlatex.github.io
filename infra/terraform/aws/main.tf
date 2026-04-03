@@ -131,6 +131,38 @@ resource "aws_security_group" "k3s" {
   tags = { Name = "k3s-sg" }
 }
 
+# IAM
+resource "aws_iam_role" "k3s_node" {
+  name = "k3s-node-role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect    = "Allow"
+      Principal = { Service = "ec2.amazonaws.com" }
+      Action    = "sts:AssumeRole"
+    }]
+  })
+  tags = { Name = "k3s-node-role" }
+}
+
+resource "aws_iam_role_policy" "ssm_parameters" {
+  name = "k3s-ssm-parameters"
+  role = aws_iam_role.k3s_node.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect   = "Allow"
+      Action   = ["ssm:GetParameter", "ssm:GetParametersByPath"]
+      Resource = "arn:aws:ssm:${var.region}:*:parameter/openlatex/*"
+    }]
+  })
+}
+
+resource "aws_iam_instance_profile" "k3s_node" {
+  name = "k3s-node-profile"
+  role = aws_iam_role.k3s_node.name
+}
+
 # ssh
 resource "aws_key_pair" "k3s" {
   key_name   = "k3s-key"
@@ -175,6 +207,7 @@ resource "aws_instance" "master" {
   key_name               = aws_key_pair.k3s.key_name
   subnet_id              = aws_subnet.k3s.id
   vpc_security_group_ids = [aws_security_group.k3s.id]
+  iam_instance_profile   = aws_iam_instance_profile.k3s_node.name
 
   root_block_device {
     volume_size = 20
@@ -203,6 +236,7 @@ resource "aws_instance" "worker" {
   key_name               = aws_key_pair.k3s.key_name
   subnet_id              = aws_subnet.k3s.id
   vpc_security_group_ids = [aws_security_group.k3s.id]
+  iam_instance_profile   = aws_iam_instance_profile.k3s_node.name
 
   root_block_device {
     volume_size = 20

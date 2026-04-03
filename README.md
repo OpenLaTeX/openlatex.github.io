@@ -36,6 +36,7 @@ L'objectif de ce projet, au delà de son utilité primaire, est de m'entraîner 
 
 ### Récemment réalisées
 
+- Migration Kubernetes multi-noeuds pour apprendre. (***Disclaimer : Je sais que Kubernetes est surdimensionné pour ce projet. Je l'intègre surtout pour apprendre en situation réelle et mesurer l'impact en performances sur les dashboards Grafana.***)
 - Collaboration d'écriture de documents (Yjs) grâce à l'éditeur JS CodeMirror
 - Monitoring Grafana / Prometheus (PromQL) de l'infrastructure : [Lien backend](https://openlatex.privatedns.org/grafana/dashboards)
 - Sauvegarde automatique chiffrée GPG (RSA x2) vers cloud storage (BackBlaze)
@@ -45,7 +46,7 @@ L'objectif de ce projet, au delà de son utilité primaire, est de m'entraîner 
 
 ### À venir
 
-- Migration Kubernetes multi-noeuds pour apprendre. (***Disclaimer : Je sais que Kubernetes est surdimensionné pour ce projet. Je l'intègre surtout pour apprendre en situation réelle et mesurer l'impact en performances sur les dashboards Grafana.***)
+- Utilisation d'IAM / Secrets Manager dans la CI pour sécuriser au maximum le déploiement
 - Écrire/relire les procédures de maintenance
 
 
