@@ -33,26 +33,8 @@ jobs:
       - run: npm test
         working-directory: backend
 
-  detect-changes:
-    runs-on: ubuntu-latest
-    outputs:
-      manager: ${{ steps.filter.outputs.manager }}
-      compiler: ${{ steps.filter.outputs.compiler }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dorny/paths-filter@v3
-        id: filter
-        with:
-          filters: |
-            manager:
-              - 'backend/account-manager/**'
-              - 'backend/package*.json'
-            compiler:
-              - 'backend/compiler/**'
-
   build-manager:
-    needs: [detect-changes, code-test]
-    if: needs.detect-changes.outputs.manager == 'true'
+    needs: [code-test]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -70,46 +52,84 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push
-        uses: docker/build-push-action@v5
-        with:
-          context: ./backend
-          file: ./backend/account-manager/Dockerfile
-          push: true
-          tags: ghcr.io/${{ env.OWNER_LC }}/openlatex-account-manager:latest
-
-  build-compiler:
-    needs: [detect-changes, code-test]
-    if: needs.detect-changes.outputs.compiler == 'true'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set lowercase owner
-        run: echo "OWNER_LC=${GITHUB_REPOSITORY_OWNER,,}" >> $GITHUB_ENV
-
-      - name: Login to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Get remote digest
+        id: remote
+        run: |
+          DIGEST=$(docker manifest inspect ghcr.io/${{ env.OWNER_LC }}/openlatex-account-manager:latest 2>/dev/null | jq -r '.config.digest' || echo "none")
+          echo "digest=$DIGEST" >> $GITHUB_OUTPUT
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build and push
+      - name: Build (local)
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          file: ./backend/account-manager/Dockerfile
+          push: false
+          load: true
+          tags: ghcr.io/${{ env.OWNER_LC }}/openlatex-account-manager:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Get local digest (On compare le hash local avec le remote)
+        id: local
+        run: |
+          DIGEST=$(docker image inspect ghcr.io/${{ env.OWNER_LC }}/openlatex-account-manager:latest --format '{{.Id}}')
+          echo "digest=$DIGEST" >> $GITHUB_OUTPUT
+
+      - name: Push if changed
+        if: steps.remote.outputs.digest != steps.local.outputs.digest
+        run: docker push ghcr.io/${{ env.OWNER_LC }}/openlatex-account-manager:latest
+
+  build-compiler:
+    needs: [code-test]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set lowercase owner
+        run: echo "OWNER_LC=${GITHUB_REPOSITORY_OWNER,,}" >> $GITHUB_ENV
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get remote digest
+        id: remote
+        run: |
+          DIGEST=$(docker manifest inspect ghcr.io/${{ env.OWNER_LC }}/openlatex-compile:latest 2>/dev/null | jq -r '.config.digest' || echo "none")
+          echo "digest=$DIGEST" >> $GITHUB_OUTPUT
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build (local)
         uses: docker/build-push-action@v5
         with:
           context: ./backend
           file: ./backend/compiler/Dockerfile
-          push: true
+          push: false
+          load: true
           tags: ghcr.io/${{ env.OWNER_LC }}/openlatex-compile:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Get local digest (On compare le hash local avec le remote)
+        id: local
+        run: |
+          DIGEST=$(docker image inspect ghcr.io/${{ env.OWNER_LC }}/openlatex-compile:latest --format '{{.Id}}')
+          echo "digest=$DIGEST" >> $GITHUB_OUTPUT
+
+      - name: Push if changed
+        if: steps.remote.outputs.digest != steps.local.outputs.digest
+        run: docker push ghcr.io/${{ env.OWNER_LC }}/openlatex-compile:latest
 
   deploy:
     needs: [build-manager, build-compiler, code-test]
