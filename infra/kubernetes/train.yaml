@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment 
+metadata:
+    labels:
+        app: latex-compile
+specs:
+    replicas: 6
+    selector:
+        matchLabels:
+            app: latex-compile
+    template:
+        metadata:
+            labels: 
+                app: latex-compile 
+        containers:
+            name: latex-compile 
+            image: ghcr.io/openlatex/openlatex-compile:latest
+            ports:
+                containerPort: 9000

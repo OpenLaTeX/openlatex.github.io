@@ -116,6 +116,18 @@ jobs:
           ansible-playbook ansible/playbooks/deploy-backend.yml \
             -i "$VPS_HOST," \
             -u "$VPS_USER"
+            
+      - name: Configurer la mise à jour du script backup par ansible
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          GPG_PUBLIC_KEY: ${{ secrets.GPG_PUBLIC_KEY }}
+          B2_APPLICATION_KEY_ID: ${{ secrets.B2_APPLICATION_KEY_ID }}
+          B2_APPLICATION_KEY: ${{ secrets.B2_APPLICATION_KEY }}
+        run: |
+          ansible-playbook ansible/playbooks/setup-backup.yml \
+            -i "$VPS_HOST," \
+            -u "$VPS_USER" 
 
   deploy-k3s:
     needs: [build-compiler]

@@ -24,18 +24,18 @@
         state: present
         src: "{{ playbook_dir }}/../../infra/kubernetes/prometheus-agent.yaml"
 
-    # - name: Rollout restart pour appliquer le nouveau secret  !
-    #   kubernetes.core.k8s:
-    #     state: patched
-    #     kind: Deployment
-    #     name: latex-compile
-    #     namespace: default
-    #     definition:
-    #       spec:
-    #         template:
-    #           metadata:
-    #             annotations:
-    #               kubectl.kubernetes.io/restartedAt: "{{ now(utc=True, fmt='%Y-%m-%dT%H:%M:%SZ') }}"
+    - name: Rollout restart pour appliquer le nouveau secret  !
+      kubernetes.core.k8s:
+        state: patched
+        kind: Deployment
+        name: latex-compile
+        namespace: default
+        definition:
+          spec:
+            template:
+              metadata:
+                annotations:
+                  kubectl.kubernetes.io/restartedAt: "{{ now(utc=True, fmt='%Y-%m-%dT%H:%M:%SZ') }}"
 
     # - name: État des pods avant attente
     #   kubernetes.core.k8s_info:

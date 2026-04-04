@@ -9,8 +9,6 @@ const { loadSecrets } = require('./secrets');
 
 const promClient = require('prom-client');
 const compileRoutes = require('./routes/compile');
-const { defaultProtectionLimiter, guestLimiter } = require('./middleware/rateLimiter');
-
 promClient.collectDefaultMetrics();
 
 const uptimeGauge = new promClient.Gauge({
@@ -27,50 +25,53 @@ const httpDuration = new promClient.Histogram({
 });
 
 const app = express();
-app.use(cors({
-  origin: (origin, callback) => callback(null, process.env.FRONTEND_URL || 'http://localhost:5173'),
-  credentials: true
-}));
-app.use(cookieParser());
-app.use(express.json({ limit: '10mb' }));
-
-app.get('/metrics', async (req, res) => {
-  res.set('Content-Type', promClient.register.contentType);
-  res.end(await promClient.register.metrics());
-});
-
-app.use((req, res, next) => {
-  const end = httpDuration.startTimer();
-  res.on('finish', () => {
-    end({ method: req.method, route: req.route?.path || req.path, status_code: res.statusCode });
-  });
-  next();
-});
-
-app.use(defaultProtectionLimiter);
-
-app.get('/health', (req, res) => {
-  exec('which pdflatex && pdflatex --version', { timeout: 5000 }, (error, stdout, stderr) => {
-    if (error) {
-      console.error('health check echoue:', error.message);
-      console.error('stderr:', stderr);
-      return res.status(500).json({
-        status: 'unhealthy',
-        error: 'pdflatex not found or not working',
-        details: stderr
-      });
-    }
-    res.json({
-      status: 'healthy',
-      pdflatex: stdout.split('\n')[0]
-    });
-  });
-});
-
-// compilation avec rate limiting: 10/min pour users authentifies, 3/min pour invites
-app.use('/compile', guestLimiter, compileRoutes);
 
 loadSecrets().then(() => {
+  const { defaultProtectionLimiter: protectionLimiter, guestLimiter: guestRateLimiter } = require('./middleware/rateLimiter');
+
+  app.use(cors({
+    origin: (origin, callback) => callback(null, process.env.FRONTEND_URL || 'https://openlatex.github.io'),
+    credentials: true
+  }));
+  app.use(cookieParser());
+  app.use(express.json({ limit: '10mb' }));
+
+  app.get('/metrics', async (req, res) => {
+    res.set('Content-Type', promClient.register.contentType);
+    res.end(await promClient.register.metrics());
+  });
+
+  app.use((req, res, next) => {
+    const end = httpDuration.startTimer();
+    res.on('finish', () => {
+      end({ method: req.method, route: req.route?.path || req.path, status_code: res.statusCode });
+    });
+    next();
+  });
+
+  app.use(protectionLimiter);
+
+  app.get('/health', (req, res) => {
+    exec('which pdflatex && pdflatex --version', { timeout: 5000 }, (error, stdout, stderr) => {
+      if (error) {
+        console.error('health check echoue:', error.message);
+        console.error('stderr:', stderr);
+        return res.status(500).json({
+          status: 'unhealthy',
+          error: 'pdflatex not found or not working',
+          details: stderr
+        });
+      }
+      res.json({
+        status: 'healthy',
+        pdflatex: stdout.split('\n')[0]
+      });
+    });
+  });
+
+  // compilation avec rate limiting: 10/min pour users authentifies, 3/min pour invites
+  app.use('/compile', guestRateLimiter, compileRoutes);
+
   const PORT = process.env.PORT || 9000;
   app.listen(PORT, () => {
     console.log('compile-server demarre sur le port', PORT);

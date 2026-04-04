@@ -1,3 +1,5 @@
+# ressources communes aux deux (subnet, image, iam, sg)
+
 terraform {
   required_providers {
     aws = {

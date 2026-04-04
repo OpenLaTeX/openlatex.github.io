@@ -26,7 +26,7 @@ const httpDuration = new promClient.Histogram({
 
 const app = express();
 app.use(cors({
-  origin: (origin, callback) => callback(null, process.env.FRONTEND_URL || 'http://localhost:5173'),
+  origin: (origin, callback) => callback(null, process.env.FRONTEND_URL || 'https://openlatex.github.io'),
   credentials: true
 }));
 app.use(cookieParser());
