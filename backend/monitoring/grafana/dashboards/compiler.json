@@ -84,7 +84,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "avg_over_time(up{job=\"compiler\"}[30d]) * 100",
+          "expr": "avg(avg_over_time(up{job=\"k3s-compiler\"}[30d])) * 100",
           "instant": true,
           "legendFormat": "Disponibilité (30j)",
           "range": false,
@@ -158,7 +158,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum(increase(latex_compile_total{result!=\"server_error\"}[$__range])) / sum(increase(latex_compile_total[$__range])) * 100",
+          "expr": "sum(increase(latex_compile_total{job=\"k3s-compiler\",result!=\"server_error\"}[$__range])) / sum(increase(latex_compile_total{job=\"k3s-compiler\"}[$__range])) * 100",
           "instant": false,
           "legendFormat": "Taux de succès",
           "range": true,
@@ -223,7 +223,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum(increase(latex_compile_total[$__range]))",
+          "expr": "sum(increase(latex_compile_total{job=\"k3s-compiler\"}[$__range]))",
           "instant": false,
           "legendFormat": "Total",
           "range": true,
@@ -319,7 +319,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "increase(latex_compile_total[1h])",
+          "expr": "sum by (result) (increase(latex_compile_total{job=\"k3s-compiler\"}[1h]))",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -415,7 +415,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "code",
-          "expr": "histogram_quantile(0.5, rate(latex_compile_duration_seconds_bucket[1h]))",
+          "expr": "histogram_quantile(0.5, sum by (le) (rate(latex_compile_duration_seconds_bucket{job=\"k3s-compiler\"}[1h])))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
@@ -514,7 +514,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.95, rate(latex_compile_duration_seconds_bucket[1h]))",
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(latex_compile_duration_seconds_bucket{job=\"k3s-compiler\"}[1h])))",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -610,7 +610,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "increase(latex_compile_total{result!=\"success\"}[1h])",
+          "expr": "sum by (result) (increase(latex_compile_total{job=\"k3s-compiler\",result!=\"success\"}[1h]))",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -675,7 +675,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "rate(latex_compile_total[1h])",
+          "expr": "sum by (result) (rate(latex_compile_total{job=\"k3s-compiler\"}[1h]))",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -770,7 +770,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "increase(latex_compile_duration_seconds_bucket[24h])",
+          "expr": "sum by (le) (increase(latex_compile_duration_seconds_bucket{job=\"k3s-compiler\"}[24h]))",
           "instant": false,
           "legendFormat": "le={{le}}",
           "range": true,
@@ -850,7 +850,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "rate(latex_compile_duration_seconds_bucket[15m])",
+          "expr": "sum by (le) (rate(latex_compile_duration_seconds_bucket{job=\"k3s-compiler\"}[15m]))",
           "format": "heatmap",
           "instant": false,
           "legendFormat": "{{le}}",
@@ -947,7 +947,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "latex_compile_active",
+          "expr": "sum(latex_compile_active{job=\"k3s-compiler\"})",
           "instant": false,
           "legendFormat": "Actives",
           "range": true,
@@ -959,7 +959,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "latex_compile_queue_depth",
+          "expr": "sum(latex_compile_queue_depth{job=\"k3s-compiler\"})",
           "instant": false,
           "legendFormat": "En queue",
           "range": true,
@@ -1055,7 +1055,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "increase(latex_compile_queue_timeout_total[1h])",
+          "expr": "sum(increase(latex_compile_queue_timeout_total{job=\"k3s-compiler\"}[1h]))",
           "instant": false,
           "legendFormat": "Timeouts queue/heure",
           "range": true,

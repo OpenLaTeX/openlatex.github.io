@@ -12,8 +12,8 @@ groups:
 
       - alert: CompilerSuccessRateLow
         expr: |
-          sum(rate(latex_compile_total{result!="server_error"}[5m]))
-          / sum(rate(latex_compile_total[5m])) * 100 < 80
+          sum(rate(latex_compile_total{job="k3s-compiler",result!="server_error"}[5m]))
+          / sum(rate(latex_compile_total{job="k3s-compiler"}[5m])) * 100 < 80
         for: 5m
         labels:
           severity: warning
@@ -22,7 +22,7 @@ groups:
           description: "Le taux de succès des compilations est {{ $value | printf \"%.1f\" }}% sur les 5 dernières minutes."
 
       - alert: CompilerP95High
-        expr: histogram_quantile(0.95, rate(latex_compile_duration_seconds_bucket[5m])) > 25
+        expr: histogram_quantile(0.95, sum by (le) (rate(latex_compile_duration_seconds_bucket{job="k3s-compiler"}[5m]))) > 25
         for: 5m
         labels:
           severity: warning
@@ -31,18 +31,18 @@ groups:
           description: "Le p95 des compilations est {{ $value | printf \"%.1f\" }}s sur les 5 dernières minutes."
 
       - alert: CompilerQueueSaturated
-        expr: latex_compile_queue_depth >= 8
+        expr: latex_compile_queue_depth{job="k3s-compiler"} >= 8
         for: 2m
         labels:
           severity: warning
         annotations:
           summary: "Queue compilateur presque pleine"
-          description: "La queue contient {{ $value }} requêtes en attente (max 10)."
+          description: "Pod {{ $labels.pod }} : {{ $value }} requêtes en attente (max 10)."
 
       - alert: HttpErrorRateHigh
         expr: |
-          sum(rate(http_request_duration_seconds_count{status_code=~"5.."}[5m]))
-          / sum(rate(http_request_duration_seconds_count[5m])) * 100 > 5
+          sum(rate(http_request_duration_seconds_count{job="k3s-compiler",status_code=~"5.."}[5m]))
+          / sum(rate(http_request_duration_seconds_count{job="k3s-compiler"}[5m])) * 100 > 5
         for: 5m
         labels:
           severity: warning

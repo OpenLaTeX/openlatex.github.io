@@ -19,6 +19,11 @@
         state: present
         src: "{{ playbook_dir }}/../../infra/kubernetes/latex-compile-ingress.yaml"
 
+    - name: Déployer Prometheus agent
+      kubernetes.core.k8s:
+        state: present
+        src: "{{ playbook_dir }}/../../infra/kubernetes/prometheus-agent.yaml"
+
     - name: Rollout restart pour appliquer le nouveau secret  !
       kubernetes.core.k8s:
         state: patched

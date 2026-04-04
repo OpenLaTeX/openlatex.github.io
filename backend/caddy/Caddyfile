@@ -15,6 +15,16 @@ openlatex.v0id.nl {
     handle /metrics {
         respond 404
     }
+    handle /prometheus-write/* {
+        @allowed remote_ip 13.37.34.154
+        handle @allowed {
+            uri strip_prefix /prometheus-write
+            reverse_proxy prometheus:9090
+        }
+        handle {
+            respond 403
+        }
+    }
     handle /grafana* {
         reverse_proxy grafana:3000
     }
@@ -39,6 +49,16 @@ openlatex.privatedns.org {
     }
     handle /metrics {
         respond 404
+    }
+    handle /prometheus-write/* {
+        @allowed remote_ip 13.37.34.154
+        handle @allowed {
+            uri strip_prefix /prometheus-write
+            reverse_proxy prometheus:9090
+        }
+        handle {
+            respond 403
+        }
     }
     handle /grafana* {
         reverse_proxy grafana:3000

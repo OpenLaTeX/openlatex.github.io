@@ -34,20 +34,6 @@ services:
     networks:
       - openlatex
 
-  compile:
-    image: ghcr.io/openlatex/openlatex-compile:latest
-    container_name: openlatex_compile
-    restart: unless-stopped
-    environment:
-      PORT: 9000
-    deploy:
-      resources:
-        limits:
-          cpus: '1.5'
-          memory: 768M
-    networks:
-      - openlatex
-
   caddy:
     image: caddy:2
     container_name: openlatex_caddy
