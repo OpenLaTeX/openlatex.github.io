@@ -16,19 +16,11 @@ run_persona() {
   k6 run -e TEST_KEY="$TEST_BYPASS_SECRET" -e BASE_URL="$BASE_URL" -e BURST_RATE="$burst" stress-compile.js
 }
 
-PERSONA="EVERYONE"
+PERSONA=$1
 
 case "$PERSONA" in
   Alice)    run_persona Alice 15 ;;
   Bob)      run_persona Bob 60 ;;
   Charlie)  run_persona Charlie 200 ;;
-  EVERYONE)
-    echo "[$(date -Iseconds)] persona=EVERYONE (3 runs en parallèle)"
-    run_persona Alice   15  & pids=($!)
-    run_persona Bob     60  & pids+=($!)
-    run_persona Charlie 200 & pids+=($!)
-    status=0
-    for pid in "${pids[@]}"; do wait "$pid" || status=$?; done
-    exit $status
-    ;;
+  Grouped)  run_persona Grouped 275 ;;
 esac

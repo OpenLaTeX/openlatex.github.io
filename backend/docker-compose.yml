@@ -18,7 +18,9 @@ services:
       - openlatex
 
   backend:
-    image: ghcr.io/openlatex/openlatex-account-manager:latest
+    build:
+      context: .
+      dockerfile: account-manager/Dockerfile
     container_name: openlatex_account-manager
     restart: unless-stopped
     depends_on:

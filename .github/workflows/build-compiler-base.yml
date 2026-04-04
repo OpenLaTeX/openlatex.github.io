@@ -1,5 +1,5 @@
 name: (DOCKER/COMPILER-BASE) - Construction de l'image de base texlive
-# cette image contient node:22-slim + texlive-full (4 GB).
+# cette image contient node:22-alpine + texlive-full (4 GB).
 # Elle est reconstruite manuellement car elle change rarement
 # le Dockerfile compiler l'utilise comme FROM, évitant de réinstaller texlive à chaque push
 # ca optimise le flux réseau des constructions d'images

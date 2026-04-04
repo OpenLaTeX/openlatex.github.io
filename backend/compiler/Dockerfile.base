@@ -1,7 +1,7 @@
 # Image de base stable contenant texlive-full (~4 GB)
 # Rebuild manuel ou mensuel via le workflow build-compiler-base.yml
 # Ne pas modifier cette image à chaque push sur le compiler
-FROM node:22-slim
+FROM node:22-alpine
 
 RUN apt-get update && apt-get install -y \
     texlive-full \

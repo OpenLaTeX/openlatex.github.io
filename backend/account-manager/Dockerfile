@@ -1,7 +1,7 @@
 # image docker du backend Node.js (auth + projets). Leger, sans texlive.
 # Auparavant le backend Node.js comprenait le compilateur et la gestion des comptes, sauf que la distribution texlive-full (4GB nécessaires) ralentissait les reconstructions d'image, alors que le côté compilation changeait plus rarement que la gestion des comptes.
 # plus optimisé donc
-FROM node:22-slim
+FROM node:22-alpine
 
 WORKDIR /app
 
