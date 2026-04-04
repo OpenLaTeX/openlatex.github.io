@@ -7,6 +7,7 @@
     postgres_user: "{{ lookup('env', 'POSTGRES_USER') }}"
     postgres_password: "{{ lookup('env', 'POSTGRES_PASSWORD') }}"
     postgres_db: "{{ lookup('env', 'POSTGRES_DB') }}"
+    resend_api_key: "{{ lookup('env', 'RESEND_API_KEY') }}"
     grafana_admin_user: "{{ lookup('env', 'GRAFANA_ADMIN_USER') }}"
     grafana_admin_password: "{{ lookup('env', 'GRAFANA_ADMIN_PASSWORD') }}"
   tasks:
