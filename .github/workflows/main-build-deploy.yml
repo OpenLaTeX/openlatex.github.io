@@ -34,9 +34,15 @@ jobs:
       compiler: ${{ steps.filter.outputs.compiler }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Résoudre le SHA du commit précédent
+        id: prev
+        run: echo "sha=$(git rev-parse HEAD~1)" >> $GITHUB_OUTPUT
       - uses: dorny/paths-filter@v3
         id: filter
         with:
+          base: ${{ steps.prev.outputs.sha }}
           filters: |
             manager:
               - 'backend/account-manager/**'
@@ -49,7 +55,7 @@ jobs:
 
   build-manager:
     needs: [detect-changes, code-test]
-    if: needs.detect-changes.outputs.manager == 'true'
+    if: needs.detect-changes.outputs.manager == 'true' || github.event_name == 'workflow_dispatch'
     permissions:
       contents: read
       packages: write
@@ -61,7 +67,7 @@ jobs:
 
   build-compiler:
     needs: [detect-changes, code-test]
-    if: needs.detect-changes.outputs.compiler == 'true'
+    if: needs.detect-changes.outputs.compiler == 'true' || github.event_name == 'workflow_dispatch'
     permissions:
       contents: read
       packages: write
@@ -127,16 +133,11 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
 
-      - name: Setup known_hosts
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.VPS_SSH_KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
-          chmod 644 ~/.ssh/known_hosts
-
       - name: Récupérer le kubeconfig depuis le master
         run: |
           mkdir -p ~/.kube
-          ssh admin@${{ vars.K3S_MASTER_IP }} cat /etc/rancher/k3s/k3s.yaml > ~/.kube/config
+          # StrictHostKeyChecking=no pour simplifier (le master k3s est une instance différente du VPS, pas de known_hosts dédié)
+          ssh -o StrictHostKeyChecking=no admin@${{ vars.K3S_MASTER_IP }} cat /etc/rancher/k3s/k3s.yaml > ~/.kube/config
           sed -i "s/127.0.0.1/${{ vars.K3S_MASTER_IP }}/g" ~/.kube/config
           chmod 600 ~/.kube/config
 
