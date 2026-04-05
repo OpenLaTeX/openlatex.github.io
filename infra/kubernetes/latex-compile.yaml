@@ -16,6 +16,9 @@ spec:
       - name: latex-compile
         image: ghcr.io/openlatex/openlatex-compile:latest
         imagePullPolicy: Always
+        envFrom: 
+          - configMapRef:
+              name: latex-compile-config
         resources:
           requests:
             cpu: 100m
@@ -55,3 +58,11 @@ spec:
         target: 
           type: Utilization
           averageUtilization: 70  
+--- 
+apiVersion: v1
+kind: ConfigMap 
+data:
+  FRONTEND_URL: https://openlatex.github.io
+metadata:
+  name: latex-compile-config
+  namespace: default

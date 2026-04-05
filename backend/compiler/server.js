@@ -30,7 +30,7 @@ loadSecrets().then(() => {
   const { defaultProtectionLimiter: protectionLimiter, guestLimiter: guestRateLimiter } = require('./middleware/rateLimiter');
 
   app.use(cors({
-    origin: (origin, callback) => callback(null, process.env.FRONTEND_URL || 'https://openlatex.github.io'),
+    origin: (origin, callback) => callback(null, process.env.FRONTEND_URL || 'https://localhost:5173'),
     credentials: true
   }));
   app.use(cookieParser());
