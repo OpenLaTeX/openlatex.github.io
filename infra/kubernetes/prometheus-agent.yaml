@@ -52,6 +52,10 @@ data:
           - source_labels: [__meta_kubernetes_pod_name]
             target_label: pod
 
+      - job_name: 'kube-state-metrics'
+        static_configs:
+          - targets: ['kube-state-metrics-svc.default.svc.cluster.local:8080']
+
     remote_write:
       - url: "https://openlatex.privatedns.org/prometheus-write/api/v1/write"
 ---
