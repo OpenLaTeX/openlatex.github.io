@@ -11,7 +11,8 @@ curl -sfL https://get.k3s.io | \
   sh -s - \
     --token="${k3s_token}" \
     --tls-san="${public_ip}" \
-    --write-kubeconfig-mode=644
+    --write-kubeconfig-mode=644 \
+    --node-taint node-role.kubernetes.io/control-plane=:NoSchedule
 
 systemctl enable k3s
 systemctl start k3s

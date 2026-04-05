@@ -29,16 +29,14 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
+            "mode": "fixed",
+            "fixedColor": "text"
           },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "red", "value": null },
-              { "color": "green", "value": 1 },
-              { "color": "yellow", "value": 8 },
-              { "color": "red", "value": 10 }
+              { "color": "green", "value": null }
             ]
           }
         },
@@ -47,7 +45,7 @@
       "gridPos": { "h": 4, "w": 8, "x": 0, "y": 0 },
       "id": 1,
       "options": {
-        "colorMode": "background",
+        "colorMode": "none",
         "graphMode": "none",
         "justifyMode": "center",
         "orientation": "auto",
@@ -65,7 +63,7 @@
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "editorMode": "code",
-          "expr": "kube_deployment_status_ready_replicas{deployment=\"latex-compile\"}",
+          "expr": "kube_deployment_status_replicas_ready{deployment=\"latex-compile\"}",
           "instant": true,
           "legendFormat": "Replicas prêts",
           "range": false,
@@ -80,11 +78,12 @@
         "type": "prometheus",
         "uid": "prometheus"
       },
-      "description": "Nombre de replicas souhaités par le HPA",
+      "description": "Nombre de replicas souhaités par le HPA (min : 2 ; max : 10)",
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
+            "mode": "fixed",
+            "fixedColor": "text"
           },
           "mappings": [],
           "thresholds": {
@@ -99,7 +98,7 @@
       "gridPos": { "h": 4, "w": 8, "x": 8, "y": 0 },
       "id": 2,
       "options": {
-        "colorMode": "background",
+        "colorMode": "none",
         "graphMode": "none",
         "justifyMode": "center",
         "orientation": "auto",
@@ -124,7 +123,7 @@
           "refId": "A"
         }
       ],
-      "title": "Replicas souhaités (HPA)",
+      "title": "Replicas souhaités (HPA) (Min 2, Max 10)",
       "type": "stat"
     },
     {
@@ -136,15 +135,14 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
+            "mode": "fixed",
+            "fixedColor": "text"
           },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "green", "value": null },
-              { "color": "yellow", "value": 1 },
-              { "color": "red", "value": 5 }
+              { "color": "green", "value": null }
             ]
           }
         },
@@ -153,7 +151,7 @@
       "gridPos": { "h": 4, "w": 8, "x": 16, "y": 0 },
       "id": 3,
       "options": {
-        "colorMode": "background",
+        "colorMode": "none",
         "graphMode": "none",
         "justifyMode": "center",
         "orientation": "auto",
@@ -244,7 +242,7 @@
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "editorMode": "code",
-          "expr": "kube_deployment_status_ready_replicas{deployment=\"latex-compile\"}",
+          "expr": "kube_deployment_status_replicas_ready{deployment=\"latex-compile\"}",
           "instant": false,
           "legendFormat": "Prêts",
           "range": true,
@@ -342,7 +340,7 @@
           "refId": "A"
         }
       ],
-      "title": "Crashs par heure",
+      "title": "Redémarrages pods par heure",
       "type": "timeseries"
     }
   ],

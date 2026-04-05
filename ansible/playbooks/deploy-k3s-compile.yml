@@ -9,6 +9,15 @@
   environment:
     K8S_AUTH_KUBECONFIG: "{{ lookup('env', 'KUBECONFIG') | default('./k3s.yaml') }}"
   tasks:
+    - name: Taint le node master pour interdire les workloads compilateur
+      kubernetes.core.k8s_taint:
+        state: present
+        name: "{{ item }}"
+        taints:
+          - key: node-role.kubernetes.io/control-plane
+            effect: NoSchedule
+      loop: "{{ query('kubernetes.core.k8s', kind='Node', label_selector='node-role.kubernetes.io/control-plane') | map(attribute='metadata.name') | list }}"
+
     - name: Déployer le manifest latex-compile (il va déployer sur les workers qui ont été joints lors du user data terraform)
       kubernetes.core.k8s:
         state: present
