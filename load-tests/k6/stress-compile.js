@@ -20,7 +20,7 @@ export const options = {
   scenarios: {
     stress_compile: {
       executor: 'shared-iterations',
-      vus: 8,
+      vus: 25,
       iterations: parseInt(__ENV.BURST_RATE || '10000', 10),
       maxDuration: '60m',
     },

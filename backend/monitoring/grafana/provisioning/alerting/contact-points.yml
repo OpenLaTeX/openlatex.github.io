@@ -1,0 +1,10 @@
+apiVersion: 1
+
+contactPoints:
+  - orgId: 1
+    name: email-baptiste
+    receivers:
+      - uid: email-baptiste
+        type: email
+        settings:
+          addresses: baptiste.lavogiez@proton.me

@@ -113,6 +113,7 @@ services:
       GF_SERVER_ROOT_URL: https://openlatex.v0id.nl/grafana/
       GF_SERVER_SERVE_FROM_SUB_PATH: "true"
       GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_NAME: "Main Org."
       GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
     networks:
       - openlatex
