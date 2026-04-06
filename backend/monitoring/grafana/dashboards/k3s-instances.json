@@ -78,7 +78,7 @@
         "type": "prometheus",
         "uid": "prometheus"
       },
-      "description": "Nombre de replicas souhaités par le HPA (min : 2 ; max : 10)",
+      "description": "Nombre de replicas souhaités par le HPA (min : 2 ; max : 5)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -123,7 +123,7 @@
           "refId": "A"
         }
       ],
-      "title": "Replicas souhaités (HPA) (Min 2, Max 10)",
+      "title": "Replicas souhaités (HPA) (Min 2, Max 5)",
       "type": "stat"
     },
     {
