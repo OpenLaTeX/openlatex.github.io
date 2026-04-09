@@ -25,7 +25,7 @@
         "type": "prometheus",
         "uid": "prometheus"
       },
-      "description": "Pourcentage de disponibilité du service sur les 30 derniers jours",
+      "description": "Pourcentage de disponibilité du service sur les 5 derniers jours",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -86,12 +86,12 @@
           "editorMode": "code",
           "expr": "avg(avg_over_time(up{job=\"k3s-compiler\"}[30d])) * 100",
           "instant": true,
-          "legendFormat": "Disponibilité (30j)",
+          "legendFormat": "Disponibilité (5j)",
           "range": false,
           "refId": "A"
         }
       ],
-      "title": "Disponibilité (30j)",
+      "title": "Disponibilité (5j)",
       "type": "stat"
     },
     {
@@ -751,9 +751,9 @@
           "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
-          "showLegend": false
+          "showLegend": true
         },
-        "orientation": "horizontal",
+        "orientation": "vertical",
         "showValue": "auto",
         "stacking": "none",
         "tooltip": {
@@ -771,9 +771,9 @@
           },
           "editorMode": "code",
           "expr": "sum by (le) (increase(latex_compile_duration_seconds_bucket{job=\"k3s-compiler\"}[24h]))",
-          "instant": false,
-          "legendFormat": "le={{le}}",
-          "range": true,
+          "instant": true,
+          "legendFormat": "≤ {{le}}s",
+          "range": false,
           "refId": "A"
         }
       ],

@@ -26,7 +26,7 @@
         "type": "prometheus",
         "uid": "prometheus"
       },
-      "description": "Pourcentage de disponibilité du service sur les 30 derniers jours",
+      "description": "Pourcentage de disponibilité du service sur les 5 derniers jours",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -87,12 +87,12 @@
           "editorMode": "code",
           "expr": "avg_over_time(up{job=\"account-manager\"}[30d]) * 100",
           "instant": true,
-          "legendFormat": "Disponibilité (30j)",
+          "legendFormat": "Disponibilité (5j)",
           "range": false,
           "refId": "A"
         }
       ],
-      "title": "Disponibilité (30j)",
+      "title": "Disponibilité (5j)",
       "type": "stat"
     },
     {
