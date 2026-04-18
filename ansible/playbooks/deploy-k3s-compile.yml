@@ -9,7 +9,7 @@
   environment:
     K8S_AUTH_KUBECONFIG: "{{ lookup('env', 'KUBECONFIG') | default('./k3s.yaml') }}"
   tasks:
-    - name: Taint le node master pour interdire les workloads compilateur
+    - name: Taint le node master pour interdire les workloads compilateur (ca va bottleneck master sinon)
       kubernetes.core.k8s_taint:
         state: present
         name: "{{ item }}"
