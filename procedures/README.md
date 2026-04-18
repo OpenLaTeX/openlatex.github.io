@@ -4,4 +4,4 @@ Ce dossier répertorie les différentes procédures qui sont utiles pour de la m
 
 Elles sont pensées pour être claires, rapides en couvrant le maximum de cas possibles.
 
-Note : 22/03/26 - Procédures push ; d'autres à venir
+Note : 18/04/26 - Procédures push ; d'autres à venir
