@@ -974,7 +974,7 @@
         "type": "prometheus",
         "uid": "prometheus"
       },
-      "description": "Nombre de requêtes ayant expiré en queue (timeout 60s dépassé)",
+      "description": "Rejets de queue : timeout 60s (latex_compile_queue_timeout_total) + queue pleine / Server busy (latex_compile_queue_full_total)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1057,12 +1057,24 @@
           "editorMode": "code",
           "expr": "sum(increase(latex_compile_queue_timeout_total{job=\"k3s-compiler\"}[1h]))",
           "instant": false,
-          "legendFormat": "Timeouts queue/heure",
+          "legendFormat": "Timeout 60s",
           "range": true,
           "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "sum(increase(latex_compile_queue_full_total{job=\"k3s-compiler\"}[1h]))",
+          "instant": false,
+          "legendFormat": "Queue pleine (Server busy)",
+          "range": true,
+          "refId": "B"
         }
       ],
-      "title": "Timeouts de queue (saturations/heure)",
+      "title": "Rejets de queue (saturations/heure)",
       "type": "timeseries"
     }
   ],
