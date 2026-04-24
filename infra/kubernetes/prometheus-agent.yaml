@@ -86,7 +86,7 @@ spec:
           image: prom/prometheus:latest
           args:
             - '--config.file=/etc/prometheus/prometheus.yml'
-            - '--enable-feature=agent'
+            - '--agent'
           volumeMounts:
             - name: config
               mountPath: /etc/prometheus

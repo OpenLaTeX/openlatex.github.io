@@ -19,6 +19,7 @@ function acquireSlot() {
         return Promise.resolve();
     }
     if (queue.length >= MAX_QUEUE) {
+        compileQueueFull.inc();
         return Promise.reject(Object.assign(new Error('Server busy, retry later'), { status: 503 }));
     }
     return new Promise((resolve, reject) => {
@@ -71,6 +72,11 @@ const compileQueueDepth = new promClient.Gauge({
 const compileQueueTimeout = new promClient.Counter({
   name: 'latex_compile_queue_timeout_total',
   help: 'Nombre de timeouts de queue'
+});
+
+const compileQueueFull = new promClient.Counter({
+  name: 'latex_compile_queue_full_total',
+  help: 'Nombre de rejets queue pleine (Server busy)'
 });
 
 // compilation qui recoit les fichiers en HTTP, pas de persistance SQL (Le SQL sert à sauvegarder et ce serait moins performant de compiler avec le SQL)
