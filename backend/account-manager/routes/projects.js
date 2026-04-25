@@ -1,5 +1,5 @@
 const express = require('express');
-const { SQLquery } = require('../db/pool');
+const { SQLquery, withTransaction } = require('../db/pool');
 const authMiddleware = require('../middleware/auth');
 
 const router = express.Router();
@@ -71,17 +71,16 @@ router.post('/', async (req, res) => {
     }
 
     try {
-        await SQLquery('BEGIN');
-        try {
-            const projectResult = await SQLquery(
+        const projectId = await withTransaction(async (query) => {
+            const projectResult = await query(
                 'insert into projects (uno, name, description) values ($1, $2, $3) returning pno',
                 [req.userId, name, description || null]
             );
 
-            const projectId = projectResult.rows[0].pno;
+            const pno = projectResult.rows[0].pno;
 
             const values = [];
-            const params = [projectId];
+            const params = [pno];
             let paramIndex = 2;
 
             for (const file of files) {
@@ -92,19 +91,16 @@ router.post('/', async (req, res) => {
             }
 
             if (values.length > 0) {
-                await SQLquery(
+                await query(
                     `insert into files (pno, filename, content, file_type) values ${values.join(', ')}`,
                     params
                 );
             }
 
-            await SQLquery('COMMIT');
+            return pno;
+        });
 
-            res.status(201).json({ pno: projectId, message: 'projet cree' });
-        } catch (err) {
-            await SQLquery('ROLLBACK');
-            throw err;
-        }
+        res.status(201).json({ pno: projectId, message: 'projet cree' });
     } catch (err) {
         const constraintMsg = getConstraintMessage(err);
         if (constraintMsg) return res.status(400).json({ error: constraintMsg });
@@ -195,14 +191,13 @@ router.put('/:pno', async (req, res) => {
             return res.status(403).json({ error: 'acces interdit' });
         }
 
-        await SQLquery('BEGIN');
-        try {
-            await SQLquery(
+        await withTransaction(async (query) => {
+            await query(
                 'update projects set name = $1, description = $2 where pno = $3',
                 [name, description || null, pno]
             );
 
-            await SQLquery('delete from files where pno = $1', [pno]);
+            await query('delete from files where pno = $1', [pno]);
 
             const values = [];
             const params = [pno];
@@ -216,17 +211,12 @@ router.put('/:pno', async (req, res) => {
             }
 
             if (values.length > 0) {
-                await SQLquery(
+                await query(
                     `insert into files (pno, filename, content, file_type) values ${values.join(', ')}`,
                     params
                 );
             }
-
-            await SQLquery('COMMIT');
-        } catch (err) {
-            await SQLquery('ROLLBACK');
-            throw err;
-        }
+        });
 
         res.json({ message: 'projet mis a jour' });
     } catch (err) {
