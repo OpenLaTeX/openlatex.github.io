@@ -192,8 +192,8 @@ resource "aws_iam_role_policy" "ssm" {
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
-      Effect   = "Allow"
-      Action   = ["ssm:GetParameter", "ssm:GetParametersByPath"]
+      Effect = "Allow"
+      Action = ["ssm:GetParameter", "ssm:GetParametersByPath"]
       Resource = [
         "arn:aws:ssm:${var.region}:${data.aws_caller_identity.current.account_id}:parameter/openlatex",
         "arn:aws:ssm:${var.region}:${data.aws_caller_identity.current.account_id}:parameter/openlatex/*"

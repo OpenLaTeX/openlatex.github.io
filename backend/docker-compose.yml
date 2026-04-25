@@ -70,7 +70,7 @@ services:
       - openlatex
 
   prometheus:
-    image: prom/prometheus:latest
+    image: prom/prometheus:v3.11.2
     container_name: openlatex_prometheus
     restart: unless-stopped
     volumes:

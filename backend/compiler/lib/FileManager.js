@@ -2,9 +2,9 @@ const fs = require('fs').promises;
 const path = require('path');
 
 class FileManager {
-    static async createProjectDir(projectId) {
-        const dir = path.join('/tmp', `latex-${projectId}`);
-        await fs.mkdir(dir, { recursive: true });
+    static async createProjectDir() {
+        const dir = await fs.mkdtemp(path.join('/tmp', 'latex-'));
+        await fs.chmod(dir, 0o700);
         return dir;
     }
 

@@ -25,7 +25,14 @@ class Compiler {
             const { stdout, stderr } = await execPromise(cmd, {
                 cwd: mainFileDir,
                 maxBuffer: 10 * 1024 * 1024,
-                timeout: 30000
+                timeout: 30000,
+                env: {
+                    PATH: process.env.PATH,
+                    HOME: mainFileDir,
+                    TEXMFOUTPUT: mainFileDir,
+                    openin_any: 'p',
+                    openout_any: 'p',
+                }
             });
 
             console.log('pdflatex terminé');
