@@ -35,9 +35,14 @@ resource "aws_instance" "k3s_master" {
   }
 
   user_data = templatefile("${path.module}/user-data-master.sh.tpl", {
-    k3s_token = random_password.k3s_token.result
-    public_ip = aws_eip.k3s_master.public_ip
+    k3s_token      = random_password.k3s_token.result
+    public_ip      = aws_eip.k3s_master.public_ip
+    api_private_ip = aws_instance.api.private_ip
   })
+
+  lifecycle {
+    ignore_changes = [user_data]
+  }
 
   tags = { Name = "openlatex-k3s-master" }
 }

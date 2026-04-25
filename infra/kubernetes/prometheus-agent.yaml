@@ -57,7 +57,7 @@ data:
           - targets: ['kube-state-metrics-svc.default.svc.cluster.local:8080']
 
     remote_write:
-      - url: "https://openlatex.privatedns.org/prometheus-write/api/v1/write"
+      - url: "http://prometheus.internal:9090/api/v1/write"
 ---
 apiVersion: apps/v1
 kind: Deployment

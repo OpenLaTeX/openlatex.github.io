@@ -5,6 +5,11 @@ output "api_public_ip" {
   value       = aws_eip.api.public_ip
 }
 
+output "api_private_ip" {
+  description = "IP privée du VPS API (pour le remote-write Prometheus)"
+  value       = aws_instance.api.private_ip
+}
+
 output "ssh_api" {
   description = "Commande SSH vers le VPS API"
   value       = "ssh -i ~/.ssh/github_deploy_key admin@${aws_eip.api.public_ip}"
