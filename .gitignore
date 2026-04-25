@@ -22,3 +22,4 @@ backup-public.key
 DIST-OPS.sh
 cron-traffic.sh
 **/*traffic.*
+*Entretien*

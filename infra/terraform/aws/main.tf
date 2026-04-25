@@ -169,6 +169,17 @@ resource "aws_security_group" "k3s" {
   tags = { Name = "k3s-sg" }
 }
 
+# autorise le security group k3s vers Prometheus (port 9090). on en a besoin pour le prometheus_write sur le noeud api central (hors cluster)
+resource "aws_security_group_rule" "api_prometheus_from_k3s" {
+  type                     = "ingress"
+  from_port                = 9090
+  to_port                  = 9090
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.k3s.id
+  security_group_id        = aws_security_group.api.id
+  description              = "Remote-write Prometheus pour le cluster kube"
+}
+
 # IAM (partagé entre le VPS et les nodes k3s)
 
 data "aws_caller_identity" "current" {}

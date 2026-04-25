@@ -14,5 +14,8 @@ curl -sfL https://get.k3s.io | \
     --write-kubeconfig-mode=644 \
     --node-taint node-role.kubernetes.io/control-plane=:NoSchedule
 
+# Nom local pour le remote-write Prometheus (IP privée du VPS API)
+echo "${api_private_ip} prometheus.internal" >> /etc/hosts
+
 systemctl enable k3s
 systemctl start k3s
