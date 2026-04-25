@@ -17,6 +17,10 @@ resource "aws_instance" "api" {
   vpc_security_group_ids = [aws_security_group.api.id]
   iam_instance_profile   = aws_iam_instance_profile.main.name
 
+  # IP privée fixe garantie par le subnet pour stabilité du remote-write Prometheus. (voi rprometheus-agent dans la config kube pour mieux comprendre)
+  # on en a besoin pour que les prometheus remote write écrivent toujours sur une url précise, sans pour autant l'exposer au public, donc on a une url déterministe entièrement privée
+  private_ip             = "10.0.1.82"
+
   root_block_device {
     volume_size = 30
     volume_type = "gp3"
