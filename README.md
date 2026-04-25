@@ -311,21 +311,16 @@ Le **passage sur Kubernetes (k3s) avec HPA** a été la dernière étape, et san
 
 ## Stack technique
 
-
-TODO réorganiser en cible DevOps
-
-- **Backend** : Node.js 22, Express, JWT, `bcrypt`, `pg`, `prom-client`
-- **Real-time** : Yjs, y-websocket (service dédié port 7000)
-- **Frontend** : React 18, Vite 5, CodeMirror 6 (hébergé sur GitHub Pages)
-- **Base de données** : PostgreSQL (triggers de quotas, BYTEA pour l'état Yjs)
-- **Reverse proxy** : Caddy (HTTPS, en-têtes de sécurité)
-- **Conteneurisation** : Docker, Docker Compose
-- **Orchestration** : Kubernetes k3s (1 master + 2 workers), HPA, Traefik (Ingress)
-- **Infrastructure as Code** : Terraform (AWS `eu-west-3`), Ansible
-- **CI/CD** : GitHub Actions, GHCR
-- **Monitoring** : Prometheus (+ remote-write), Grafana, postgres-exporter, kube-state-metrics
-- **Tests** : Jest (backend), Grafana k6 (load tests en CI)
-- **Sécurité** : GPG RSA 4096, Backblaze B2, fail2ban, SSH hardening
+| Domaine | Outils |
+|---|---|
+| **Infrastructure** | Terraform (AWS `eu-west-3`), Ansible, Kubernetes k3s (1 master + 2 workers), HPA, Traefik Ingress, Caddy |
+| **Conteneurisation** | Docker, Docker Compose |
+| **CI/CD** | GitHub Actions, GHCR |
+| **Observabilité** | Prometheus (+ remote-write), Grafana, postgres-exporter, kube-state-metrics |
+| **Sécurité & Backups** | GPG RSA 4096, Backblaze B2, fail2ban, SSH hardening |
+| **Application** | Node.js 22, Express, JWT, `bcrypt`, `pg`, `prom-client` (backend) · Yjs, y-websocket (temps réel) |
+| **Base de données** | PostgreSQL (triggers de quotas, BYTEA pour l'état Yjs) |
+| **Tests** | Jest (unitaires backend), Grafana k6 (charge en CI) |
 
 ## Licence
 
