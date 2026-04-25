@@ -95,16 +95,18 @@ router.post('/', async (req, res) => {
         return res.status(err.status || 503).json({ error: err.message });
     }
 
-    const projectId = Date.now().toString();
     let workDir;
 
     try {
-        workDir = await FileManager.createProjectDir(projectId);
+        workDir = await FileManager.createProjectDir();
         await FileManager.writeFiles(workDir, files);
 
         const endTimer = compileDuration.startTimer();
         const result = await Compiler.compile(workDir, mainFile);
         endTimer();
+
+        await FileManager.cleanup(workDir);
+        workDir = null;
 
         if (result.success) {
             compileResult.inc({ result: 'success' });
@@ -120,8 +122,6 @@ router.post('/', async (req, res) => {
                 logs: result.logs
             });
         }
-
-        await FileManager.cleanup(workDir);
     } catch (error) {
         compileResult.inc({ result: 'server_error' });
         console.error('erreur compilation:', error);
