@@ -16,10 +16,9 @@ if [ -z "${1:-}" ]; then
     exit 1
 fi
 
-GPG_FILE="$1"
-[ ! -f "$GPG_FILE" ] && { log "ERR : Fichier introuvable : $GPG_FILE"; exit 1; }
-
-DECRYPTED_FILE="$(realpath "${GPG_FILE%.gpg}" 2>/dev/null || echo "$(pwd)/${GPG_FILE%.gpg}")"
+[ ! -f "$1" ] && { log "ERR : Fichier introuvable : $1"; exit 1; }
+GPG_FILE="$(realpath "$1")"
+DECRYPTED_FILE="${GPG_FILE%.gpg}"
 CONTAINER_NAME="openlatex_test_$$"
 PG_USER="postgres"
 PG_DB="openlatex_test"
