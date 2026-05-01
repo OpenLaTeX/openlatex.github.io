@@ -13,14 +13,15 @@ provider "proxmox" {
   insecure  = true
 
   ssh {
-    agent    = true
-    username = "terraform"
+    agent       = false
+    username    = "terraform"
+    private_key = file("~/.ssh/proxmox_terraform")
   }
 }
 
 resource "proxmox_virtual_environment_vm" "ubuntu" {
   name      = "ubuntu-server"
-  node_name = "pve"
+  node_name = "homelab"
 
   cpu {
     cores = 1
@@ -28,6 +29,10 @@ resource "proxmox_virtual_environment_vm" "ubuntu" {
 
   memory {
     dedicated = 1024
+  }
+
+  agent {
+    enabled = true
   }
 
   disk {
@@ -38,5 +43,37 @@ resource "proxmox_virtual_environment_vm" "ubuntu" {
 
   network_device {
     bridge = "vmbr0"
+  }
+
+  initialization {
+    ip_config {
+      ipv4 {
+        address = "dhcp"
+      }
+    }
+
+    user_account {
+      keys     = [file(var.ssh_public_key_path)]
+      username = "ubuntu"
+    }
+    user_data_file_id = proxmox_virtual_environment_file.user_data.id
+  }
+}
+
+resource "proxmox_virtual_environment_file" "user_data" {
+  content_type = "snippets"
+  datastore_id = "local"
+  node_name    = "homelab"
+
+  source_raw {
+    file_name = "user-data.yaml"
+    data      = <<-EOF
+      #cloud-config
+      packages:
+        - qemu-guest-agent
+      runcmd:
+        - systemctl enable qemu-guest-agent
+        - systemctl start qemu-guest-agent
+    EOF
   }
 }
