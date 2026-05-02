@@ -19,8 +19,8 @@ provider "proxmox" {
   }
 }
 
-resource "proxmox_virtual_environment_vm" "ubuntu" {
-  name      = "ubuntu-server"
+resource "proxmox_virtual_environment_vm" "debian" {
+  name      = "debian-server"
   node_name = "homelab"
 
   cpu {
@@ -31,14 +31,18 @@ resource "proxmox_virtual_environment_vm" "ubuntu" {
     dedicated = 1024
   }
 
-  agent {
-    enabled = true
+  clone {
+    vm_id = 9000
   }
 
   disk {
     datastore_id = "local-lvm"
-    size         = 20
     interface    = "scsi0"
+    size         = 20
+  }
+
+  agent {
+    enabled = true
   }
 
   network_device {
@@ -54,7 +58,7 @@ resource "proxmox_virtual_environment_vm" "ubuntu" {
 
     user_account {
       keys     = [file(var.ssh_public_key_path)]
-      username = "ubuntu"
+      username = "debian"
     }
     user_data_file_id = proxmox_virtual_environment_file.user_data.id
   }
@@ -69,6 +73,12 @@ resource "proxmox_virtual_environment_file" "user_data" {
     file_name = "user-data.yaml"
     data      = <<-EOF
       #cloud-config
+      users:
+        - name: debian
+          sudo: ALL=(ALL) NOPASSWD:ALL
+          shell: /bin/bash
+          ssh_authorized_keys:
+            - ${file(var.ssh_public_key_path)}
       packages:
         - qemu-guest-agent
       runcmd:
