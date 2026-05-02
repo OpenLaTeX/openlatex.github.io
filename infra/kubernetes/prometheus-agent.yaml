@@ -89,8 +89,6 @@ spec:
           args:
             - '--config.file=/etc/prometheus/prometheus.yml'
             - '--agent'
-            - '--storage.agent.wal-truncate-frequency=30m'
-            - '--storage.agent.max-wal-time=1h'
           volumeMounts:
             - name: config
               mountPath: /etc/prometheus
