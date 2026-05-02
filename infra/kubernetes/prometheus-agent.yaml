@@ -89,16 +89,18 @@ spec:
           args:
             - '--config.file=/etc/prometheus/prometheus.yml'
             - '--agent'
+            - '--storage.agent.wal-truncate-frequency=30m'
+            - '--storage.agent.max-wal-time=1h'
           volumeMounts:
             - name: config
               mountPath: /etc/prometheus
           resources:
             requests:
               cpu: 100m
-              memory: 128Mi
+              memory: 256Mi
             limits:
               cpu: 250m
-              memory: 256Mi
+              memory: 512Mi
       volumes:
         - name: config
           configMap:
