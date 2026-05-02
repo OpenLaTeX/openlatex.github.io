@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   code-test:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -28,7 +28,7 @@ jobs:
         working-directory: backend
 
   detect-changes:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     outputs:
       manager: ${{ steps.filter.outputs.manager }}
       compiler: ${{ steps.filter.outputs.compiler }}
@@ -56,7 +56,7 @@ jobs:
   # je ne le build plus dans le runner mais plutot sur l'instance cible, car l'image est assez légère, ça ralentit plus qu'autre chose
   # build-manager:
   #   needs: [detect-changes, code-test]
-    # if: needs.detect-changes.outputs.manager == 'true' || github.event_name == 'workflow_dispatch'
+  # if: needs.detect-changes.outputs.manager == 'true' || github.event_name == 'workflow_dispatch'
   #   permissions:
   #     contents: read
   #     packages: write
@@ -81,7 +81,7 @@ jobs:
   deploy:
     needs: [build-compiler]
     if: always() && !failure() && !cancelled()
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: Config SSH
         uses: webfactory/ssh-agent@v0.7.0
@@ -98,7 +98,9 @@ jobs:
 
       - name: Installer ansible
         run: |
-          pip install ansible-core
+          pipx install ansible-core
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          export PATH="$HOME/.local/bin:$PATH"
           ansible-galaxy collection install community.docker
 
       - name: Déployer sur le VPS
@@ -132,13 +134,16 @@ jobs:
   deploy-k3s:
     needs: [build-compiler]
     if: always() && !failure() && !cancelled()
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
 
       - name: Installer ansible et kubernetes.core
         run: |
-          pip install ansible-core kubernetes openshift
+          pipx install ansible-core
+          pipx inject ansible-core kubernetes openshift
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          export PATH="$HOME/.local/bin:$PATH"
           ansible-galaxy collection install kubernetes.core
 
       - name: Config SSH
@@ -160,17 +165,16 @@ jobs:
   infra-load-tests:
     needs: [deploy, deploy-k3s]
     if: always() && !failure() && !cancelled()
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
 
       - name: Installer k6
         run: |
-          sudo gpg -k
-          sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+          curl -fsSL https://dl.k6.io/key.gpg | sudo gpg --batch --yes --dearmor -o /usr/share/keyrings/k6-archive-keyring.gpg
           echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
           sudo apt-get update
-          sudo apt-get install k6
+          sudo apt-get install -y k6
 
       - name: Test de charge (3 personas) pour vérifier que l'infra tient (Environ 250 compilations, devrait se faire en 1 min 30)
         env:
