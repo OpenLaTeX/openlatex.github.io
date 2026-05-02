@@ -9,6 +9,7 @@ packages:
   - qemu-guest-agent
   - libicu76
 runcmd:
+  - sudo apt-get install -y git curl pip pipx gpg
   - systemctl enable qemu-guest-agent
   - systemctl start qemu-guest-agent
   - mkdir -p /home/debian/actions-runner
@@ -18,4 +19,4 @@ runcmd:
   - sudo -u debian bash -c "cd /home/debian/actions-runner && ./config.sh --url https://github.com/openlatex/openlatex.github.io --token ${runner_token} --unattended"
   - bash -c "cd /home/debian/actions-runner && ./svc.sh install debian"
   - bash -c "cd /home/debian/actions-runner && ./svc.sh start"
-  - sudo apt-get install -y git curl pip gpg
+  

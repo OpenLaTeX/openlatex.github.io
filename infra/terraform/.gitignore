@@ -11,5 +11,3 @@
 # Crash logs
 crash.log
 crash.*.log
-
-proxmox/*var*
