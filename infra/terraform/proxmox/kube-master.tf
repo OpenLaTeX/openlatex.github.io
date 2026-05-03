@@ -1,5 +1,5 @@
-resource "proxmox_virtual_environment_vm" "openlatex-main-api" {
-  name      = "openlatex-main-api"
+resource "proxmox_virtual_environment_vm" "openlatex-kube-master" {
+  name      = "openlatex-kube-master"
   node_name = "homelab"
 
   cpu {
@@ -17,7 +17,7 @@ resource "proxmox_virtual_environment_vm" "openlatex-main-api" {
   disk {
     datastore_id = "local-lvm"
     interface    = "scsi0"
-    size         = 30
+    size         = 15
   }
 
   agent {
@@ -40,20 +40,27 @@ resource "proxmox_virtual_environment_vm" "openlatex-main-api" {
       keys     = [file(var.ssh_public_key_path)]
       username = "debian"
     }
-    user_data_file_id = proxmox_virtual_environment_file.main-api_user_data.id
+    user_data_file_id = proxmox_virtual_environment_file.kube-master_user_data.id
   }
 }
 
+# token k3s aléatoire
+resource "random_password" "k3s_token" {
+  length  = 32
+  special = false
+}
 
-resource "proxmox_virtual_environment_file" "main-api_user_data" {
+
+resource "proxmox_virtual_environment_file" "kube-master_user_data" {
   content_type = "snippets"
   datastore_id = "local"
   node_name    = "homelab"
 
   source_raw {
-    file_name = "user-data-main-api.yaml"
-    data = templatefile("${path.module}/cloud-init/user-data-main-api.sh.tpl", {
+    file_name = "user-data-kube-master.yaml"
+    data = templatefile("${path.module}/cloud-init/user-data-kube-master.sh.tpl", {
       ssh_public_key_path = file(var.ssh_public_key_path)
+      k3s_token           = random_password.k3s_token.result
     })
   }
 }

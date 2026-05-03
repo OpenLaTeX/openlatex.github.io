@@ -8,8 +8,12 @@ users:
 packages:
   - qemu-guest-agent
   - libicu76
+  - git
+  - curl 
+  - pip 
+  - pipx 
+  - gpg
 runcmd:
-  - sudo apt-get install -y git curl pip pipx gpg
   - systemctl enable qemu-guest-agent
   - systemctl start qemu-guest-agent
   - mkdir -p /home/debian/actions-runner

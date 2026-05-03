@@ -22,6 +22,7 @@ resource "proxmox_virtual_environment_vm" "openlatex-runner" {
 
   agent {
     enabled = true
+    timeout = "600s"
   }
 
   network_device {
@@ -39,17 +40,17 @@ resource "proxmox_virtual_environment_vm" "openlatex-runner" {
       keys     = [file(var.ssh_public_key_path)]
       username = "debian"
     }
-    user_data_file_id = proxmox_virtual_environment_file.user_data.id
+    user_data_file_id = proxmox_virtual_environment_file.runner_user_data.id
   }
 }
 
-resource "proxmox_virtual_environment_file" "user_data" {
+resource "proxmox_virtual_environment_file" "runner_user_data" {
   content_type = "snippets"
   datastore_id = "local"
   node_name    = "homelab"
 
   source_raw {
-    file_name = "user-data.yaml"
+    file_name = "user-data-runner.yaml"
     data = templatefile("${path.module}/cloud-init/user-data-runner.sh.tpl", {
       ssh_public_key_path = file(var.ssh_public_key_path)
       runner_token        = var.runner_token
