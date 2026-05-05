@@ -24,6 +24,7 @@ import { useCompilation } from './hooks/useCompilation';
 import { useFigureManager } from './hooks/useFigureManager';
 import { useCollaboration } from './hooks/useCollaboration';
 import { useLanguage } from './i18n/LanguageContext';
+import AnnouncementBanner from './components/AnnouncementBanner';
 import './App.css';
 
 export default function App() {
@@ -359,6 +360,7 @@ export default function App() {
 
   return (
     <div className="app-container">
+      <AnnouncementBanner />
       {isMobile && (
         <>
           <div className="mobile-header">
