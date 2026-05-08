@@ -16,6 +16,10 @@ variable "runner_token" {
   sensitive = true
 }
 
+variable "main_api_ip" {
+  type = string
+}
+
 variable "kube_master_ip" {
   type = string
 }

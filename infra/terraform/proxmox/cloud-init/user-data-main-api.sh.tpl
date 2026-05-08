@@ -1,6 +1,7 @@
 #cloud-config
 users:
-  - name: debian
+  - name: admin
+    groups: docker
     sudo: ALL=(ALL) NOPASSWD:ALL
     shell: /bin/bash
     ssh_authorized_keys:
@@ -11,6 +12,7 @@ packages:
   - curl
   - gpg
   - python3
+  - cron
 runcmd:
   - systemctl enable qemu-guest-agent
   - systemctl start qemu-guest-agent

@@ -9,7 +9,6 @@ resource "proxmox_virtual_environment_vm" "openlatex-main-api" {
   memory {
     dedicated = 2048
   }
-
   clone {
     vm_id = 9000
   }
@@ -32,13 +31,14 @@ resource "proxmox_virtual_environment_vm" "openlatex-main-api" {
   initialization {
     ip_config {
       ipv4 {
-        address = "dhcp"
+        address = "${var.main_api_ip}/24"
+        gateway = var.kube_network_gateway
       }
     }
 
     user_account {
       keys     = [file(var.ssh_public_key_path)]
-      username = "debian"
+      username = "admin"
     }
     user_data_file_id = proxmox_virtual_environment_file.main-api_user_data.id
   }

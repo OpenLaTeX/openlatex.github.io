@@ -1,5 +1,4 @@
 const express = require('express');
-const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const { exec } = require('child_process');
 require('dotenv').config();
@@ -29,10 +28,6 @@ const app = express();
 loadSecrets().then(() => {
   const { defaultProtectionLimiter: protectionLimiter, guestLimiter: guestRateLimiter } = require('./middleware/rateLimiter');
 
-  app.use(cors({
-    origin: (origin, callback) => callback(null, process.env.FRONTEND_URL || 'https://localhost:5173'),
-    credentials: true
-  }));
   app.use(cookieParser());
   app.use(express.json({ limit: '10mb' }));
 

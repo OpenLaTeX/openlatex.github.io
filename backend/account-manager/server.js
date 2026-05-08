@@ -1,5 +1,4 @@
 const express = require('express');
-const cors = require('cors');
 const cookieParser = require('cookie-parser');
 require('dotenv').config();
 const { loadSecrets } = require('./secrets');
@@ -25,10 +24,6 @@ const httpDuration = new promClient.Histogram({
 });
 
 const app = express();
-app.use(cors({
-  origin: (origin, callback) => callback(null, process.env.FRONTEND_URL || 'https://openlatex.github.io'),
-  credentials: true
-}));
 app.use(cookieParser());
 app.use(express.json({ limit: '10mb' }));
 

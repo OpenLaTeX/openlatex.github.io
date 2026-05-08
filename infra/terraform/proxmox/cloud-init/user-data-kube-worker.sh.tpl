@@ -1,6 +1,7 @@
 #cloud-config
 users:
-  - name: debian
+  - name: admin
+    groups: docker
     sudo: ALL=(ALL) NOPASSWD:ALL
     shell: /bin/bash
     ssh_authorized_keys:

@@ -1,11 +1,11 @@
 output "openlatex_runner_ssh_vm" {
   description = "Commande SSH vers la vm Runner"
-  value       = "ssh -t -i ~/.ssh/github_deploy_key debian@${try(proxmox_virtual_environment_vm.openlatex-runner.ipv4_addresses[1][0], "not-ready")}"
+  value       = "ssh -t -i ~/.ssh/github_deploy_key admin@${try(proxmox_virtual_environment_vm.openlatex-runner.ipv4_addresses[1][0], "not-ready")}"
 }
 
 output "openlatex_main-api_ssh_vm" {
   description = "Commande SSH vers la vm main-api"
-  value       = "ssh -t -i ~/.ssh/github_deploy_key debian@${try(proxmox_virtual_environment_vm.openlatex-main-api.ipv4_addresses[1][0], "not-ready")}"
+  value       = "ssh -t -i ~/.ssh/github_deploy_key admin@${try(proxmox_virtual_environment_vm.openlatex-main-api.ipv4_addresses[1][0], "not-ready")}"
 }
 
 output "openlatex_main-api_ip" {
@@ -22,7 +22,7 @@ output "openlatex_runner_ip" {
 
 output "openlatex_kube-master_ssh_vm" {
   description = "Commande SSH vers la vm kube master"
-  value       = "ssh -t -i ~/.ssh/github_deploy_key debian@${try(proxmox_virtual_environment_vm.openlatex-kube-master.ipv4_addresses[1][0], "not-ready")}"
+  value       = "ssh -t -i ~/.ssh/github_deploy_key admin@${try(proxmox_virtual_environment_vm.openlatex-kube-master.ipv4_addresses[1][0], "not-ready")}"
 }
 
 
@@ -34,7 +34,7 @@ output "openlatex_kube-master_ip" {
 
 output "openlatex_kube-worker1_ssh_vm" {
   description = "Commande SSH vers la vm kube worker"
-  value       = "ssh -t -i ~/.ssh/github_deploy_key debian@${try(proxmox_virtual_environment_vm.openlatex-kube-worker[0].ipv4_addresses[1][0], "not-ready")}"
+  value       = "ssh -t -i ~/.ssh/github_deploy_key admin@${try(proxmox_virtual_environment_vm.openlatex-kube-worker[0].ipv4_addresses[1][0], "not-ready")}"
 }
 
 output "openlatex_kube-worker1_ip" {
@@ -43,7 +43,7 @@ output "openlatex_kube-worker1_ip" {
 
 output "openlatex_kube-worker2_ssh_vm" {
   description = "Commande SSH vers la vm kube worker"
-  value       = "ssh -t -i ~/.ssh/github_deploy_key debian@${try(proxmox_virtual_environment_vm.openlatex-kube-worker[1].ipv4_addresses[1][0], "not-ready")}"
+  value       = "ssh -t -i ~/.ssh/github_deploy_key admin@${try(proxmox_virtual_environment_vm.openlatex-kube-worker[1].ipv4_addresses[1][0], "not-ready")}"
 }
 
 output "openlatex_kube-worker2_ip" {

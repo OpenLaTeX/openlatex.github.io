@@ -2,7 +2,8 @@
 hostname: openlatex-kube-master
 
 users:
-  - name: debian
+  - name: admin
+    groups: docker
     sudo: ALL=(ALL) NOPASSWD:ALL
     shell: /bin/bash
     ssh_authorized_keys:
@@ -34,7 +35,7 @@ runcmd:
     systemctl enable k3s
     systemctl start k3s
 
-    # kubectl accessible sans sudo pour l'user debian
-    echo 'export KUBECONFIG=/etc/rancher/k3s/k3s.yaml' >> /home/debian/.bashrc
-    echo 'export PATH=$PATH:/usr/local/bin' >> /home/debian/.bashrc
+    # kubectl accessible sans sudo pour l'user admin
+    echo 'export KUBECONFIG=/etc/rancher/k3s/k3s.yaml' >> /home/admin/.bashrc
+    echo 'export PATH=$PATH:/usr/local/bin' >> /home/admin/.bashrc
 

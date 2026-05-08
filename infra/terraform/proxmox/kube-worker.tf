@@ -39,7 +39,7 @@ resource "proxmox_virtual_environment_vm" "openlatex-kube-worker" {
 
     user_account {
       keys     = [file(var.ssh_public_key_path)]
-      username = "debian"
+      username = "admin"
     }
     user_data_file_id = proxmox_virtual_environment_file.kube-worker_user_data.id
   }
