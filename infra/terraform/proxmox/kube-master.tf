@@ -7,7 +7,7 @@ resource "proxmox_virtual_environment_vm" "openlatex-kube-master" {
   }
 
   memory {
-    dedicated = 2048
+    dedicated = 3072
   }
 
   clone {
@@ -32,7 +32,8 @@ resource "proxmox_virtual_environment_vm" "openlatex-kube-master" {
   initialization {
     ip_config {
       ipv4 {
-        address = "dhcp"
+        address = "${var.kube_master_ip}/${var.kube_network_prefix}"
+        gateway = var.kube_network_gateway
       }
     }
 
@@ -61,6 +62,7 @@ resource "proxmox_virtual_environment_file" "kube-master_user_data" {
     data = templatefile("${path.module}/cloud-init/user-data-kube-master.sh.tpl", {
       ssh_public_key_path = file(var.ssh_public_key_path)
       k3s_token           = random_password.k3s_token.result
+      master_ip           = var.kube_master_ip
     })
   }
 }

@@ -15,3 +15,16 @@ variable "runner_token" {
   type      = string
   sensitive = true
 }
+
+variable "kube_master_ip" {
+  type = string
+}
+
+variable "kube_network_gateway" {
+  type = string
+}
+
+variable "kube_network_prefix" {
+  type    = number
+  default = 24
+}

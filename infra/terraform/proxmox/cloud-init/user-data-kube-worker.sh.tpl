@@ -19,12 +19,17 @@ runcmd:
     set -euo pipefail
 
     apt-get update -y
-    apt-get upgrade -y
 
+    # attendre que le master soit prêt
+    until curl -sk https://${master_private_ip}:6443/healthz; do
+      echo "Master pas pret"; sleep 10
+    done
+
+    NODE_IP=$(hostname -I | awk '{print $1}')
     curl -sfL https://get.k3s.io | \
       K3S_URL="https://${master_private_ip}:6443" \
       K3S_TOKEN="${k3s_token}" \
-      sh -s - agent
+      sh -s - agent --node-name="worker-$NODE_IP"
 
     systemctl enable k3s-agent
     systemctl start k3s-agent

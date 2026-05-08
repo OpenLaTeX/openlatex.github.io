@@ -1,0 +1,8 @@
+endpoint            = "https://<proxmox-host>:8006/api2/json"
+api_token           = "<user>@<realm>!<token-id>=<secret>"  # realm: pam, pve, etc.
+ssh_public_key_path = "~/.ssh/id_rsa.pub"
+runner_token        = "<github-runner-token>"
+
+kube_master_ip      = "192.168.1.210"
+kube_network_gateway = "192.168.1.1"
+kube_network_prefix  = 24

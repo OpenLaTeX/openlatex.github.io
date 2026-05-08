@@ -1,6 +1,6 @@
 resource "proxmox_virtual_environment_vm" "openlatex-kube-worker" {
   count     = 2
-  name      = "openlatex-kube-worker"
+  name      = "openlatex-kube-worker-${count.index}"
   node_name = "homelab"
 
   cpu {
@@ -44,6 +44,7 @@ resource "proxmox_virtual_environment_vm" "openlatex-kube-worker" {
     user_data_file_id = proxmox_virtual_environment_file.kube-worker_user_data.id
   }
 
+  # on attend avant de cloud init
   depends_on = [proxmox_virtual_environment_vm.openlatex-kube-master]
 }
 
@@ -53,13 +54,11 @@ resource "proxmox_virtual_environment_file" "kube-worker_user_data" {
   datastore_id = "local"
   node_name    = "homelab"
 
-  depends_on = [proxmox_virtual_environment_vm.openlatex-kube-master]
-
   source_raw {
     file_name = "user-data-kube-worker.yaml"
     data = templatefile("${path.module}/cloud-init/user-data-kube-worker.sh.tpl", {
       ssh_public_key_path = file(var.ssh_public_key_path)
-      master_private_ip   = try(proxmox_virtual_environment_vm.openlatex-kube-master.ipv4_addresses[1][0], "")
+      master_private_ip   = var.kube_master_ip
       k3s_token           = random_password.k3s_token.result
     })
   }
