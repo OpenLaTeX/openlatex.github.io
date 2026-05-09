@@ -1,6 +1,7 @@
 ![Logo OpenLaTeX](assets/logo.png)
 
 **(Fork pour épingler sur mon profil `blavogiez` - consultez le [dépôt original](https://github.com/OpenLaTeX/openlatex.github.io) pour voir les runs CI/CD originaux)**
+
 **Migration cloud (infra proxmox auto-hébergée) effectuée au Dimanche 10 mai : fonctionnel, plus de tests à venir dans les prochains jours**
 
 # [OpenLaTeX : Éditeur LaTeX Web collaboratif](https://openlatex.github.io)
