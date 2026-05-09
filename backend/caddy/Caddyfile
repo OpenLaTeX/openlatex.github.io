@@ -25,7 +25,13 @@ http://openlatex-api.blavogiez.fr {
         reverse_proxy collab:7000
     }
     handle /compile* {
-        reverse_proxy 192.168.1.210
+        reverse_proxy 192.168.1.210 {
+            header_down -Access-Control-Allow-Origin
+            header_down -Access-Control-Allow-Methods
+            header_down -Access-Control-Allow-Headers
+            header_down -Access-Control-Allow-Credentials
+            header_down -Vary
+        }
     }
     handle /metrics {
         respond 404
