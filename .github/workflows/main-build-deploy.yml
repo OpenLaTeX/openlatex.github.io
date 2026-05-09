@@ -5,7 +5,7 @@ name: (DOCKER/BACKEND) - Construction et déploiement des images spécifiques + 
 
 on:
   push:
-    branches: [main, backend/*]
+    branches: [main, backend/*, 21*]
   workflow_dispatch:
 
 concurrency:
@@ -112,6 +112,11 @@ jobs:
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          JWT_EXPIRES_IN: ${{ secrets.JWT_EXPIRES_IN }}
+          FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          TEST_BYPASS_SECRET: ${{ secrets.TEST_BYPASS_SECRET }}
           GRAFANA_ADMIN_USER: ${{ secrets.GRAFANA_ADMIN_USER }}
           GRAFANA_ADMIN_PASSWORD: ${{ secrets.GRAFANA_ADMIN_PASSWORD }}
         run: |
@@ -160,6 +165,8 @@ jobs:
           chmod 600 ~/.kube/config
 
       - name: Déployer sur k3s
+        env:
+          TEST_BYPASS_SECRET: ${{ secrets.TEST_BYPASS_SECRET }}
         run: KUBECONFIG=$HOME/.kube/config ansible-playbook ansible/playbooks/deploy-k3s-compile.yml
 
   infra-load-tests:

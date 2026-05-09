@@ -1,5 +1,5 @@
-resource "proxmox_virtual_environment_vm" "openlatex-runner" {
-  name      = "openlatex-runner"
+resource "proxmox_virtual_environment_vm" "openlatex-main-api" {
+  name      = "openlatex-main-api"
   node_name = "homelab"
 
   cpu {
@@ -7,9 +7,8 @@ resource "proxmox_virtual_environment_vm" "openlatex-runner" {
   }
 
   memory {
-    dedicated = 1024
+    dedicated = 2048
   }
-
   clone {
     vm_id = 9000
   }
@@ -17,7 +16,7 @@ resource "proxmox_virtual_environment_vm" "openlatex-runner" {
   disk {
     datastore_id = "local-lvm"
     interface    = "scsi0"
-    size         = 20
+    size         = 30
   }
 
   agent {
@@ -32,7 +31,8 @@ resource "proxmox_virtual_environment_vm" "openlatex-runner" {
   initialization {
     ip_config {
       ipv4 {
-        address = "dhcp"
+        address = "${var.main_api_ip}/24"
+        gateway = var.kube_network_gateway
       }
     }
 
@@ -40,20 +40,20 @@ resource "proxmox_virtual_environment_vm" "openlatex-runner" {
       keys     = [file(var.ssh_public_key_path)]
       username = "admin"
     }
-    user_data_file_id = proxmox_virtual_environment_file.runner_user_data.id
+    user_data_file_id = proxmox_virtual_environment_file.main-api_user_data.id
   }
 }
 
-resource "proxmox_virtual_environment_file" "runner_user_data" {
+
+resource "proxmox_virtual_environment_file" "main-api_user_data" {
   content_type = "snippets"
   datastore_id = "local"
   node_name    = "homelab"
 
   source_raw {
-    file_name = "user-data-runner.yaml"
-    data = templatefile("${path.module}/cloud-init/user-data-runner.sh.tpl", {
+    file_name = "user-data-main-api.yaml"
+    data = templatefile("${path.module}/cloud-init/user-data-main-api.sh.tpl", {
       ssh_public_key_path = file(var.ssh_public_key_path)
-      runner_token        = var.runner_token
     })
   }
 }
