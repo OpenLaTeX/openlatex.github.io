@@ -1,7 +1,6 @@
 const express = require('express');
 const cookieParser = require('cookie-parser');
 require('dotenv').config();
-const { loadSecrets } = require('./secrets');
 
 const promClient = require('prom-client');
 const authRoutes = require('./routes/auth');
@@ -56,12 +55,7 @@ app.use((err, req, res, next) => {
   next(err);
 });
 
-loadSecrets().then(() => {
-  const PORT = process.env.PORT || 8000;
-  app.listen(PORT, () => {
-    console.log('backend demarre sur le port', PORT);
-  });
-}).catch(err => {
-  console.error('Erreur chargement secrets:', err);
-  process.exit(1);
+const PORT = process.env.PORT || 8000;
+app.listen(PORT, () => {
+  console.log('backend demarre sur le port', PORT);
 });

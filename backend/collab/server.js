@@ -1,5 +1,4 @@
 require('dotenv').config();
-const { loadSecrets } = require('./secrets');
 require('./lib/CollabManager');
 
 const http = require('http');
@@ -46,11 +45,6 @@ server.on('upgrade', async (req, socket, head) => {
     });
 });
 
-loadSecrets().then(() => {
-    server.listen(PORT, () => {
-        console.log('collab demarre sur le port', PORT);
-    });
-}).catch(err => {
-    console.error('Erreur chargement secrets:', err);
-    process.exit(1);
+server.listen(PORT, () => {
+    console.log('collab demarre sur le port', PORT);
 });
