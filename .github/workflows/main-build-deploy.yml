@@ -160,6 +160,8 @@ jobs:
           chmod 600 ~/.kube/config
 
       - name: Déployer sur k3s
+        env:
+          TEST_BYPASS_SECRET: ${{ secrets.TEST_BYPASS_SECRET }}
         run: KUBECONFIG=$HOME/.kube/config ansible-playbook ansible/playbooks/deploy-k3s-compile.yml
 
   infra-load-tests:
