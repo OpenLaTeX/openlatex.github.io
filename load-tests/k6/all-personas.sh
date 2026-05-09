@@ -4,7 +4,7 @@
 
 cd "$(dirname "$0")"
 
-BASE_URL="https://openlatex.privatedns.org"
+BASE_URL="https://openlatex-api.blavogiez.fr"
 
 # quelques personas aux comportements de compilation différents
 run_persona() {
