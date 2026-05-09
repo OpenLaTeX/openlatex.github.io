@@ -59,7 +59,7 @@ data:
     remote_write:
       # hostname internal AWS de l'api vps (résolu par le VPC, pas de /etc/hosts). ip privée donc pas interprétable ailleurs
       # 10.0.1.82 est donc fixée dans Terraform comme étant toujours l'ip privée de l'api vps pour être stable.
-      - url: "http://ip-10-0-1-82.eu-west-3.compute.internal:9090/api/v1/write"
+      - url: "http://192.168.1.148:9090/api/v1/write"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -95,10 +95,10 @@ spec:
           resources:
             requests:
               cpu: 100m
-              memory: 128Mi
+              memory: 256Mi
             limits:
               cpu: 250m
-              memory: 256Mi
+              memory: 512Mi
       volumes:
         - name: config
           configMap:

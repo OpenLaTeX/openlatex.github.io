@@ -1,16 +1,37 @@
-openlatex.v0id.nl {
+http://openlatex-api.blavogiez.fr {
     header {
         Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
         X-Content-Type-Options "nosniff"
         X-Frame-Options "DENY"
         Referrer-Policy "strict-origin-when-cross-origin"
         Permissions-Policy "camera=(), microphone=(), geolocation=()"
+        Access-Control-Allow-Origin "https://openlatex.github.io"
+        Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+        Access-Control-Allow-Headers "Content-Type, Authorization"
+        Access-Control-Allow-Credentials "true"
+    }
+    @preflight method OPTIONS
+    handle @preflight {
+        header {
+            Access-Control-Allow-Origin "https://openlatex.github.io"
+            Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+            Access-Control-Allow-Headers "Content-Type, Authorization"
+            Access-Control-Allow-Credentials "true"
+            Access-Control-Max-Age "3600"
+        }
+        respond 204
     }
     handle /collab/* {
         reverse_proxy collab:7000
     }
     handle /compile* {
-        reverse_proxy 10.0.1.11
+        reverse_proxy 192.168.1.210 {
+            header_down -Access-Control-Allow-Origin
+            header_down -Access-Control-Allow-Methods
+            header_down -Access-Control-Allow-Headers
+            header_down -Access-Control-Allow-Credentials
+            header_down -Vary
+        }
     }
     handle /metrics {
         respond 404
@@ -22,29 +43,3 @@ openlatex.v0id.nl {
         reverse_proxy backend:8000
     }
 }
-
-openlatex.privatedns.org {
-    header {
-        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
-        X-Content-Type-Options "nosniff"
-        X-Frame-Options "DENY"
-        Referrer-Policy "strict-origin-when-cross-origin"
-        Permissions-Policy "camera=(), microphone=(), geolocation=()"
-    }
-    handle /collab/* {
-        reverse_proxy collab:7000
-    }
-    handle /compile* {
-        reverse_proxy 10.0.1.11
-    }
-    handle /metrics {
-        respond 404
-    }
-    handle /grafana* {
-        reverse_proxy grafana:3000
-    }
-    handle {
-        reverse_proxy backend:8000
-    }
-}
-

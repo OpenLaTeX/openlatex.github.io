@@ -1,8 +1,7 @@
 ![Logo OpenLaTeX](assets/logo.png)
 
-**Migration cloud (infra proxmox) en cours, tout sera OK au Dimanche 10 mai**
-
 **(Fork pour épingler sur mon profil `blavogiez` - consultez le [dépôt original](https://github.com/OpenLaTeX/openlatex.github.io) pour voir les runs CI/CD originaux)**
+**Migration cloud (infra proxmox auto-hébergée) effectuée au Dimanche 10 mai : fonctionnel, plus de tests à venir dans les prochains jours**
 
 # [OpenLaTeX : Éditeur LaTeX Web collaboratif](https://openlatex.github.io)
 
@@ -37,7 +36,7 @@
 Ce projet offre un moyen simple de déployer un serveur LaTeX Cloud, permettant d'utiliser LaTeX en ligne.
 Il met également à disposition une base de données intégrée pour que les utilisateurs puissent enregistrer et gérer leurs projets d'où qu'ils soient, avec en prime de la collaboration temps réel (à la Google Docs) grâce à Yjs !
 
-La stack permet d'automatiser les déploiements (CI/CD, Ansible), d'observer les métriques de l'application ([voir dashboards Grafana](https://openlatex.privatedns.org/grafana/dashboards)) et de mieux la maintenir / sécuriser (chiffrement, sauvegarde automatique, reverse proxy...).
+La stack permet d'automatiser les déploiements (CI/CD, Ansible), d'observer les métriques de l'application ([voir dashboards Grafana](https://openlatex-api.blavogiez.fr/grafana/dashboards)) et de mieux la maintenir / sécuriser (chiffrement, sauvegarde automatique, reverse proxy...).
 
 L'objectif de ce projet, au-delà de son utilité primaire, est de monter en compétences sur des cas concrets de production, afin de me préparer à ma poursuite d'études et mon alternance. Je me suis particulièrement concentré sur l'aspect **GitOps** (toute l'infra est décrite dans le repo, rien ne passe par la console AWS ou un `kubectl` manuel), **cloud** (setup hybride AWS Paris avec une EC2 pour l'API et un petit cluster k3s pour le compilateur), **sécurité** (sauvegardes chiffrées GPG, compilation sandboxée, rate limiting par IP et par userId, SSH hardening) et **optimisation** (HPA calibré au fil des load tests k6, scrapes Prometheus ajustés selon la criticité du service, image docker multi-stage).
 
@@ -176,7 +175,7 @@ Stack de monitoring : **Prometheus** + **Grafana** + **postgres-exporter** (côt
 
 Le Prometheus agent du cluster k3s fait du **remote-write** vers le Prometheus central du VPS API. Cela me donne une vue unifiée, sans avoir à exposer le cluster à l'extérieur.
 
-Grafana est accessible publiquement en lecture seule sur [`/grafana/ (cliquer pour voir)`](https://openlatex.privatedns.org/grafana/dashboards). Dashboards en place :
+Grafana est accessible publiquement en lecture seule sur [`/grafana/ (cliquer pour voir)`](https://openlatex-api.blavogiez.fr/grafana/dashboards). Dashboards en place :
 
 - **Account Manager** : durées HTTP (p50/p95), débit, mémoire, event loop lag
 - **Compilateur** : durée de compilation (p50/p95), débit, taux d'échec utilisateur vs erreur serveur

@@ -18,6 +18,19 @@
             effect: NoSchedule
       loop: "{{ query('kubernetes.core.k8s', kind='Node', label_selector='node-role.kubernetes.io/control-plane') | map(attribute='metadata.name') | list }}"
 
+    - name: Créer/mettre à jour le secret latex-compile(bypass limite compilation, pour les tests)
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: latex-compile-secret
+            namespace: default
+          type: Opaque
+          stringData:
+            TEST_BYPASS_SECRET: "{{ lookup('env', 'TEST_BYPASS_SECRET') }}"
+
     - name: Déployer le manifest latex-compile (il va déployer sur les workers qui ont été joints lors du user data terraform)
       kubernetes.core.k8s:
         state: present
@@ -73,4 +86,4 @@
         wait_condition:
           type: Available
           status: "True"
-        wait_timeout: 300
+        wait_timeout: 1200

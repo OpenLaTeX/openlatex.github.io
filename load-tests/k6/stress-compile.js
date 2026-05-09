@@ -9,7 +9,7 @@ import http from 'k6/http';
 import { check } from 'k6';
 import { textSummary } from 'https://jslib.k6.io/k6-summary/0.0.2/index.js';
 
-const BASE_URL = __ENV.BASE_URL || 'https://openlatex.privatedns.org';
+const BASE_URL = __ENV.BASE_URL || 'https://openlatex-api.blavogiez.fr';
 //const BASE_URL = __ENV.BASE_URL || 'http://13.39.204.79';
 const TEST_KEY = __ENV.TEST_KEY || '';
 
@@ -20,7 +20,7 @@ export const options = {
   scenarios: {
     stress_compile: {
       executor: 'shared-iterations',
-      vus: 8,
+      vus: 60,
       iterations: parseInt(__ENV.BURST_RATE || '10000', 10),
       maxDuration: '60m',
     },
