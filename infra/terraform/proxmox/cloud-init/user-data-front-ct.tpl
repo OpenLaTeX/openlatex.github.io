@@ -7,4 +7,4 @@ chmod 700 /home/root/.ssh
 chmod 600 /home/root/.ssh/authorized_keys
 
 apt-get update -qq
-apt-get install -y pip
+apt-get install -y git pip 

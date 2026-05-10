@@ -1,0 +1,89 @@
+---
+- hosts: all
+  gather_facts: false
+  vars:
+    deploy_branch: "{{ lookup('env', 'DEPLOY_BRANCH') }}"
+    repo_url: "{{ lookup('env', 'REPO_URL') }}"
+  tasks:
+    - name: Cloner ou mettre à jour le dépôt
+      ansible.builtin.git:
+        repo: "{{ repo_url }}"
+        dest: /root/openlatex
+        version: "{{ deploy_branch }}"
+        force: true
+        depth: 1
+
+    - name: Installer nodejs et npm
+      ansible.builtin.apt:
+        name:
+          - nodejs
+          - npm
+        state: present
+        update_cache: true
+      become: true
+
+    - name: Installer les dépendances npm
+      ansible.builtin.command:
+        cmd: npm ci
+        chdir: /root/openlatex/frontend
+
+    - name: Build le frontend
+      ansible.builtin.command:
+        cmd: npm run build
+        chdir: /root/openlatex/frontend
+
+    - name: Creer le repertoire web
+      ansible.builtin.file:
+        path: /var/www/openlatex
+        state: directory
+        mode: "0755"
+      become: true
+
+    - name: Copier le build vers /var/www
+      ansible.builtin.copy:
+        src: /root/openlatex/frontend/dist/
+        dest: /var/www/openlatex/
+        remote_src: true
+        mode: "0644"
+        directory_mode: "0755"
+      become: true
+
+    - name: Fixer les permissions sur /var/www/openlatex
+      ansible.builtin.file:
+        path: /var/www/openlatex
+        state: directory
+        mode: "0755"
+        recurse: true
+      become: true
+
+    - name: Ajouter le repo Caddy
+      ansible.builtin.shell:
+        cmd: curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/setup.deb.sh' | bash
+      become: true
+      args:
+        creates: /etc/apt/sources.list.d/caddy-stable.list
+
+    - name: Installer Caddy
+      ansible.builtin.apt:
+        name: caddy
+        state: present
+        update_cache: true
+      become: true
+
+    - name: Deployer la config Caddy
+      ansible.builtin.copy:
+        content: |
+          :80 {
+              root * /var/www/openlatex
+              file_server
+              try_files {path} /index.html
+          }
+        dest: /etc/caddy/Caddyfile
+      become: true
+
+    - name: Redemarrer Caddy
+      ansible.builtin.service:
+        name: caddy
+        state: restarted
+        enabled: true
+      become: true

@@ -16,35 +16,37 @@ concurrency:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: self-hosted
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Config SSH
+        uses: webfactory/ssh-agent@v0.7.0
         with:
-          node-version: '18'
+          ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
 
-      - name: Install dependencies
-        run: npm ci
-        working-directory: frontend
+      - name: Config SSH no strict host checking
+        run: |
+          mkdir -p ~/.ssh
+          echo "StrictHostKeyChecking no" >> ~/.ssh/config
+          chmod 600 ~/.ssh/config
 
-      - name: Build
-        run: npm run build
-        working-directory: frontend
+      - uses: actions/checkout@v4
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
+      - name: Installer ansible
+        run: |
+          pipx install ansible-core
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          export PATH="$HOME/.local/bin:$PATH"
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: './frontend/dist'
+      - name: Déployer sur le ct front
+        env:
+          FRONT_HOST: ${{ secrets.FRONT_HOST }}
+          FRONT_USER: ${{ secrets.FRONT_USER }}
+          DEPLOY_BRANCH: ${{ github.ref_name }}
+          REPO_URL: https://github.com/${{ github.repository }}.git
+        run: |
+          ansible-playbook ansible/playbooks/deploy-frontend.yml \
+            -i "$FRONT_HOST," \
+            -u "$FRONT_USER"
 
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+# job test après ?
+          

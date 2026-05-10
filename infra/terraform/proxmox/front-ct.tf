@@ -32,7 +32,7 @@ resource "proxmox_virtual_environment_container" "front" {
   }
 
   memory {
-    dedicated = 256
+    dedicated = 1024
   }
 
   disk {
