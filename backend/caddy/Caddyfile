@@ -9,7 +9,7 @@ http://openlatex-api.blavogiez.fr {
         Access-Control-Allow-Headers "Content-Type, Authorization"
         Access-Control-Allow-Credentials "true"
     }
-    @allowedOrigin header_regexp Origin ^https://(openlatex\.github\.io|openlatex\.v0id\.nl|openlatex\.privatedns\.org)$
+    @allowedOrigin header_regexp Origin ^https://(openlatex\.github\.io|openlatex\.blavogiez\.fr|openlatex\.v0id\.nl|openlatex\.privatedns\.org)$
     header @allowedOrigin Access-Control-Allow-Origin "{http.request.header.Origin}"
 
     @preflight method OPTIONS

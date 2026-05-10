@@ -4,11 +4,11 @@ resource "proxmox_virtual_environment_vm" "openlatex-kube-worker" {
   node_name = "homelab"
 
   cpu {
-    cores = 1
+    cores = 3
   }
 
   memory {
-    dedicated = 4096
+    dedicated = 8192
   }
 
   clone {

@@ -5,8 +5,8 @@ const Compiler = require('../lib/Compiler');
 
 const router = express.Router();
 
-const MAX_CONCURRENT = 5;
-const MAX_QUEUE = 20;
+const MAX_CONCURRENT = 10;
+const MAX_QUEUE = 30;
 const QUEUE_TIMEOUT_MS = 60000;
 
 let activeCompilations = 0;

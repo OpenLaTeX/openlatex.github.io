@@ -7,7 +7,7 @@ resource "proxmox_virtual_environment_vm" "openlatex-kube-master" {
   }
 
   memory {
-    dedicated = 3072
+    dedicated = 4196
   }
 
   clone {
