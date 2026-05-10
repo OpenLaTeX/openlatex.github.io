@@ -16,9 +16,11 @@ spec:
       - name: latex-compile
         image: ghcr.io/openlatex/openlatex-compile:latest
         imagePullPolicy: Always
-        envFrom: 
+        envFrom:
           - configMapRef:
               name: latex-compile-config
+          - secretRef:
+              name: latex-compile-secret
         resources:
           requests:
             cpu: 400m
@@ -53,31 +55,31 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: latex-compile 
-  minReplicas: 4
-  maxReplicas: 8
+  minReplicas: 10
+  maxReplicas: 30
   metrics:
     - type: Resource
       resource:
         name: cpu
         target:
           type: Utilization
-          averageUtilization: 80
+          averageUtilization: 50
   behavior:
     scaleUp:
       stabilizationWindowSeconds: 120
       policies:
       - type: Pods
-        value: 1
+        value: 3
         periodSeconds: 60
     scaleDown:
       stabilizationWindowSeconds: 600
       policies:
       - type: Pods
-        value: 1
+        value: 2
         periodSeconds: 240
 ---
 apiVersion: v1
-kind: ConfigMap 
+kind: ConfigMap
 data:
   FRONTEND_URL: https://openlatex.github.io
 metadata:

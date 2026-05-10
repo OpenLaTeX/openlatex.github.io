@@ -8,7 +8,7 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install --omit=dev
 
-COPY shared/ ./shared/
+#COPY shared/ ./shared/
 COPY account-manager/ ./
 
 USER node

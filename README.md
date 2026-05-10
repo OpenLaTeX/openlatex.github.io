@@ -1,6 +1,5 @@
 ![Logo OpenLaTeX](assets/logo.png)
 
-
 # [OpenLaTeX : Éditeur LaTeX Web collaboratif](https://openlatex.github.io)
 
 ## Sommaire

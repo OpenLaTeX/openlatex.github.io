@@ -7,7 +7,7 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install --omit=dev
 
-COPY shared/ ./shared/
+#COPY shared/ ./shared/
 COPY compiler/ ./
 
 RUN mkdir -p /tmp && chmod 1777 /tmp
