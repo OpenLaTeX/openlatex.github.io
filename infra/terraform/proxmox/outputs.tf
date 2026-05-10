@@ -54,3 +54,8 @@ output "openlatex_kube-worker2_ip" {
 # output "openlatex_kube-random-k3s_token" {
 #   value = proxmox_virtual_environment_vm.openlatex-kube-master.random_password.k3s_token.result
 # }
+
+output "front_ssh" {
+  description = "ssh vers le CT front"
+  value       = "ssh -t root@${var.front_ip}"
+}

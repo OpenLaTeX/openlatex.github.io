@@ -7,3 +7,7 @@ kube_master_ip      = "192.168.1.210"
 main_api_ip          = "192.168.1.148"
 kube_network_gateway = "192.168.1.1"
 kube_network_prefix  = 24
+
+
+front_ip         = "192.168.1.5"
+gateway          = "192.168.1.1"

@@ -32,3 +32,11 @@ variable "kube_network_prefix" {
   type    = number
   default = 24
 }
+
+variable "front_ip" {
+  type = string
+}
+
+variable "gateway" {
+  type = string
+}
