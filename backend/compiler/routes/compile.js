@@ -1,7 +1,6 @@
 const express = require('express');
 const promClient = require('prom-client');
-const FileManager = require('../lib/FileManager');
-const Compiler = require('../lib/Compiler');
+const CompileJobProcessor = require('../lib/CompileJobProcessor');
 
 const router = express.Router();
 
@@ -47,37 +46,41 @@ function releaseSlot() {
     compileQueueDepth.set(queue.length);
 }
 
-const compileDuration = new promClient.Histogram({
-  name: 'latex_compile_duration_seconds',
-  help: 'Durée des compilations LaTeX',
-  buckets: [1, 5, 10, 20, 30]
-});
+function getMetric(name, createMetric) {
+    return promClient.register.getSingleMetric(name) || createMetric();
+}
 
-const compileResult = new promClient.Counter({
-  name: 'latex_compile_total',
-  help: 'Nombre total de compilations',
-  labelNames: ['result']
-});
+const compileDuration = getMetric('latex_compile_duration_seconds', () => new promClient.Histogram({
+    name: 'latex_compile_duration_seconds',
+    help: 'Durée des compilations LaTeX',
+    buckets: [1, 5, 10, 20, 30]
+}));
 
-const compileActive = new promClient.Gauge({
-  name: 'latex_compile_active',
-  help: 'Compilations en cours'
-});
+const compileResult = getMetric('latex_compile_total', () => new promClient.Counter({
+    name: 'latex_compile_total',
+    help: 'Nombre total de compilations',
+    labelNames: ['result']
+}));
 
-const compileQueueDepth = new promClient.Gauge({
-  name: 'latex_compile_queue_depth',
-  help: 'Nombre de compilations en attente dans la queue'
-});
+const compileActive = getMetric('latex_compile_active', () => new promClient.Gauge({
+    name: 'latex_compile_active',
+    help: 'Compilations en cours'
+}));
 
-const compileQueueTimeout = new promClient.Counter({
-  name: 'latex_compile_queue_timeout_total',
-  help: 'Nombre de timeouts de queue'
-});
+const compileQueueDepth = getMetric('latex_compile_queue_depth', () => new promClient.Gauge({
+    name: 'latex_compile_queue_depth',
+    help: 'Nombre de compilations en attente dans la queue'
+}));
 
-const compileQueueFull = new promClient.Counter({
-  name: 'latex_compile_queue_full_total',
-  help: 'Nombre de rejets queue pleine (Server busy)'
-});
+const compileQueueTimeout = getMetric('latex_compile_queue_timeout_total', () => new promClient.Counter({
+    name: 'latex_compile_queue_timeout_total',
+    help: 'Nombre de timeouts de queue'
+}));
+
+const compileQueueFull = getMetric('latex_compile_queue_full_total', () => new promClient.Counter({
+    name: 'latex_compile_queue_full_total',
+    help: 'Nombre de rejets queue pleine (Server busy)'
+}));
 
 // compilation qui recoit les fichiers en HTTP, pas de persistance SQL (Le SQL sert à sauvegarder et ce serait moins performant de compiler avec le SQL)
 router.post('/', async (req, res) => {
@@ -95,18 +98,10 @@ router.post('/', async (req, res) => {
         return res.status(err.status || 503).json({ error: err.message });
     }
 
-    let workDir;
-
     try {
-        workDir = await FileManager.createProjectDir();
-        await FileManager.writeFiles(workDir, files);
-
         const endTimer = compileDuration.startTimer();
-        const result = await Compiler.compile(workDir, mainFile);
+        const result = await CompileJobProcessor.process({ files, mainFile });
         endTimer();
-
-        await FileManager.cleanup(workDir);
-        workDir = null;
 
         if (result.success) {
             compileResult.inc({ result: 'success' });
@@ -125,9 +120,6 @@ router.post('/', async (req, res) => {
     } catch (error) {
         compileResult.inc({ result: 'server_error' });
         console.error('erreur compilation:', error);
-        if (workDir) {
-            await FileManager.cleanup(workDir);
-        }
         res.status(500).json({ error: error.message });
     } finally {
         releaseSlot();
