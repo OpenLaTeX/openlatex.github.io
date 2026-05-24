@@ -26,7 +26,7 @@
           kind: Secret
           metadata:
             name: latex-compile-secret
-            namespace: default
+            namespace: openlatex-dev
           type: Opaque
           stringData:
             TEST_BYPASS_SECRET: "{{ lookup('env', 'TEST_BYPASS_SECRET') }}"
@@ -34,12 +34,8 @@
     - name: Déployer le manifest latex-compile (il va déployer sur les workers qui ont été joints lors du user data terraform)
       kubernetes.core.k8s:
         state: present
+        namespace: openlatex-dev
         src: "{{ playbook_dir }}/../../infra/kubernetes/latex-compile.yaml"
-
-    - name: Déployer l'ingress latex-compile
-      kubernetes.core.k8s:
-        state: present
-        src: "{{ playbook_dir }}/../../infra/kubernetes/latex-compile-ingress.yaml"
 
     - name: Déployer kube-state-metrics
       kubernetes.core.k8s:
@@ -51,37 +47,11 @@
         state: present
         src: "{{ playbook_dir }}/../../infra/kubernetes/prometheus-agent.yaml"
 
-    # - name: Rollout restart pour appliquer le nouveau secret  !
-    #   kubernetes.core.k8s:
-    #     state: patched
-    #     kind: Deployment
-    #     name: latex-compile
-    #     namespace: default
-    #     definition:
-    #       spec:
-    #         template:
-    #           metadata:
-    #             annotations:
-    #               kubectl.kubernetes.io/restartedAt: "{{ now(utc=True, fmt='%Y-%m-%dT%H:%M:%SZ') }}"
-
-    # - name: État des pods avant attente
-    #   kubernetes.core.k8s_info:
-    #     kind: Pod
-    #     namespace: default
-    #     label_selectors:
-    #       - app=latex-compile
-    #   register: pods_before
-
-    # - name: Afficher l'état des pods
-    #   debug:
-    #     msg: "{{ item.metadata.name }} — {{ item.status.phase }} — {{ item.status.containerStatuses | default([]) | map(attribute='state') | list }}"
-    #   loop: "{{ pods_before.resources }}"
-
     - name: Attendre que le déploiement soit prêt
       kubernetes.core.k8s_info:
         kind: Deployment
         name: latex-compile
-        namespace: default
+        namespace: openlatex-dev
         wait: true
         wait_condition:
           type: Available

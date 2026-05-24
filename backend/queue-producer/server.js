@@ -34,7 +34,7 @@ const httpDuration = getMetric('http_request_duration_seconds', () => new promCl
 
 const compileDuration = getMetric('latex_compile_duration_seconds', () => new promClient.Histogram({
     name: 'latex_compile_duration_seconds',
-    help: 'Duree des compilations LaTeX',
+    help: 'Duréé des compilations LaTeX',
     buckets: [1, 5, 10, 20, 30]
 }));
 
