@@ -19,8 +19,6 @@ spec:
         envFrom:
           - configMapRef:
               name: latex-compile-config
-          - secretRef:
-              name: latex-compile-secret
         resources:
           requests:
             cpu: 400m
@@ -92,6 +90,8 @@ spec:
         envFrom:
           - configMapRef:
               name: latex-compile-config
+          - secretRef:
+              name: latex-compile-secret
 status: {}
 ---
 apiVersion: v1
