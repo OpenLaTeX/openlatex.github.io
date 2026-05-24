@@ -47,6 +47,21 @@
         state: present
         src: "{{ playbook_dir }}/../../infra/kubernetes/prometheus-agent.yaml"
 
+    - name: Redémarrer Prometheus agent pour recharger sa config
+      kubernetes.core.k8s:
+        state: patched
+        definition:
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+            name: prometheus-agent
+            namespace: openlatex-dev
+          spec:
+            template:
+              metadata:
+                annotations:
+                  kubectl.kubernetes.io/restartedAt: "{{ lookup('pipe', 'date -u +%Y-%m-%dT%H:%M:%SZ') }}"
+
     - name: Attendre que les déploiements soient prêts
       kubernetes.core.k8s_info:
         kind: Deployment
@@ -61,3 +76,5 @@
         - latex-compile-redis
         - latex-compile-queue-producer
         - latex-compile-queue-worker
+        - kube-state-metrics
+        - prometheus-agent

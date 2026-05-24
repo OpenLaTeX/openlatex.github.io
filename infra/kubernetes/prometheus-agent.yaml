@@ -41,10 +41,10 @@ data:
         kubernetes_sd_configs:
           - role: pod
             namespaces:
-              names: ['default']
+              names: ['openlatex-dev']
         relabel_configs:
           - source_labels: [__meta_kubernetes_pod_label_app]
-            regex: latex-compile
+            regex: latex-compile-queue-producer
             action: keep
           - source_labels: [__meta_kubernetes_pod_ip]
             target_label: __address__
@@ -54,7 +54,7 @@ data:
 
       - job_name: 'kube-state-metrics'
         static_configs:
-          - targets: ['kube-state-metrics-svc.default.svc.cluster.local:8080']
+          - targets: ['kube-state-metrics-svc.openlatex-dev.svc.cluster.local:8080']
 
     remote_write:
       # hostname internal AWS de l'api vps (résolu par le VPC, pas de /etc/hosts). ip privée donc pas interprétable ailleurs
