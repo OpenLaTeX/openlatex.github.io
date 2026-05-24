@@ -47,13 +47,17 @@
         state: present
         src: "{{ playbook_dir }}/../../infra/kubernetes/prometheus-agent.yaml"
 
-    - name: Attendre que le déploiement soit prêt
+    - name: Attendre que les déploiements soient prêts
       kubernetes.core.k8s_info:
         kind: Deployment
-        name: latex-compile
+        name: "{{ item }}"
         namespace: openlatex-dev
         wait: true
         wait_condition:
           type: Available
           status: "True"
         wait_timeout: 1200
+      loop: 
+        - latex-compile-redis
+        - latex-compile-queue-producer
+        - latex-compile-queue-worker

@@ -74,6 +74,17 @@ spec:
       labels:
         app: latex-compile-queue-producer
     spec:
+      initContainers:
+      - name: wait-for-redis
+        image: redis:alpine
+        command:
+          - sh
+          - -c
+          - |
+            until redis-cli -h latex-compile-redis-svc -p 6379 ping | grep PONG; do
+              echo "Attente redis"
+              sleep 2
+            done
       containers:
       - image: ghcr.io/openlatex/openlatex-queue-producer:latest
         name: latex-compile-queue-producer
@@ -119,7 +130,7 @@ spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: latex-compile 
+    name: latex-compile-queue-worker
   minReplicas: 5
   maxReplicas: 15
   metrics:
