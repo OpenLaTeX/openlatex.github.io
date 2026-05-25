@@ -4,7 +4,9 @@ require('dotenv').config();
 const CompileJobProcessor = require('./lib/CompileJobProcessor');
 
 const QUEUE_NAME = process.env.QUEUE_NAME || 'latex-compile';
-const WORKER_CONCURRENCY = Number(process.env.WORKER_CONCURRENCY || 1);
+
+const DEFAULT_CONCURRENCY = 4 ; 
+const WORKER_CONCURRENCY = Number(process.env.WORKER_CONCURRENCY || DEFAULT_CONCURRENCY);
 
 const connection = {
     host: process.env.REDIS_HOST || '127.0.0.1',
