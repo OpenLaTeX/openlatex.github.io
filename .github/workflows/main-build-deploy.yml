@@ -167,6 +167,9 @@ jobs:
           export PATH="$HOME/.local/bin:$PATH"
           ansible-galaxy collection install kubernetes.core
 
+      - name: Installer Helm
+        uses: azure/setup-helm@v4
+
       - name: Config SSH
         uses: webfactory/ssh-agent@v0.7.0
         with:
@@ -183,7 +186,7 @@ jobs:
       - name: Déployer sur k3s
         env:
           TEST_BYPASS_SECRET: ${{ secrets.TEST_BYPASS_SECRET }}
-        run: KUBECONFIG=$HOME/.kube/config ansible-playbook ansible/playbooks/deploy-k3s-compile.yml
+        run: KUBECONFIG=$HOME/.kube/config ansible-playbook ansible/playbooks/deploy-helm-chart.yml
 
   infra-load-tests:
     needs: [deploy, deploy-k3s]
