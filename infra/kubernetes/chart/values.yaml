@@ -13,5 +13,5 @@ remoteWriteUrl: http://192.168.1.148:9090/api/v1/write
 nodePort: 30080
 
 hpa:
-  minReplicas: 5
-  maxReplicas: 15
+  minReplicas: 2
+  maxReplicas: 8

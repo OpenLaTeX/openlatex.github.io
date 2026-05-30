@@ -1,4 +1,4 @@
-# OpenLaTeX compile chart
+# helm chart pour le backend compilation
 
 ```sh
 helm lint chart

@@ -5,7 +5,7 @@ name: (DOCKER/BACKEND) - Construction et déploiement des images spécifiques + 
 
 on:
   push:
-    branches: [main, backend/*, 19*]
+    branches: [main, backend/*]
   workflow_dispatch:
 
 concurrency:
