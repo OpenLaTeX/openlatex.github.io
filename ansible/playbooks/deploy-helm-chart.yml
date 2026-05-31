@@ -1,0 +1,64 @@
+# deployer k3s sur master
+# on rappelle que k3s est installé en user data de terraform
+# Ce playbook tourne sur le contrôleur local et parle directement à l'API k3s. de ce fait pas besoin de config le ssh
+
+---
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  environment:
+    K8S_AUTH_KUBECONFIG: "{{ lookup('env', 'KUBECONFIG') | default('./k3s.yaml') }}"
+  tasks:
+    - name: Taint le node master pour interdire les workloads compilateur (k3s le fait pas par défaut, ca va bottleneck master sinon)
+      kubernetes.core.k8s_taint:
+        state: present
+        name: "{{ item }}"
+        taints:
+          - key: node-role.kubernetes.io/control-plane
+            effect: NoSchedule
+      loop: "{{ query('kubernetes.core.k8s', kind='Node', label_selector='node-role.kubernetes.io/control-plane') | map(attribute='metadata.name') | list }}"
+
+    - name: Créer le namespace openlatex-dev
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Namespace
+          metadata:
+            name: openlatex-dev
+
+    - name: Créer/mettre à jour le secret latex-compile(bypass limite compilation, pour les tests)
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: latex-compile-secret
+            namespace: openlatex-dev
+          type: Opaque
+          stringData:
+            TEST_BYPASS_SECRET: "{{ lookup('env', 'TEST_BYPASS_SECRET') }}"
+
+    - name: Déployer le helm chart complet
+      kubernetes.core.helm:
+        name: openlatex-compile
+        chart_ref: "{{ playbook_dir }}/../../infra/kubernetes/chart"
+        release_namespace: openlatex-dev
+         
+    - name: Attendre que les déploiements soient prêts
+      kubernetes.core.k8s_info:
+        kind: Deployment
+        name: "{{ item }}"
+        namespace: openlatex-dev
+        wait: true
+        wait_condition:
+          type: Available
+          status: "True"
+        wait_timeout: 1200
+      loop: 
+        - latex-compile-redis
+        - latex-compile-queue-producer
+        - latex-compile-queue-worker
+        - kube-state-metrics
+        - prometheus-agent

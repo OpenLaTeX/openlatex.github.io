@@ -12,7 +12,7 @@ groups:
 
       - alert: CompilerSuccessRateLow
         expr: |
-          sum(rate(latex_compile_total{job="k3s-compiler",result!="server_error"}[5m]))
+          sum(rate(latex_compile_total{job="k3s-compiler",result="success"}[5m]))
           / sum(rate(latex_compile_total{job="k3s-compiler"}[5m])) * 100 < 80
         for: 5m
         labels:

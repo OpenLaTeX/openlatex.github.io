@@ -7,7 +7,7 @@ resource "proxmox_virtual_environment_vm" "openlatex-runner" {
   }
 
   memory {
-    dedicated = 1024
+    dedicated = 2048
   }
 
   clone {

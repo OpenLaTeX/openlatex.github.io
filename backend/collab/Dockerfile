@@ -5,7 +5,7 @@ WORKDIR /app
 COPY collab/package*.json ./
 RUN npm install --omit=dev
 
-COPY shared/ ./shared/
+#COPY shared/ ./shared/
 COPY collab/ ./
 
 USER node

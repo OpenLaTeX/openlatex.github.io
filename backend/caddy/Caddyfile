@@ -5,27 +5,29 @@ http://openlatex-api.blavogiez.fr {
         X-Frame-Options "DENY"
         Referrer-Policy "strict-origin-when-cross-origin"
         Permissions-Policy "camera=(), microphone=(), geolocation=()"
-        Access-Control-Allow-Origin "https://openlatex.github.io"
         Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
         Access-Control-Allow-Headers "Content-Type, Authorization"
         Access-Control-Allow-Credentials "true"
     }
+    @allowedOrigin header_regexp Origin ^https://(openlatex\.github\.io|openlatex\.blavogiez\.fr|openlatex\.v0id\.nl|openlatex\.privatedns\.org)$
+    header @allowedOrigin Access-Control-Allow-Origin "{http.request.header.Origin}"
+
     @preflight method OPTIONS
     handle @preflight {
         header {
-            Access-Control-Allow-Origin "https://openlatex.github.io"
             Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
             Access-Control-Allow-Headers "Content-Type, Authorization"
             Access-Control-Allow-Credentials "true"
             Access-Control-Max-Age "3600"
         }
+        header @allowedOrigin Access-Control-Allow-Origin "{http.request.header.Origin}"
         respond 204
     }
     handle /collab/* {
         reverse_proxy collab:7000
     }
     handle /compile* {
-        reverse_proxy 192.168.1.210 {
+        reverse_proxy 192.168.1.210:30080 {
             header_down -Access-Control-Allow-Origin
             header_down -Access-Control-Allow-Methods
             header_down -Access-Control-Allow-Headers
