@@ -142,9 +142,13 @@ async function shutdown() {
     process.exit(0);
 }
 
-process.on('SIGTERM', shutdown);
-process.on('SIGINT', shutdown);
+if (require.main === module) {
+    process.on('SIGTERM', shutdown);
+    process.on('SIGINT', shutdown);
 
-app.listen(PORT, () => {
-    console.log(`queue-producer demarre sur le port ${PORT}, queue=${QUEUE_NAME}`);
-});
+    app.listen(PORT, () => {
+        console.log(`queue-producer demarre sur le port ${PORT}, queue=${QUEUE_NAME}`);
+    });
+}
+
+module.exports = { app };
