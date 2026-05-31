@@ -1,7 +1,5 @@
 ![Logo OpenLaTeX](assets/logo.png)
 
-**Migration cloud (infra proxmox auto-hébergée) effectuée au Dimanche 10 mai : fonctionnel, plus de tests à venir dans les prochains jours**
-
 # [OpenLaTeX : Éditeur LaTeX Web collaboratif](https://openlatex.github.io)
 
 ## Sommaire

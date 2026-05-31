@@ -54,7 +54,7 @@ export default function () {
   });
 
   const ok = check(res, {
-    'status 200 ou 500': (r) => r.status === 200 || r.status === 500,
+    'status 200': (r) => r.status === 200,
   });
 
   console.log(`[compile] status=${res.status} duration=${res.timings.duration.toFixed(0)}ms ok=${ok}`);
