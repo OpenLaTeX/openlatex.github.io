@@ -7,8 +7,20 @@ const execPromise = util.promisify(exec);
 
 class Compiler {
     static async compile(workDir, mainFile) {
-        const mainFileDir = path.dirname(path.join(workDir, mainFile));
-        const mainFileName = path.basename(mainFile);
+        if (!mainFile || typeof mainFile !== 'string') {
+            throw new Error('Invalid file name');
+        }
+
+        const resolvedWorkDir = path.resolve(workDir);
+        const resolvedTarget = path.resolve(resolvedWorkDir, mainFile);
+        const relativeToWork = path.relative(resolvedWorkDir, resolvedTarget);
+
+        if (relativeToWork.startsWith('..') || path.isAbsolute(relativeToWork)) {
+            throw new Error('File path outside working directory');
+        }
+
+        const mainFileDir = path.dirname(resolvedTarget);
+        const mainFileName = path.basename(resolvedTarget);
 
         if (!/^[a-zA-Z0-9_\-\.]+$/.test(mainFileName)) {
             throw new Error('Invalid file name');

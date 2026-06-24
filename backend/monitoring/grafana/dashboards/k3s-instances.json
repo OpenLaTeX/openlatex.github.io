@@ -25,7 +25,7 @@
         "type": "prometheus",
         "uid": "prometheus"
       },
-      "description": "Nombre de replicas prêts",
+      "description": "Nombre de workers prêts",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -63,14 +63,14 @@
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "editorMode": "code",
-          "expr": "kube_deployment_status_replicas_ready{deployment=\"latex-compile\"}",
+          "expr": "kube_deployment_status_replicas_ready{namespace=\"openlatex-dev\",deployment=\"latex-compile-queue-worker\"}",
           "instant": true,
-          "legendFormat": "Replicas prêts",
+          "legendFormat": "Workers prêts",
           "range": false,
           "refId": "A"
         }
       ],
-      "title": "Replicas actuels",
+      "title": "Workers prêts",
       "type": "stat"
     },
     {
@@ -78,7 +78,7 @@
         "type": "prometheus",
         "uid": "prometheus"
       },
-      "description": "Nombre de replicas souhaités par le HPA (min : 2 ; max : 5)",
+      "description": "Nombre de workers souhaités par le HPA",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -116,14 +116,14 @@
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "editorMode": "code",
-          "expr": "kube_horizontalpodautoscaler_status_desired_replicas{horizontalpodautoscaler=\"latex-compile-hpa\"}",
+          "expr": "kube_horizontalpodautoscaler_status_desired_replicas{namespace=\"openlatex-dev\",horizontalpodautoscaler=\"latex-compile-hpa\"}",
           "instant": true,
           "legendFormat": "Souhaités (HPA)",
           "range": false,
           "refId": "A"
         }
       ],
-      "title": "Replicas souhaités (HPA) (Min 4, Max 8)",
+      "title": "Workers souhaités (HPA)",
       "type": "stat"
     },
     {
@@ -131,7 +131,7 @@
         "type": "prometheus",
         "uid": "prometheus"
       },
-      "description": "Nombre de redémarrages de pods compilateur sur la dernière heure",
+      "description": "Nombre de redémarrages des workers sur la dernière heure",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -169,7 +169,7 @@
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "editorMode": "code",
-          "expr": "sum(increase(kube_pod_container_status_restarts_total{namespace=\"default\",container=\"latex-compile\"}[1h]))",
+          "expr": "sum(increase(kube_pod_container_status_restarts_total{namespace=\"openlatex-dev\",container=\"latex-compile-queue-worker\"}[1h]))",
           "instant": true,
           "legendFormat": "Redémarrages",
           "range": false,
@@ -184,7 +184,7 @@
         "type": "prometheus",
         "uid": "prometheus"
       },
-      "description": "Évolution du nombre de replicas prêts vs souhaités par le HPA",
+      "description": "Évolution du nombre de workers prêts vs souhaités par le HPA",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -242,16 +242,16 @@
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "editorMode": "code",
-          "expr": "kube_deployment_status_replicas_ready{deployment=\"latex-compile\"}",
+          "expr": "kube_deployment_status_replicas_ready{namespace=\"openlatex-dev\",deployment=\"latex-compile-queue-worker\"}",
           "instant": false,
-          "legendFormat": "Prêts",
+          "legendFormat": "Workers prêts",
           "range": true,
           "refId": "A"
         },
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "editorMode": "code",
-          "expr": "kube_horizontalpodautoscaler_status_desired_replicas{horizontalpodautoscaler=\"latex-compile-hpa\"}",
+          "expr": "kube_horizontalpodautoscaler_status_desired_replicas{namespace=\"openlatex-dev\",horizontalpodautoscaler=\"latex-compile-hpa\"}",
           "instant": false,
           "legendFormat": "Souhaités (HPA)",
           "range": true,
@@ -260,14 +260,14 @@
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "editorMode": "code",
-          "expr": "kube_horizontalpodautoscaler_spec_max_replicas{horizontalpodautoscaler=\"latex-compile-hpa\"}",
+          "expr": "kube_horizontalpodautoscaler_spec_max_replicas{namespace=\"openlatex-dev\",horizontalpodautoscaler=\"latex-compile-hpa\"}",
           "instant": false,
           "legendFormat": "Max (HPA)",
           "range": true,
           "refId": "C"
         }
       ],
-      "title": "Évolution des replicas",
+      "title": "Évolution des workers",
       "type": "timeseries"
     },
     {
@@ -275,7 +275,7 @@
         "type": "prometheus",
         "uid": "prometheus"
       },
-      "description": "Nombre de redémarrages de pods compilateur par heure",
+      "description": "Nombre de redémarrages des workers par heure",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -333,14 +333,14 @@
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "editorMode": "code",
-          "expr": "sum(increase(kube_pod_container_status_restarts_total{namespace=\"default\",container=\"latex-compile\"}[1h]))",
+          "expr": "sum(increase(kube_pod_container_status_restarts_total{namespace=\"openlatex-dev\",container=\"latex-compile-queue-worker\"}[1h]))",
           "instant": false,
           "legendFormat": "Redémarrages/heure",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Redémarrages pods par heure",
+      "title": "Redémarrages workers par heure",
       "type": "timeseries"
     }
   ],

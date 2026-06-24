@@ -84,7 +84,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "avg(avg_over_time(up{job=\"k3s-compiler\"}[30d])) * 100",
+          "expr": "avg(avg_over_time(up{job=\"k3s-compiler\"}[5d])) * 100",
           "instant": true,
           "legendFormat": "Disponibilité (5j)",
           "range": false,
@@ -158,7 +158,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum(increase(latex_compile_total{job=\"k3s-compiler\",result!=\"server_error\"}[$__range])) / sum(increase(latex_compile_total{job=\"k3s-compiler\"}[$__range])) * 100",
+          "expr": "sum(increase(latex_compile_total{job=\"k3s-compiler\",result=\"success\"}[$__range])) / sum(increase(latex_compile_total{job=\"k3s-compiler\"}[$__range])) * 100",
           "instant": false,
           "legendFormat": "Taux de succès",
           "range": true,
@@ -682,7 +682,7 @@
           "refId": "A"
         }
       ],
-      "title": "Distribution des codes de retour",
+      "title": "Distribution des résultats",
       "type": "piechart"
     },
     {
@@ -866,7 +866,7 @@
         "type": "prometheus",
         "uid": "prometheus"
       },
-      "description": "Compilations actives et requêtes en attente dans la queue",
+      "description": "Requêtes en attente dans la queue Redis",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -947,26 +947,14 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum(latex_compile_active{job=\"k3s-compiler\"})",
-          "instant": false,
-          "legendFormat": "Actives",
-          "range": true,
-          "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "editorMode": "code",
           "expr": "sum(latex_compile_queue_depth{job=\"k3s-compiler\"})",
           "instant": false,
           "legendFormat": "En queue",
           "range": true,
-          "refId": "B"
+          "refId": "A"
         }
       ],
-      "title": "Saturation du compilateur (actives + queue)",
+      "title": "Queue de compilation",
       "type": "timeseries"
     },
     {
@@ -974,7 +962,7 @@
         "type": "prometheus",
         "uid": "prometheus"
       },
-      "description": "Rejets de queue : timeout 60s (latex_compile_queue_timeout_total) + queue pleine / Server busy (latex_compile_queue_full_total)",
+      "description": "Erreurs serveur côté queue-producer, incluant les timeouts d'attente de job",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1055,26 +1043,14 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum(increase(latex_compile_queue_timeout_total{job=\"k3s-compiler\"}[1h]))",
+          "expr": "sum(increase(latex_compile_total{job=\"k3s-compiler\",result=\"server_error\"}[1h]))",
           "instant": false,
-          "legendFormat": "Timeout 60s",
+          "legendFormat": "Erreurs serveur",
           "range": true,
           "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "editorMode": "code",
-          "expr": "sum(increase(latex_compile_queue_full_total{job=\"k3s-compiler\"}[1h]))",
-          "instant": false,
-          "legendFormat": "Queue pleine (Server busy)",
-          "range": true,
-          "refId": "B"
         }
       ],
-      "title": "Rejets de queue (saturations/heure)",
+      "title": "Erreurs producer (1h)",
       "type": "timeseries"
     }
   ],

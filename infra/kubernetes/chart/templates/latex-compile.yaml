@@ -1,0 +1,166 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: latex-compile-queue-worker
+  namespace: {{ .Values.namespace }}
+spec:
+  selector:
+    matchLabels:
+      app: latex-compile-queue-worker
+  template:
+    metadata:
+      labels:
+        app: latex-compile-queue-worker
+    spec:
+      containers:
+      - name: latex-compile-queue-worker
+        image: {{ .Values.images.worker }}
+        imagePullPolicy: Always
+        envFrom:
+          - configMapRef:
+              name: latex-compile-config
+        resources:
+          requests:
+            cpu: 400m
+            memory: 200Mi
+          limits:
+            cpu: 1200m
+            memory: 2000Mi
+        ports:
+          - containerPort: 9000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: latex-compile-redis
+  name: latex-compile-redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: latex-compile-redis
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: latex-compile-redis
+    spec:
+      containers:
+      - image: {{ .Values.images.redis }}
+        name: latex-compile-redis
+        resources: {}
+        envFrom:
+          - configMapRef:
+              name: latex-compile-config
+status: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: latex-compile-queue-producer
+  name: latex-compile-queue-producer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: latex-compile-queue-producer
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: latex-compile-queue-producer
+    spec:
+      initContainers:
+      - name: wait-for-redis
+        image: redis:alpine
+        command:
+          - sh
+          - -c
+          - |
+            until redis-cli -h latex-compile-redis-svc -p 6379 ping | grep PONG; do
+              echo "Attente redis"
+              sleep 2
+            done
+      containers:
+      - image: {{ .Values.images.producer }}
+        name: latex-compile-queue-producer
+        resources: {}
+        envFrom:
+          - configMapRef:
+              name: latex-compile-config
+          - secretRef:
+              name: latex-compile-secret
+status: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: latex-compile-redis-svc
+  namespace: {{ .Values.namespace }}
+spec:
+  type: ClusterIP
+  selector:
+    app: latex-compile-redis
+  ports:
+  - port: 6379
+    targetPort: 6379
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: latex-compile-queue-producer-svc
+  namespace: {{ .Values.namespace }}
+spec:
+  type: NodePort
+  selector:
+    app: latex-compile-queue-producer
+  ports:
+  - port: 80
+    targetPort: 9000
+    nodePort: {{ .Values.nodePort }}
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler 
+metadata:
+  name: latex-compile-hpa
+  namespace: {{ .Values.namespace }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: latex-compile-queue-worker
+  minReplicas: {{ .Values.hpa.minReplicas }}
+  maxReplicas: {{ .Values.hpa.maxReplicas }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 50
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 120
+      policies:
+      - type: Pods
+        value: 3
+        periodSeconds: 60
+    scaleDown:
+      stabilizationWindowSeconds: 600
+      policies:
+      - type: Pods
+        value: 2
+        periodSeconds: 240
+---
+apiVersion: v1
+kind: ConfigMap
+data:
+  FRONTEND_URL: {{ .Values.frontendUrl }}
+  REDIS_HOST: latex-compile-redis-svc
+  REDIS_PORT: "6379"
+metadata:
+  name: latex-compile-config
+  namespace: {{ .Values.namespace }}
+---
