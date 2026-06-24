@@ -1,5 +1,7 @@
 ![Logo OpenLaTeX](assets/logo.png)
 
+**Fork pour épingler sur le profil `blavogiez` - pour voir les runs CI/CD, consultez le [dépôt original](https://github.com/OpenLaTeX/openlatex.github.io)**
+
 # [OpenLaTeX : Éditeur LaTeX Web collaboratif](https://openlatex.github.io)
 
 ## Sommaire
