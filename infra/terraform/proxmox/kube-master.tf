@@ -1,6 +1,8 @@
 resource "proxmox_virtual_environment_vm" "openlatex-kube-master" {
+  vm_id     = 252
+  tags = ["openlatex", "kube-control-plane"]
   name      = "openlatex-kube-master"
-  node_name = "homelab"
+  node_name = "pve1"
 
   cpu {
     cores = 1
@@ -15,9 +17,9 @@ resource "proxmox_virtual_environment_vm" "openlatex-kube-master" {
   }
 
   disk {
-    datastore_id = "local-lvm"
+    datastore_id = "encrypted-zfs"
     interface    = "scsi0"
-    size         = 15
+    size         = 8
   }
 
   agent {
@@ -26,7 +28,7 @@ resource "proxmox_virtual_environment_vm" "openlatex-kube-master" {
   }
 
   network_device {
-    bridge = "vmbr0"
+    bridge = "pubvnet1"
   }
 
   initialization {
@@ -36,6 +38,7 @@ resource "proxmox_virtual_environment_vm" "openlatex-kube-master" {
         gateway = var.kube_network_gateway
       }
     }
+    datastore_id = "encrypted-zfs"
 
     user_account {
       keys     = [file(var.ssh_public_key_path)]
@@ -55,7 +58,7 @@ resource "random_password" "k3s_token" {
 resource "proxmox_virtual_environment_file" "kube-master_user_data" {
   content_type = "snippets"
   datastore_id = "local"
-  node_name    = "homelab"
+  node_name    = "pve1"
 
   source_raw {
     file_name = "user-data-kube-master.yaml"

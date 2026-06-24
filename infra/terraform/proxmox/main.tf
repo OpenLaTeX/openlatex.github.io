@@ -12,13 +12,13 @@ terraform {
 }
 
 provider "proxmox" {
-  endpoint  = var.endpoint
-  api_token = var.api_token
-  insecure  = true
+  endpoint  = var.proxmox_endpoint
+  api_token = var.proxmox_api_token
+  insecure  = var.proxmox_insecure
 
   ssh {
+    username    = var.proxmox_ssh_username
     agent       = false
-    username    = "terraform"
-    private_key = file("~/.ssh/proxmox_terraform")
+    private_key = file(pathexpand(var.proxmox_ssh_private_key_path))
   }
 }

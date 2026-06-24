@@ -57,8 +57,6 @@ data:
           - targets: ['kube-state-metrics-svc.{{ .Values.namespace }}.svc.cluster.local:8080']
 
     remote_write:
-      # hostname internal AWS de l'api vps (résolu par le VPC, pas de /etc/hosts). ip privée donc pas interprétable ailleurs
-      # 10.0.1.82 est donc fixée dans Terraform comme étant toujours l'ip privée de l'api vps pour être stable.
       - url: {{ .Values.remoteWriteUrl | quote }}
 ---
 apiVersion: apps/v1

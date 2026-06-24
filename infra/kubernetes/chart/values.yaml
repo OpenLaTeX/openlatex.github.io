@@ -8,7 +8,7 @@ images:
   kubeStateMetrics: registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.12.0
 
 frontendUrl: https://openlatex.github.io
-remoteWriteUrl: http://192.168.1.148:9090/api/v1/write
+remoteWriteUrl: http://172.16.10.51:9090/api/v1/write
 
 nodePort: 30080
 

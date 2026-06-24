@@ -15,6 +15,7 @@ packages:
 runcmd:
   - systemctl enable qemu-guest-agent
   - systemctl start qemu-guest-agent
+  - touch HELLO
   - |
     #!/bin/bash
     set -euo pipefail
@@ -22,7 +23,7 @@ runcmd:
     apt-get update -y
 
     # attendre que le master soit prêt
-    until curl -sk https://${master_private_ip}:6443/healthz; do
+    until curl -sk https://${master_private_ip}:6443/healthz > toto.log ; do
       echo "Master pas pret"; sleep 10
     done
 
