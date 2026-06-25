@@ -55,7 +55,7 @@
         wait_condition:
           type: Available
           status: "True"
-        wait_timeout: 1200
+        wait_timeout: 3600
       loop: 
         - latex-compile-redis
         - latex-compile-queue-producer

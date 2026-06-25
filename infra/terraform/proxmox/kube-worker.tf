@@ -1,7 +1,9 @@
 resource "proxmox_virtual_environment_vm" "openlatex-kube-worker" {
   count     = 2
+  vm_id = 253 + count.index
+  tags = ["openlatex", "kube-worker"]
   name      = "openlatex-kube-worker-${count.index}"
-  node_name = "homelab"
+  node_name = "pve1"
 
   cpu {
     cores = 3
@@ -16,9 +18,9 @@ resource "proxmox_virtual_environment_vm" "openlatex-kube-worker" {
   }
 
   disk {
-    datastore_id = "local-lvm"
+    datastore_id = "encrypted-zfs"
     interface    = "scsi0"
-    size         = 15
+    size         = 8
   }
 
   agent {
@@ -27,15 +29,17 @@ resource "proxmox_virtual_environment_vm" "openlatex-kube-worker" {
   }
 
   network_device {
-    bridge = "vmbr0"
+    bridge = "pubvnet1"
   }
 
   initialization {
     ip_config {
       ipv4 {
-        address = "dhcp"
+        address = "${var.kube_worker_ip_prefix}.${var.kube_worker_ip_start + count.index}/24"        
+        gateway = var.kube_network_gateway
       }
     }
+    datastore_id = "encrypted-zfs"
 
     user_account {
       keys     = [file(var.ssh_public_key_path)]
@@ -52,7 +56,7 @@ resource "proxmox_virtual_environment_vm" "openlatex-kube-worker" {
 resource "proxmox_virtual_environment_file" "kube-worker_user_data" {
   content_type = "snippets"
   datastore_id = "local"
-  node_name    = "homelab"
+  node_name    = "pve1"
 
   source_raw {
     file_name = "user-data-kube-worker.yaml"

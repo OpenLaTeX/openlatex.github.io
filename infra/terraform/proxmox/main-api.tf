@@ -1,6 +1,8 @@
 resource "proxmox_virtual_environment_vm" "openlatex-main-api" {
+  vm_id     = 251
+  tags = ["openlatex", "service"]
   name      = "openlatex-main-api"
-  node_name = "homelab"
+  node_name = "pve1"
 
   cpu {
     cores = 1
@@ -14,7 +16,7 @@ resource "proxmox_virtual_environment_vm" "openlatex-main-api" {
   }
 
   disk {
-    datastore_id = "local-lvm"
+    datastore_id = "encrypted-zfs"
     interface    = "scsi0"
     size         = 30
   }
@@ -25,7 +27,7 @@ resource "proxmox_virtual_environment_vm" "openlatex-main-api" {
   }
 
   network_device {
-    bridge = "vmbr0"
+    bridge = "pubvnet1"
   }
 
   initialization {
@@ -35,6 +37,7 @@ resource "proxmox_virtual_environment_vm" "openlatex-main-api" {
         gateway = var.kube_network_gateway
       }
     }
+    datastore_id = "encrypted-zfs"
 
     user_account {
       keys     = [file(var.ssh_public_key_path)]
@@ -48,7 +51,7 @@ resource "proxmox_virtual_environment_vm" "openlatex-main-api" {
 resource "proxmox_virtual_environment_file" "main-api_user_data" {
   content_type = "snippets"
   datastore_id = "local"
-  node_name    = "homelab"
+  node_name    = "pve1"
 
   source_raw {
     file_name = "user-data-main-api.yaml"
