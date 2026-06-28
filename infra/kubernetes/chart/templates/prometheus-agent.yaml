@@ -35,6 +35,9 @@ data:
   prometheus.yml: |
     global:
       scrape_interval: 15s
+      external_labels:
+        cluster: {{ .Values.namespace }}
+        source: prometheus-agent
 
     scrape_configs:
       - job_name: 'k3s-compiler'
@@ -53,6 +56,8 @@ data:
             target_label: pod
 
       - job_name: 'kube-state-metrics'
+        scrape_protocols:
+          - PrometheusText0.0.4
         static_configs:
           - targets: ['kube-state-metrics-svc.{{ .Values.namespace }}.svc.cluster.local:8080']
 

@@ -45,6 +45,9 @@
         name: openlatex-compile
         chart_ref: "{{ playbook_dir }}/../../infra/kubernetes/chart"
         release_namespace: openlatex-dev
+        state: present
+        reset_values: true
+        wait: true
          
     - name: Attendre que les déploiements soient prêts
       kubernetes.core.k8s_info:
