@@ -46,8 +46,11 @@
         chart_ref: "{{ playbook_dir }}/../../infra/kubernetes/chart"
         release_namespace: openlatex-dev
         state: present
+        create_namespace: true
         reset_values: true
         wait: true
+        timeout: 20m
+        history_max: 5
          
     - name: Attendre que les déploiements soient prêts
       kubernetes.core.k8s_info:
