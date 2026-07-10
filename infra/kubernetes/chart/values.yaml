@@ -12,6 +12,9 @@ remoteWriteUrl: http://172.16.10.51:9090/api/v1/write
 
 nodePort: 30080
 
+# secret de contournement de la limite de compilation, utile pour les tests de charge
+bypassSecret: "changeme"
+
 hpa:
   minReplicas: 2
   maxReplicas: 8

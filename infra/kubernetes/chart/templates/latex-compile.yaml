@@ -126,14 +126,3 @@ spec:
       - type: Pods
         value: 2
         periodSeconds: 240
----
-apiVersion: v1
-kind: ConfigMap
-data:
-  FRONTEND_URL: {{ .Values.frontendUrl }}
-  REDIS_HOST: latex-compile-redis-svc
-  REDIS_PORT: "6379"
-metadata:
-  name: latex-compile-config
-  namespace: {{ .Values.namespace }}
----
