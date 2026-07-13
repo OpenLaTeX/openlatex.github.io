@@ -183,10 +183,15 @@ jobs:
           sed -i "s/127.0.0.1/${{ vars.K3S_MASTER_IP }}/g" ~/.kube/config
           chmod 600 ~/.kube/config
 
-      - name: Déployer sur k3s
+      - name: Déployer le helm chart (namespace diff selon la branche)
         env:
+          RELEASE_NAMESPACE: ${{ case(github.ref_name == 'main', 'openlatex-prod', 'openlatex-dev') }}
+          # secret de contournement de la limite de compilation, utile pour les tests de charge
           TEST_BYPASS_SECRET: ${{ secrets.TEST_BYPASS_SECRET }}
-        run: KUBECONFIG=$HOME/.kube/config ansible-playbook ansible/playbooks/deploy-helm-chart.yml
+        run: | 
+          echo "deploy pour le namespace $RELEASE_NAMESPACE" 
+          export KUBECONFIG=${{ github.workspace }}/.kube/config 
+          ansible-playbook ansible/playbooks/deploy-helm-chart.yml -e "target_namespace=$RELEASE_NAMESPACE"
 
   infra-load-tests:
     needs: [deploy, deploy-k3s]
