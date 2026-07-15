@@ -52,7 +52,13 @@ spec:
       containers:
       - image: {{ .Values.images.redis }}
         name: latex-compile-redis
-        resources: {}
+        resources: 
+          requests:
+            cpu: "100m"
+            memory: "512Mi"
+          limits:
+            cpu: "200m"
+            memory: "1024Mi"
         envFrom:
           - configMapRef:
               name: latex-compile-config
