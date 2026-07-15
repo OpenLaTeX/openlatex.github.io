@@ -18,6 +18,8 @@ scrape_configs:
       - source_labels: [__meta_kubernetes_pod_ip]
         target_label: __address__
         replacement: ${1}:9000
+      - source_labels: [__meta_kubernetes_namespace]
+        target_label: namespace
       - source_labels: [__meta_kubernetes_pod_name]
         target_label: pod
 
