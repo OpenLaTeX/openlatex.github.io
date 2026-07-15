@@ -16,6 +16,9 @@ spec:
       - name: latex-compile-queue-worker
         image: {{ .Values.images.worker }}
         imagePullPolicy: Always
+        securityContext:
+          runAsUser: 10000
+          runAsNonRoot: true
         envFrom:
           - configMapRef:
               name: latex-compile-config
@@ -53,6 +56,8 @@ spec:
         envFrom:
           - configMapRef:
               name: latex-compile-config
+        ports:
+          - containerPort: 6379
 status: {}
 ---
 apiVersion: apps/v1
@@ -72,26 +77,30 @@ spec:
       labels:
         app: latex-compile-queue-producer
     spec:
-      initContainers:
-      - name: wait-for-redis
-        image: redis:alpine
-        command:
-          - sh
-          - -c
-          - |
-            until redis-cli -h latex-compile-redis-svc -p 6379 ping | grep PONG; do
-              echo "Attente redis"
-              sleep 2
-            done
       containers:
       - image: {{ .Values.images.producer }}
         name: latex-compile-queue-producer
         resources: {}
+        securityContext:
+          runAsUser: 10000
+          runAsNonRoot: true
+        readinessProbe:
+          exec:
+            command: 
+              # = prouver que redis est joignable (redis fait le lien entre le producer et les workers)
+              - /bin/sh
+              - -c
+              - 'nc -z -w 2 latex-compile-redis-svc 6379'
+          periodSeconds: 2
+          failureThreshold: 60
+          successThreshold: 2
         envFrom:
           - configMapRef:
               name: latex-compile-config
           - secretRef:
               name: latex-compile-secret
+        ports:
+          - containerPort: 9000
 status: {}
 ---
 apiVersion: autoscaling/v2

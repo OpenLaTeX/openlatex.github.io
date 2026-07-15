@@ -28,6 +28,28 @@ spec:
     nodePort: {{ .Values.nodePort }}
 ---
 apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: latex-compile-queue-producer-ingress
+  namespace: {{ .Values.namespace }}
+spec:
+  ingressClassName: traefik
+  rules:
+  - host: openlatex.blavogiez.fr
+    http:
+      paths:
+      - backend:
+          service:
+            name: latex-compile-queue-producer-svc
+            port:
+              number: 80
+        path: /compile
+        pathType: Exact
+status:
+  loadBalancer: {}
+# curl -v --resolve openlatex.blavogiez.fr:80:172.16.10.52 http://openlatex.blavogiez.fr/compile
+---
+apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy 
 metadata: 
   name: latex-networking-rules-queue-worker

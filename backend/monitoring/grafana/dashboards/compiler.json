@@ -84,7 +84,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "avg(avg_over_time(up{job=\"k3s-compiler\"}[5d])) * 100",
+          "expr": "avg(avg_over_time(up{job=\"k3s-compiler\",namespace=\"$namespace\",cluster=\"$namespace\"}[5d])) * 100",
           "instant": true,
           "legendFormat": "Disponibilité (5j)",
           "range": false,
@@ -158,7 +158,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum(increase(latex_compile_total{job=\"k3s-compiler\",result=\"success\"}[$__range])) / sum(increase(latex_compile_total{job=\"k3s-compiler\"}[$__range])) * 100",
+          "expr": "sum(increase(latex_compile_total{job=\"k3s-compiler\",namespace=\"$namespace\",cluster=\"$namespace\",result=\"success\"}[$__range])) / sum(increase(latex_compile_total{job=\"k3s-compiler\",namespace=\"$namespace\",cluster=\"$namespace\"}[$__range])) * 100",
           "instant": false,
           "legendFormat": "Taux de succès",
           "range": true,
@@ -223,7 +223,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum(increase(latex_compile_total{job=\"k3s-compiler\"}[$__range]))",
+          "expr": "sum(increase(latex_compile_total{job=\"k3s-compiler\",namespace=\"$namespace\",cluster=\"$namespace\"}[$__range]))",
           "instant": false,
           "legendFormat": "Total",
           "range": true,
@@ -319,7 +319,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum by (result) (increase(latex_compile_total{job=\"k3s-compiler\"}[1h]))",
+          "expr": "sum by (result) (increase(latex_compile_total{job=\"k3s-compiler\",namespace=\"$namespace\",cluster=\"$namespace\"}[1h]))",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -415,7 +415,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "code",
-          "expr": "histogram_quantile(0.5, sum by (le) (rate(latex_compile_duration_seconds_bucket{job=\"k3s-compiler\"}[1h])))",
+          "expr": "histogram_quantile(0.5, sum by (le) (rate(latex_compile_duration_seconds_bucket{job=\"k3s-compiler\",namespace=\"$namespace\",cluster=\"$namespace\"}[1h])))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
@@ -514,7 +514,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.95, sum by (le) (rate(latex_compile_duration_seconds_bucket{job=\"k3s-compiler\"}[1h])))",
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(latex_compile_duration_seconds_bucket{job=\"k3s-compiler\",namespace=\"$namespace\",cluster=\"$namespace\"}[1h])))",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -610,7 +610,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum by (result) (increase(latex_compile_total{job=\"k3s-compiler\",result!=\"success\"}[1h]))",
+          "expr": "sum by (result) (increase(latex_compile_total{job=\"k3s-compiler\",namespace=\"$namespace\",cluster=\"$namespace\",result!=\"success\"}[1h]))",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -675,7 +675,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum by (result) (rate(latex_compile_total{job=\"k3s-compiler\"}[1h]))",
+          "expr": "sum by (result) (rate(latex_compile_total{job=\"k3s-compiler\",namespace=\"$namespace\",cluster=\"$namespace\"}[1h]))",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -770,7 +770,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum by (le) (increase(latex_compile_duration_seconds_bucket{job=\"k3s-compiler\"}[24h]))",
+          "expr": "sum by (le) (increase(latex_compile_duration_seconds_bucket{job=\"k3s-compiler\",namespace=\"$namespace\",cluster=\"$namespace\"}[24h]))",
           "instant": true,
           "legendFormat": "≤ {{le}}s",
           "range": false,
@@ -850,7 +850,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum by (le) (rate(latex_compile_duration_seconds_bucket{job=\"k3s-compiler\"}[15m]))",
+          "expr": "sum by (le) (rate(latex_compile_duration_seconds_bucket{job=\"k3s-compiler\",namespace=\"$namespace\",cluster=\"$namespace\"}[15m]))",
           "format": "heatmap",
           "instant": false,
           "legendFormat": "{{le}}",
@@ -947,7 +947,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum(latex_compile_queue_depth{job=\"k3s-compiler\"})",
+          "expr": "sum(latex_compile_queue_depth{job=\"k3s-compiler\",namespace=\"$namespace\",cluster=\"$namespace\"})",
           "instant": false,
           "legendFormat": "En queue",
           "range": true,
@@ -1043,7 +1043,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum(increase(latex_compile_total{job=\"k3s-compiler\",result=\"server_error\"}[1h]))",
+          "expr": "sum(increase(latex_compile_total{job=\"k3s-compiler\",namespace=\"$namespace\",cluster=\"$namespace\",result=\"server_error\"}[1h]))",
           "instant": false,
           "legendFormat": "Erreurs serveur",
           "range": true,
@@ -1057,7 +1057,35 @@
   "schemaVersion": 39,
   "tags": [],
   "templating": {
-    "list": []
+    "list": [
+      {
+        "current": {
+          "selected": false,
+          "text": "openlatex-prod",
+          "value": "openlatex-prod"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "definition": "label_values(up{job=\"k3s-compiler\",cluster=~\"openlatex-(dev|prod)\",namespace=~\"openlatex-(dev|prod)\"}, namespace)",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Namespace",
+        "multi": false,
+        "name": "namespace",
+        "options": [],
+        "query": {
+          "query": "label_values(up{job=\"k3s-compiler\",cluster=~\"openlatex-(dev|prod)\",namespace=~\"openlatex-(dev|prod)\"}, namespace)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      }
+    ]
   },
   "time": {
     "from": "now-6h",

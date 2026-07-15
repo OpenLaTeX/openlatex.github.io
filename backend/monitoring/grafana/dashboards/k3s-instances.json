@@ -63,7 +63,7 @@
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "editorMode": "code",
-          "expr": "kube_deployment_status_replicas_ready{namespace=\"openlatex-dev\",deployment=\"latex-compile-queue-worker\"}",
+          "expr": "kube_deployment_status_replicas_ready{namespace=\"$namespace\",cluster=\"$namespace\",deployment=\"latex-compile-queue-worker\"}",
           "instant": true,
           "legendFormat": "Workers prêts",
           "range": false,
@@ -116,7 +116,7 @@
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "editorMode": "code",
-          "expr": "kube_horizontalpodautoscaler_status_desired_replicas{namespace=\"openlatex-dev\",horizontalpodautoscaler=\"latex-compile-hpa\"}",
+          "expr": "kube_horizontalpodautoscaler_status_desired_replicas{namespace=\"$namespace\",cluster=\"$namespace\",horizontalpodautoscaler=\"latex-compile-hpa\"}",
           "instant": true,
           "legendFormat": "Souhaités (HPA)",
           "range": false,
@@ -169,7 +169,7 @@
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "editorMode": "code",
-          "expr": "sum(increase(kube_pod_container_status_restarts_total{namespace=\"openlatex-dev\",container=\"latex-compile-queue-worker\"}[1h]))",
+          "expr": "sum(increase(kube_pod_container_status_restarts_total{namespace=\"$namespace\",cluster=\"$namespace\",container=\"latex-compile-queue-worker\"}[1h]))",
           "instant": true,
           "legendFormat": "Redémarrages",
           "range": false,
@@ -242,7 +242,7 @@
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "editorMode": "code",
-          "expr": "kube_deployment_status_replicas_ready{namespace=\"openlatex-dev\",deployment=\"latex-compile-queue-worker\"}",
+          "expr": "kube_deployment_status_replicas_ready{namespace=\"$namespace\",cluster=\"$namespace\",deployment=\"latex-compile-queue-worker\"}",
           "instant": false,
           "legendFormat": "Workers prêts",
           "range": true,
@@ -251,7 +251,7 @@
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "editorMode": "code",
-          "expr": "kube_horizontalpodautoscaler_status_desired_replicas{namespace=\"openlatex-dev\",horizontalpodautoscaler=\"latex-compile-hpa\"}",
+          "expr": "kube_horizontalpodautoscaler_status_desired_replicas{namespace=\"$namespace\",cluster=\"$namespace\",horizontalpodautoscaler=\"latex-compile-hpa\"}",
           "instant": false,
           "legendFormat": "Souhaités (HPA)",
           "range": true,
@@ -260,7 +260,7 @@
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "editorMode": "code",
-          "expr": "kube_horizontalpodautoscaler_spec_max_replicas{namespace=\"openlatex-dev\",horizontalpodautoscaler=\"latex-compile-hpa\"}",
+          "expr": "kube_horizontalpodautoscaler_spec_max_replicas{namespace=\"$namespace\",cluster=\"$namespace\",horizontalpodautoscaler=\"latex-compile-hpa\"}",
           "instant": false,
           "legendFormat": "Max (HPA)",
           "range": true,
@@ -333,7 +333,7 @@
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "editorMode": "code",
-          "expr": "sum(increase(kube_pod_container_status_restarts_total{namespace=\"openlatex-dev\",container=\"latex-compile-queue-worker\"}[1h]))",
+          "expr": "sum(increase(kube_pod_container_status_restarts_total{namespace=\"$namespace\",cluster=\"$namespace\",container=\"latex-compile-queue-worker\"}[1h]))",
           "instant": false,
           "legendFormat": "Redémarrages/heure",
           "range": true,
@@ -347,7 +347,37 @@
   "refresh": "",
   "schemaVersion": 39,
   "tags": [],
-  "templating": { "list": [] },
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "selected": false,
+          "text": "openlatex-prod",
+          "value": "openlatex-prod"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "definition": "label_values(kube_deployment_status_replicas_ready{cluster=~\"openlatex-(dev|prod)\",deployment=\"latex-compile-queue-worker\",namespace=~\"openlatex-(dev|prod)\"}, namespace)",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Namespace",
+        "multi": false,
+        "name": "namespace",
+        "options": [],
+        "query": {
+          "query": "label_values(kube_deployment_status_replicas_ready{cluster=~\"openlatex-(dev|prod)\",deployment=\"latex-compile-queue-worker\",namespace=~\"openlatex-(dev|prod)\"}, namespace)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      }
+    ]
+  },
   "time": { "from": "now-6h", "to": "now" },
   "timepicker": {},
   "timezone": "browser",

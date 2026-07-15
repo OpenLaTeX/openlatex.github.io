@@ -1,0 +1,12 @@
+# resourcequota / limitrange ici. Varie selon le cluster
+apiVersion: v1
+kind: LimitRange
+metadata:
+    name: latex-compile-limit-range
+    namespace: {{ .Values.namespace }}
+spec:
+    limits:
+        - type: Container
+          max:
+            memory: "4000Mi"
+            cpu: "2000m"
