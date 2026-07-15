@@ -1,4 +1,5 @@
-namespace: openlatex-dev
+# peut être set par le playbook / CI/CD à openlatex-prod si la branche est main
+namespace: "openlatex-dev"
 
 images:
   worker: ghcr.io/openlatex/openlatex-compile:latest
@@ -18,3 +19,18 @@ bypassSecret: "changeme"
 hpa:
   minReplicas: 2
   maxReplicas: 8
+
+
+# helm chart kube state metrics en dépendance :
+kube-state-metrics:
+  enabled: true
+  # ce chart marche pour tout le cluster, dont on met un namespace à part
+  namespaceOverride: monitoring
+
+  replicas: 1
+
+  serviceAccount:
+    create: true
+
+  rbac:
+    create: true
