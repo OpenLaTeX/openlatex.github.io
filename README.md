@@ -1,4 +1,4 @@
-![Logo OpenLaTeX](assets/logo.png)
+![Logo OpenLaTeX](docs/assets/logo.png)
 
 **Fork pour épingler sur le profil `blavogiez` - pour voir les runs CI/CD, consultez le [dépôt original](https://github.com/OpenLaTeX/openlatex.github.io)**
 
@@ -102,7 +102,7 @@ Le frontend est hébergé sur GitHub Pages et se redéploie depuis la branche `f
 
 Le compilateur est le seul service sur le cluster parce que c'est celui qui gagne vraiment à être scalé : compilations gourmandes CPU, indépendantes, sans état partagé.
 
-Config HPA ([`infra/kubernetes/latex-compile.yaml`](infra/kubernetes/latex-compile.yaml)) :
+Config HPA ([`deploy/kubernetes/charts/openlatex/templates/latex-compile.yaml`](deploy/kubernetes/charts/openlatex/templates/latex-compile.yaml)) :
 
 - **de 4 à 8 replicas**, cible **80 % CPU utilization**
 - `scaleUp` : `stabilizationWindowSeconds: 120`, +1 pod / 60s
@@ -114,7 +114,7 @@ Le master est `tainted` pour interdire les workloads compilateur (sinon ça peut
 
 ## Collaboration temps réel
 
-Le service `collab` (port **7000**, [`backend/collab/`](backend/collab/)) est un serveur Node.js WebSocket basé sur **Yjs** + **y-websocket**. Le JWT est validé sur l'upgrade WebSocket avant d'accepter la connexion. L'état Yjs de chaque projet est persisté en `BYTEA` dans la table `yjs_state` de PostgreSQL, ce qui fait qu'un projet survit aux redémarrages du conteneur sans perdre l'historique collaboratif.
+Le service `collab` (port **7000**, [`backend/collab-websocket/`](backend/collab-websocket/)) est un serveur Node.js WebSocket basé sur **Yjs** + **y-websocket**. Le JWT est validé sur l'upgrade WebSocket avant d'accepter la connexion. L'état Yjs de chaque projet est persisté en `BYTEA` dans la table `yjs_state` de PostgreSQL, ce qui fait qu'un projet survit aux redémarrages du conteneur sans perdre l'historique collaboratif.
 
 Côté client, Yjs se branche sur CodeMirror 6 (c'est un éditeur de code en js similaire à vscode).
 
@@ -129,7 +129,7 @@ La gestion des informations secrètes est prioritaire :
 
 **En-têtes HTTP** configurés par Caddy : HSTS, X-Content-Type-Options, X-Frame-Options, Referrer-Policy, Permissions-Policy. Les conteneurs Node.js tournent en utilisateur non-root.
 
-**Compilation sandboxée** ([`backend/compiler/lib/Compiler.js`](backend/compiler/lib/Compiler.js)) :
+**Compilation sandboxée** ([`backend/compiler/queue-worker/lib/Compiler.js`](backend/compiler/queue-worker/lib/Compiler.js)) :
 
 - `pdflatex -interaction=nonstopmode -no-shell-escape` (pour éviter les injections LaTeX)
 - Timeout dur à **30 s**, `maxBuffer` 10 MB
@@ -150,7 +150,7 @@ L'endpoint `/metrics` est monté **avant** le middleware de rate limiting pour �
 
 ## Sauvegardes
 
-La base de données est dumpée **trois fois par jour** via cron (2h, 11h et 20h, voir le playbook Ansible [`setup-backup.yml`](ansible/playbooks/setup-backup.yml)). Le pipeline ([`dump_db.sh`](backend/db-save/dump_db.sh)) fait :
+La base de données est dumpée **trois fois par jour** via cron (2h, 11h et 20h, voir le playbook Ansible [`setup-backup.yml`](infra/ansible/playbooks/setup-backup.yml)). Le pipeline ([`dump_db.sh`](backend/cron/db-save/dump_db.sh)) fait :
 
 1. `pg_dump -Fc` via `docker exec` sur le conteneur postgres
 2. Chiffrement **GPG RSA 4096** avec la clé publique, suppression du dump clair
@@ -159,12 +159,12 @@ La base de données est dumpée **trois fois par jour** via cron (2h, 11h et 20h
 
 Rétention : **7 jours en local**, **30 jours sur B2**. En cas d'échec à une étape, un mail de diagnostic (étape échouée, logs, état des conteneurs, espace disque) est envoyé à l'admin via l'API Resend (c'est un service de mail).
 
-Aucune information présente sur le VPS ou sur le cloud storage ne permet de déchiffrer les sauvegardes. Seule la clé privée hors-ligne peut le faire. Un script de test de restauration ([`admin-test-save.sh`](backend/db-save/admin-test-save.sh)) permet de vérifier qu'une sauvegarde est bien exploitable.
+Aucune information présente sur le VPS ou sur le cloud storage ne permet de déchiffrer les sauvegardes. Seule la clé privée hors-ligne peut le faire. Un script de test de restauration ([`admin-test-save.sh`](backend/cron/db-save/admin-test-save.sh)) permet de vérifier qu'une sauvegarde est bien exploitable.
 
 > <details>
 > <summary>Exemple d'email de notification automatique :</summary>
 >
-> ![Exemple d'email](assets/mail-example.png)
+> ![Exemple d'email](docs/assets/mail-example.png)
 >
 > </details>
 
@@ -186,7 +186,7 @@ Scrape intervals : 2 min pour l'API, 15 s sur le compilateur (plus critique). La
 ## Tests et qualité
 
 - **Tests unitaires Jest** sur le backend (`backend/tests/`) : auth, permissions de ressources, compilation stateless. Exécutés dans le job CI `code-test`.
-- **Tests de charge k6** ([`load-tests/k6/`](load-tests/k6/)) : scénarios par persona (Alice, Bob, Charlie, Grouped) via `all-personas.sh`. Le job `infra-load-tests` déclenche `Grouped` après chaque déploiement réussi (~250 compilations en ~1 min 30) pour vérifier que l'infra tient, y compris que l'HPA scale correctement.
+- **Tests de charge k6** ([`infra/load-tests/k6/`](infra/load-tests/k6/)) : scénarios par persona (Alice, Bob, Charlie, Grouped) via `all-personas.sh`. Le job `infra-load-tests` déclenche `Grouped` après chaque déploiement réussi (~250 compilations en ~1 min 30) pour vérifier que l'infra tient, y compris que l'HPA scale correctement.
 
 
 Un secret `TEST_BYPASS_SECRET` permet à k6 de contourner le rate limiting via le header `X-Test-Key` pour que ces tests soient réalistes.
@@ -238,7 +238,7 @@ Si l'on devait redéployer l'infrastructure ailleurs, Docker et Terraform couvre
 #### Configuration locale
 
 ```bash
-cd backend
+cd deploy/compose
 cp .env.example .env
 # remplir les variables (voir .env.example)
 docker compose up -d
@@ -253,7 +253,7 @@ Si on veut une installation minimale, on peut tout à fait retirer Prometheus / 
 On va ici partir sur une approche GitOps / Cloud.
 
 **Sur votre machine / repo GitHub :**
-- Créer vos secrets ([.env.example](backend/.env.example))
+- Créer vos secrets ([.env.example](deploy/compose/.env.example))
 - Les placer dans les secrets de déploiement GitHub Actions
 - Générer une paire de clés SSH `github_deploy_key`
 
@@ -276,10 +276,10 @@ Pour l'exposer publiquement, il faut un DNS. Le DNS actif en démo est gratuit (
 
 J'ai écris quelques procédures pour les principales tâches de maintenance (qui ne seraient pas couvertes par le README) :
 
-- [Sauvegarde de la BDD](procedures/sauvegarde-bdd.md)
-- [Restauration d'une BDD](procedures/restaurer-bdd.md)
-- [Transition cloud / migration de VPS](procedures/transition-cloud.md)
-- [Cluster Kubernetes](procedures/cluster-kubernetes.md)
+- [Sauvegarde de la BDD](docs/procedures/sauvegarde-bdd.md)
+- [Restauration d'une BDD](docs/procedures/restaurer-bdd.md)
+- [Transition cloud / migration de VPS](docs/procedures/transition-cloud.md)
+- [Cluster Kubernetes](docs/procedures/cluster-kubernetes.md)
 
 Que ce soit pour soi-même ou les autres, je pense que c'est toujours un réflexe à prendre que de documenter ce qu'on fait.
 

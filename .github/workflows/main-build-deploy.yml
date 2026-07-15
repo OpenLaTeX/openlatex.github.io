@@ -5,7 +5,7 @@ name: (DOCKER/BACKEND) - Construction et déploiement des images spécifiques + 
 
 on:
   push:
-    branches: [main, backend/*, 29*]
+    branches: [main, backend/*, 29*, 35*]
   workflow_dispatch:
 
 concurrency:
@@ -46,15 +46,15 @@ jobs:
           base: ${{ steps.prev.outputs.sha }}
           filters: |
             manager:
-              - 'backend/account-manager/**'
+              - 'backend/account-crud-api/**'
               - 'backend/shared/**'
               - 'backend/package*.json'
             compiler:
-              - 'backend/compiler/**'
+              - 'backend/compiler/queue-worker/**'
               - 'backend/shared/**'
               - 'backend/package*.json'
             queue_producer:
-              - 'backend/queue-producer/**'
+              - 'backend/compiler/queue-producer/**'
               - 'backend/package*.json'
 
   # je ne le build plus dans le runner mais plutot sur l'instance cible, car l'image est assez légère, ça ralentit plus qu'autre chose
@@ -68,7 +68,7 @@ jobs:
   #   secrets: inherit
   #   with:
   #     image-name: openlatex-account-manager
-  #     dockerfile: ./backend/account-manager/Dockerfile
+  #     dockerfile: ./backend/account-crud-api/Dockerfile
 
   build-compiler:
     needs: [detect-changes, code-test]
@@ -80,7 +80,7 @@ jobs:
     secrets: inherit
     with:
       image-name: openlatex-compile
-      dockerfile: ./backend/compiler/Dockerfile
+      dockerfile: ./backend/compiler/queue-worker/Dockerfile
 
   build-queue-producer:
     needs: [detect-changes, code-test]
@@ -92,7 +92,7 @@ jobs:
     secrets: inherit
     with:
       image-name: openlatex-queue-producer
-      dockerfile: ./backend/queue-producer/Dockerfile
+      dockerfile: ./backend/compiler/queue-producer/Dockerfile
 
   deploy:
     needs: [build-compiler, build-queue-producer]
@@ -137,7 +137,7 @@ jobs:
           GRAFANA_ADMIN_USER: ${{ secrets.GRAFANA_ADMIN_USER }}
           GRAFANA_ADMIN_PASSWORD: ${{ secrets.GRAFANA_ADMIN_PASSWORD }}
         run: |
-          ansible-playbook ansible/playbooks/deploy-compose.yml \
+          ansible-playbook infra/ansible/playbooks/deploy-compose.yml \
             -i "$VPS_HOST," \
             -u "$VPS_USER"
             
@@ -149,7 +149,7 @@ jobs:
           B2_APPLICATION_KEY_ID: ${{ secrets.B2_APPLICATION_KEY_ID }}
           B2_APPLICATION_KEY: ${{ secrets.B2_APPLICATION_KEY }}
         run: |
-          ansible-playbook ansible/playbooks/setup-backup.yml \
+          ansible-playbook infra/ansible/playbooks/setup-backup.yml \
             -i "$VPS_HOST," \
             -u "$VPS_USER" 
 
@@ -192,7 +192,7 @@ jobs:
         run: | 
           echo "deploy pour le namespace $RELEASE_NAMESPACE" 
           export KUBECONFIG=${{ github.workspace }}/.kube/config 
-          ansible-playbook ansible/playbooks/deploy-helm-chart.yml -e "target_namespace=$RELEASE_NAMESPACE"
+          ansible-playbook infra/ansible/playbooks/deploy-helm-chart.yml -e "target_namespace=$RELEASE_NAMESPACE"
 
   infra-load-tests:
     needs: [deploy, deploy-k3s]
@@ -212,6 +212,6 @@ jobs:
         env:
           TEST_BYPASS_SECRET: ${{ secrets.TEST_BYPASS_SECRET }}
         run: |
-          cd load-tests/k6 &&
+          cd infra/load-tests/k6 &&
           chmod +x all-personas.sh &&
           bash all-personas.sh Grouped

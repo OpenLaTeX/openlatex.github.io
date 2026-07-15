@@ -18,7 +18,7 @@ jest.mock('bullmq', () => ({
   })),
 }));
 
-const { app } = require('../queue-producer/server');
+const { app } = require('../compiler/queue-producer/server');
 
 beforeEach(() => {
   jest.clearAllMocks();
