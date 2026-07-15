@@ -23,7 +23,7 @@ scrape_configs:
 
   - job_name: 'kube-state-metrics'
     static_configs:
-      - targets: ['openlatex-compile-kube-state-metrics.monitoring.svc.cluster.local:8080']
+      - targets: ['kube-state-metrics.monitoring.svc.cluster.local:8080']
 
 remote_write:
   - url: {{ .Values.remoteWriteUrl | quote }}

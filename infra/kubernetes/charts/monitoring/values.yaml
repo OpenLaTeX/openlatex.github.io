@@ -1,0 +1,11 @@
+enabled: true
+# ce chart marche pour tout le cluster, dont on met un namespace à part de openlatex
+namespace: monitoring
+
+replicas: 1
+
+serviceAccount:
+  create: true
+
+rbac:
+  create: true

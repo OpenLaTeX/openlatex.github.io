@@ -21,16 +21,3 @@ hpa:
   maxReplicas: 8
 
 
-# helm chart kube state metrics en dépendance :
-kube-state-metrics:
-  enabled: true
-  # ce chart marche pour tout le cluster, dont on met un namespace à part
-  namespaceOverride: monitoring
-
-  replicas: 1
-
-  serviceAccount:
-    create: true
-
-  rbac:
-    create: true
