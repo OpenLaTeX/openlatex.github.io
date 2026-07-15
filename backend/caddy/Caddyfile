@@ -1,4 +1,4 @@
-http://openlatex-api.blavogiez.fr {
+:80 {
     header {
         Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
         X-Content-Type-Options "nosniff"
@@ -10,7 +10,9 @@ http://openlatex-api.blavogiez.fr {
         Access-Control-Allow-Credentials "true"
     }
     @allowedOrigin header_regexp Origin ^https://(openlatex\.github\.io|openlatex\.blavogiez\.fr|openlatex\.v0id\.nl|openlatex\.privatedns\.org)$
+    @allowedNetwork remote_ip 10.8.0.0/24 192.168.10.0/24
     header @allowedOrigin Access-Control-Allow-Origin "{http.request.header.Origin}"
+    header @allowedNetwork Access-Control-Allow-Origin "{http.request.header.Origin}"
 
     @preflight method OPTIONS
     handle @preflight {
@@ -21,6 +23,7 @@ http://openlatex-api.blavogiez.fr {
             Access-Control-Max-Age "3600"
         }
         header @allowedOrigin Access-Control-Allow-Origin "{http.request.header.Origin}"
+        header @allowedNetwork Access-Control-Allow-Origin "{http.request.header.Origin}"
         respond 204
     }
     handle /collab/* {

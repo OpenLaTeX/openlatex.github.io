@@ -33,31 +33,7 @@ metadata:
   namespace: {{ .Values.namespace }}
 data:
   prometheus.yml: |
-    global:
-      scrape_interval: 15s
-
-    scrape_configs:
-      - job_name: 'k3s-compiler'
-        kubernetes_sd_configs:
-          - role: pod
-            namespaces:
-              names: ['{{ .Values.namespace }}']
-        relabel_configs:
-          - source_labels: [__meta_kubernetes_pod_label_app]
-            regex: latex-compile-queue-producer
-            action: keep
-          - source_labels: [__meta_kubernetes_pod_ip]
-            target_label: __address__
-            replacement: ${1}:9000
-          - source_labels: [__meta_kubernetes_pod_name]
-            target_label: pod
-
-      - job_name: 'kube-state-metrics'
-        static_configs:
-          - targets: ['kube-state-metrics-svc.{{ .Values.namespace }}.svc.cluster.local:8080']
-
-    remote_write:
-      - url: {{ .Values.remoteWriteUrl | quote }}
+{{ include "openlatex.prometheusAgentConfig" . | indent 4 }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -71,6 +47,8 @@ spec:
       app: prometheus-agent
   template:
     metadata:
+      annotations:
+        checksum/prometheus-agent-config: {{ include "openlatex.prometheusAgentConfig" . | sha256sum }}
       labels:
         app: prometheus-agent
     spec:
@@ -86,7 +64,7 @@ spec:
           image: {{ .Values.images.prometheus }}
           args:
             - '--config.file=/etc/prometheus/prometheus.yml'
-            - '--agent'
+            - '--enable-feature=agent'
           volumeMounts:
             - name: config
               mountPath: /etc/prometheus
