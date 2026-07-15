@@ -1,15 +1,20 @@
 # deployer k3s sur master
-# on rappelle que k3s est installé en user data de terraform
-# Ce playbook tourne sur le contrôleur local et parle directement à l'API k3s. de ce fait pas besoin de config le ssh
+# on rappelle que k3s est installé en cloud init de terraform
+# Ce playbook tourne sur le runneret parle directement à l'API k3s avec la kubeconfig recuperee . de ce fait pas besoin de config le ssh / hote
 
+# https://docs.ansible.com/projects/ansible/latest/collections/kubernetes/core/helm_module.html
 ---
 - hosts: localhost
   connection: local
   gather_facts: false
+  vars:
+    target_namespace: "{{ release_namespace | default('openlatex-dev' )}}"
+    # secret de contournement de la limite de compilation, utile pour les tests de charge
+    test_bypass_secret: "{{ lookup('env', 'TEST_BYPASS_SECRET') }}"
   environment:
-    K8S_AUTH_KUBECONFIG: "{{ lookup('env', 'KUBECONFIG') | default('./k3s.yaml') }}"
+    K8S_AUTH_KUBECONFIG: "{{ lookup('env', 'KUBECONFIG') | default('./k3s.yaml', true) }}"
   tasks:
-    - name: Taint le node master pour interdire les workloads compilateur (k3s le fait pas par défaut, ca va bottleneck master sinon)
+    - name: Taint les nodes control plane pour interdire les workloads compilateur (k3s le fait pas par défaut, ca va bottleneck master sinon)
       kubernetes.core.k8s_taint:
         state: present
         name: "{{ item }}"
@@ -17,54 +22,23 @@
           - key: node-role.kubernetes.io/control-plane
             effect: NoSchedule
       loop: "{{ query('kubernetes.core.k8s', kind='Node', label_selector='node-role.kubernetes.io/control-plane') | map(attribute='metadata.name') | list }}"
-
-    - name: Créer le namespace openlatex-dev
-      kubernetes.core.k8s:
-        state: present
-        definition:
-          apiVersion: v1
-          kind: Namespace
-          metadata:
-            name: openlatex-dev
-
-    - name: Créer/mettre à jour le secret latex-compile(bypass limite compilation, pour les tests)
-      kubernetes.core.k8s:
-        state: present
-        definition:
-          apiVersion: v1
-          kind: Secret
-          metadata:
-            name: latex-compile-secret
-            namespace: openlatex-dev
-          type: Opaque
-          stringData:
-            TEST_BYPASS_SECRET: "{{ lookup('env', 'TEST_BYPASS_SECRET') }}"
-
-    - name: Déployer le helm chart complet
+      
+    - name: Déployer le helm chart complet(+ injection du secret)
       kubernetes.core.helm:
         name: openlatex-compile
         chart_ref: "{{ playbook_dir }}/../../infra/kubernetes/chart"
-        release_namespace: openlatex-dev
-        state: present
+        values_files: 
+          - "{{ playbook_dir }}/../../infra/kubernetes/chart/values.yaml"
+        release_namespace: "{{ target_namespace }}"
         create_namespace: true
-        reset_values: true
+        set_values:
+          - value: "bypassSecret={{ test_bypass_secret }}"
+            value_type: "string"
+          - value: "namespace={{ target_namespace }}"
+            value_type: "string"
+        # l'image de compilation est assez lourde donc un délai de pull est à prendre en compte
+        timeout: 1800s
         wait: true
-        timeout: 20m
-        history_max: 5
+      # pas montrer le secret en CI
+      no_log: true 
          
-    - name: Attendre que les déploiements soient prêts
-      kubernetes.core.k8s_info:
-        kind: Deployment
-        name: "{{ item }}"
-        namespace: openlatex-dev
-        wait: true
-        wait_condition:
-          type: Available
-          status: "True"
-        wait_timeout: 3600
-      loop: 
-        - latex-compile-redis
-        - latex-compile-queue-producer
-        - latex-compile-queue-worker
-        - kube-state-metrics
-        - prometheus-agent

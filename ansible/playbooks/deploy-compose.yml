@@ -1,22 +1,9 @@
 ---
 - hosts: all
-  gather_facts: false
+  gather_facts: true
   vars:
     deploy_branch: "{{ lookup('env', 'DEPLOY_BRANCH') }}"
     repo_url: "{{ lookup('env', 'REPO_URL') }}"
-    postgres_user: "{{ lookup('env', 'POSTGRES_USER') }}"
-    postgres_password: "{{ lookup('env', 'POSTGRES_PASSWORD') }}"
-    postgres_db: "{{ lookup('env', 'POSTGRES_DB') }}"
-    jwt_secret: "{{ lookup('env', 'JWT_SECRET') }}"
-    jwt_expires_in: "{{ lookup('env', 'JWT_EXPIRES_IN') }}"
-    frontend_url: "{{ lookup('env', 'FRONTEND_URL') }}"
-    resend_api_key: "{{ lookup('env', 'RESEND_API_KEY') }}"
-    test_bypass_secret: "{{ lookup('env', 'TEST_BYPASS_SECRET') }}"
-    grafana_admin_user: "{{ lookup('env', 'GRAFANA_ADMIN_USER') }}"
-    grafana_admin_password: "{{ lookup('env', 'GRAFANA_ADMIN_PASSWORD') }}"
-    gpg_public_key: "{{ lookup('env', 'GPG_PUBLIC_KEY') }}"
-    b2_application_key: "{{ lookup('env', 'B2_APPLICATION_KEY') }}"
-    b2_application_key_id: "{{ lookup('env', 'B2_APPLICATION_KEY_ID') }}"
   tasks:
     - name: Cloner ou mettre à jour le dépôt
       ansible.builtin.git:
@@ -25,18 +12,12 @@
         version: "{{ deploy_branch }}"
         force: true
 
-    - name: Ecrire le fichier .env
+    - name: Injecter les variables dans le .env
       ansible.builtin.template:
         src: ../templates/backend-env.j2
         dest: /home/admin/openlatex/backend/.env
         mode: '0600'
       no_log: true
-
-    - name: Installer le SDK Python Docker (requis par community.docker)
-      ansible.builtin.apt:
-        name: python3-docker
-        state: present
-      become: true
 
     - name: Arrêter les conteneurs pour libérer la RAM avant le pull/build
       community.docker.docker_compose_v2:
