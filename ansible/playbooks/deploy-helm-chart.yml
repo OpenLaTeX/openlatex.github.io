@@ -1,6 +1,6 @@
 # deployer k3s sur master
 # on rappelle que k3s est installé en cloud init de terraform
-# Ce playbook tourne sur le contrôleur local et parle directement à l'API k3s. de ce fait pas besoin de config le ssh
+# Ce playbook tourne sur le runneret parle directement à l'API k3s avec la kubeconfig recuperee . de ce fait pas besoin de config le ssh / hote
 
 # https://docs.ansible.com/projects/ansible/latest/collections/kubernetes/core/helm_module.html
 ---

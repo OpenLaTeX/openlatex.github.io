@@ -5,7 +5,7 @@ name: (DOCKER/BACKEND) - Construction et déploiement des images spécifiques + 
 
 on:
   push:
-    branches: [main, backend/*]
+    branches: [main, backend/*, 29*]
   workflow_dispatch:
 
 concurrency:
@@ -114,7 +114,8 @@ jobs:
 
       - name: Installer ansible
         run: |
-          pipx install ansible-core
+          python -m pip install --upgrade pip
+          python -m pip install ansible-core
           echo "$HOME/.local/bin" >> $GITHUB_PATH
           export PATH="$HOME/.local/bin:$PATH"
           ansible-galaxy collection install community.docker
@@ -136,7 +137,7 @@ jobs:
           GRAFANA_ADMIN_USER: ${{ secrets.GRAFANA_ADMIN_USER }}
           GRAFANA_ADMIN_PASSWORD: ${{ secrets.GRAFANA_ADMIN_PASSWORD }}
         run: |
-          ansible-playbook ansible/playbooks/deploy-backend.yml \
+          ansible-playbook ansible/playbooks/deploy-compose.yml \
             -i "$VPS_HOST," \
             -u "$VPS_USER"
             
@@ -161,8 +162,8 @@ jobs:
 
       - name: Installer ansible et kubernetes.core
         run: |
-          pipx install ansible-core
-          pipx inject ansible-core kubernetes openshift
+          python -m pip install --upgrade pip
+          python -m pip install ansible-core kubernetes openshift
           echo "$HOME/.local/bin" >> $GITHUB_PATH
           export PATH="$HOME/.local/bin:$PATH"
           ansible-galaxy collection install kubernetes.core
@@ -177,11 +178,11 @@ jobs:
 
       - name: Récupérer le kubeconfig depuis le master
         run: |
-          mkdir -p ~/.kube
+          mkdir -p ${{ github.workspace }}/.kube
           # StrictHostKeyChecking=no pour simplifier (le master k3s est une instance différente du VPS, pas de known_hosts dédié)
-          ssh -o StrictHostKeyChecking=no admin@${{ vars.K3S_MASTER_IP }} cat /etc/rancher/k3s/k3s.yaml > ~/.kube/config
-          sed -i "s/127.0.0.1/${{ vars.K3S_MASTER_IP }}/g" ~/.kube/config
-          chmod 600 ~/.kube/config
+          ssh -o StrictHostKeyChecking=no admin@${{ vars.K3S_MASTER_IP }} cat /etc/rancher/k3s/k3s.yaml > ${{ github.workspace }}/.kube/config
+          sed -i "s/127.0.0.1/${{ vars.K3S_MASTER_IP }}/g" ${{ github.workspace }}/.kube/config
+          chmod 600 ${{ github.workspace }}/.kube/config
 
       - name: Déployer le helm chart (namespace diff selon la branche)
         env:
