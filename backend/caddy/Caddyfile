@@ -1,50 +1,23 @@
-:80 {
-    header {
-        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
-        X-Content-Type-Options "nosniff"
-        X-Frame-Options "DENY"
-        Referrer-Policy "strict-origin-when-cross-origin"
-        Permissions-Policy "camera=(), microphone=(), geolocation=()"
-        Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
-        Access-Control-Allow-Headers "Content-Type, Authorization"
-        Access-Control-Allow-Credentials "true"
-    }
-    @allowedOrigin header_regexp Origin ^https://(openlatex\.github\.io|openlatex\.blavogiez\.fr|openlatex\.v0id\.nl|openlatex\.privatedns\.org)$
-    @allowedNetwork remote_ip 10.8.0.0/24 192.168.10.0/24
-    header @allowedOrigin Access-Control-Allow-Origin "{http.request.header.Origin}"
-    header @allowedNetwork Access-Control-Allow-Origin "{http.request.header.Origin}"
-
-    @preflight method OPTIONS
-    handle @preflight {
-        header {
-            Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
-            Access-Control-Allow-Headers "Content-Type, Authorization"
-            Access-Control-Allow-Credentials "true"
-            Access-Control-Max-Age "3600"
-        }
-        header @allowedOrigin Access-Control-Allow-Origin "{http.request.header.Origin}"
-        header @allowedNetwork Access-Control-Allow-Origin "{http.request.header.Origin}"
-        respond 204
-    }
+# (site pas encore déployé, le serveur doit être on) 
+http://openlatex.blavogiez.fr {
     handle /collab/* {
         reverse_proxy collab:7000
     }
-    handle /compile* {
-        reverse_proxy 172.16.10.52:30080 {
-            header_down -Access-Control-Allow-Origin
-            header_down -Access-Control-Allow-Methods
-            header_down -Access-Control-Allow-Headers
-            header_down -Access-Control-Allow-Credentials
-            header_down -Vary
-        }
+    handle /compile {
+        # rediriger vers l'ip du node qui a l'ingress kubernetes (Cest un path type exact et pas prefix)
+        reverse_proxy 172.16.10.52:80
     }
+    # pas accessible
     handle /metrics {
-        respond 404
+        respond 403
     }
     handle /grafana* {
         reverse_proxy grafana:3000
     }
-    handle {
+    handle / {
         reverse_proxy frontend:80
+    }
+    handle {
+        reverse_proxy backend:8000
     }
 }
