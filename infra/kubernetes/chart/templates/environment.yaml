@@ -1,0 +1,20 @@
+# ici : configmap, secret
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: latex-compile-config
+  namespace: {{ .Values.namespace }}
+data:
+  FRONTEND_URL: {{ .Values.frontendUrl }}
+  REDIS_HOST: latex-compile-redis-svc
+  REDIS_PORT: "6379"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: latex-compile-secret
+  namespace: {{ .Values.namespace }}
+type: Opaque
+# a set dans le déploiement helm
+stringData:
+  TEST_BYPASS_SECRET: {{ .Values.bypassSecret | quote }}

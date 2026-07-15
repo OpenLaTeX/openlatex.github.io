@@ -4,13 +4,16 @@ images:
   worker: ghcr.io/openlatex/openlatex-compile:latest
   producer: ghcr.io/openlatex/openlatex-queue-producer:latest
   redis: redis
-  prometheus: prom/prometheus:v3.11.2
-  kubeStateMetrics: registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.12.0
+  prometheus: prom/prometheus:v2.55.1
+  kubeStateMetrics: registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.19.0
 
 frontendUrl: https://openlatex.github.io
 remoteWriteUrl: http://172.16.10.51:9090/api/v1/write
 
 nodePort: 30080
+
+# secret de contournement de la limite de compilation, utile pour les tests de charge
+bypassSecret: "changeme"
 
 hpa:
   minReplicas: 2

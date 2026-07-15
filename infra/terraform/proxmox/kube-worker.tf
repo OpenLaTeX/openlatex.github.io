@@ -20,7 +20,7 @@ resource "proxmox_virtual_environment_vm" "openlatex-kube-worker" {
   disk {
     datastore_id = "encrypted-zfs"
     interface    = "scsi0"
-    size         = 8
+    size         = 15
   }
 
   agent {
