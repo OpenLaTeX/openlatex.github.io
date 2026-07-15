@@ -18,12 +18,14 @@ scrape_configs:
       - source_labels: [__meta_kubernetes_pod_ip]
         target_label: __address__
         replacement: ${1}:9000
+      - source_labels: [__meta_kubernetes_namespace]
+        target_label: namespace
       - source_labels: [__meta_kubernetes_pod_name]
         target_label: pod
 
   - job_name: 'kube-state-metrics'
     static_configs:
-      - targets: ['kube-state-metrics-svc.{{ .Values.namespace }}.svc.cluster.local.:8080']
+      - targets: ['kube-state-metrics.monitoring.svc.cluster.local:8080']
 
 remote_write:
   - url: {{ .Values.remoteWriteUrl | quote }}

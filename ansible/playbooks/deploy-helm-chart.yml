@@ -23,12 +23,31 @@
             effect: NoSchedule
       loop: "{{ query('kubernetes.core.k8s', kind='Node', label_selector='node-role.kubernetes.io/control-plane') | map(attribute='metadata.name') | list }}"
       
-    - name: Déployer le helm chart complet(+ injection du secret)
+
+
+    - name: Déployer le helm chart kube state metrics (il est cluster wide)
+      kubernetes.core.helm:
+        name: kube-state-metrics
+        chart_ref: "{{ playbook_dir }}/../../infra/kubernetes/charts/monitoring"
+        values_files: 
+          - "{{ playbook_dir }}/../../infra/kubernetes/charts/monitoring/values.yaml"
+        release_namespace: "monitoring"
+        create_namespace: true
+        set_values:
+          - value: "namespace=monitoring"
+            value_type: "string"
+        # l'image de compilation est assez lourde donc un délai de pull est à prendre en compte
+        timeout: 1800s
+        wait: true
+         
+
+    - name: Déployer le helm chart openlatex complet(+ injection du secret)
       kubernetes.core.helm:
         name: openlatex-compile
-        chart_ref: "{{ playbook_dir }}/../../infra/kubernetes/chart"
+        chart_ref: "{{ playbook_dir }}/../../infra/kubernetes/charts/openlatex"
         values_files: 
-          - "{{ playbook_dir }}/../../infra/kubernetes/chart/values.yaml"
+          # values personnalisées par namespace
+          - "{{ playbook_dir }}/../../infra/kubernetes/charts/openlatex/values-{{ target_namespace }}.yaml"
         release_namespace: "{{ target_namespace }}"
         create_namespace: true
         set_values:

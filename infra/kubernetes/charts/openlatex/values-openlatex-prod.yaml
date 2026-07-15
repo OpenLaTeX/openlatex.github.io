@@ -1,0 +1,22 @@
+# peut être set par le playbook / CI/CD à openlatex-prod si la branche est main
+namespace: "openlatex-dev"
+
+images:
+  worker: ghcr.io/openlatex/openlatex-compile:latest
+  producer: ghcr.io/openlatex/openlatex-queue-producer:latest
+  redis: redis
+  prometheus: prom/prometheus:v2.55.1
+
+frontendUrl: https://openlatex.github.io
+remoteWriteUrl: http://172.16.10.51:9090/api/v1/write
+
+nodePort: 30080
+
+# secret de contournement de la limite de compilation, utile pour les tests de charge
+bypassSecret: "changeme"
+
+hpa:
+  minReplicas: 2
+  maxReplicas: 8
+
+
