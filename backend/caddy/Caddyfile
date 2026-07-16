@@ -1,5 +1,5 @@
 # (site pas encore déployé, le serveur doit être on) 
-http://openlatex.blavogiez.fr {
+http://openlatex.blavogiez.fr, http://openlatex-prod.blavogiez.fr, http://openlatex-dev.blavogiez.fr {
     handle /collab/* {
         reverse_proxy collab:7000
     }
@@ -14,7 +14,8 @@ http://openlatex.blavogiez.fr {
     handle /grafana* {
         reverse_proxy grafana:3000
     }
-    handle / {
+    @frontend path / /assets/*
+    handle @frontend {
         reverse_proxy frontend:80
     }
     handle {
