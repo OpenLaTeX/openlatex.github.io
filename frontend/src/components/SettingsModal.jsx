@@ -134,7 +134,7 @@ export default function SettingsModal({ isOpen, onClose, theme, onThemeChange, a
               </span>
             </div>
             <a
-              href="https://openlatex-api.blavogiez.fr/grafana/dashboards"
+              href="https://openlatex.blavogiez.fr/grafana/dashboards"
               target="_blank"
               rel="noopener noreferrer"
               className="status-link"

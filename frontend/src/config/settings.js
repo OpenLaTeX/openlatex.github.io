@@ -1,5 +1,5 @@
 // Configuration centralisée de l'application
-const DEFAULT_API_URL = 'https://openlatex-api.blavogiez.fr';
+const DEFAULT_API_URL = 'https://openlatex.blavogiez.fr';
 
 /**
  * Récupère l'URL de l'API.
