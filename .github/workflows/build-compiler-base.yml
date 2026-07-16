@@ -32,8 +32,8 @@ jobs:
       - name: Build and push base image
         uses: docker/build-push-action@v5
         with:
-          context: ./backend/compiler
-          file: ./backend/compiler/Dockerfile.base
+          context: ./backend/compiler/queue-worker
+          file: ./backend/compiler/queue-worker/Dockerfile.base
           push: true
           tags: ghcr.io/${{ env.OWNER_LC }}/openlatex-texlive-base:latest
           cache-from: type=gha

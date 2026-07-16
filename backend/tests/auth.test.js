@@ -6,7 +6,7 @@ jest.mock('jsonwebtoken');
 const jwt = require('jsonwebtoken');
 
 // vrai middleware avec jwt mocké pour contrôler le comportement
-const realAuth = jest.requireActual('../account-manager/middleware/auth');
+const realAuth = jest.requireActual('../account-crud-api/middleware/auth');
 const app = express();
 app.use(express.json());
 app.get('/projects', realAuth, (req, res) => res.json([]));
