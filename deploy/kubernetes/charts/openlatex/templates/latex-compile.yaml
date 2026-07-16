@@ -86,7 +86,13 @@ spec:
       containers:
       - image: {{ .Values.images.producer }}
         name: latex-compile-queue-producer
-        resources: {}
+        resources: 
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "1024Mi"
         securityContext:
           runAsUser: 10000
           runAsNonRoot: true

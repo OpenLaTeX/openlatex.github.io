@@ -7,9 +7,7 @@
 
 import http from 'k6/http';
 import { check } from 'k6';
-import { textSummary } from 'https://jslib.k6.io/k6-summary/0.0.2/index.js';
-
-const BASE_URL = __ENV.BASE_URL || 'https://openlatex-api.blavogiez.fr';
+const BASE_URL = __ENV.BASE_URL || 'https://openlatex.blavogiez.fr';
 //const BASE_URL = __ENV.BASE_URL || 'http://13.39.204.79';
 const TEST_KEY = __ENV.TEST_KEY || '';
 
@@ -53,19 +51,7 @@ export default function () {
     timeout: '60s',
   });
 
-  const ok = check(res, {
+  check(res, {
     'status 200': (r) => r.status === 200,
   });
-
-  console.log(`[compile] status=${res.status} duration=${res.timings.duration.toFixed(0)}ms ok=${ok}`);
-}
-
-export function handleSummary(data) {
-  const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-  const logPath = `logs/stress-compile-${timestamp}.log`;
-
-  return {
-    stdout: textSummary(data, { indent: ' ', enableColors: true }),
-    [logPath]: textSummary(data, { indent: ' ', enableColors: false }),
-  };
 }

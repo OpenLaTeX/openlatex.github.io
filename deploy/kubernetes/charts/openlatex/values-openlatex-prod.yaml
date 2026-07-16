@@ -16,7 +16,7 @@ nodePort: 30080
 bypassSecret: "changeme"
 
 hpa:
-  minReplicas: 2
-  maxReplicas: 8
+  minReplicas: 8
+  maxReplicas: 20
 
 

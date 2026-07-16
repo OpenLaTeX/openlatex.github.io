@@ -1,5 +1,5 @@
 # (site pas encore déployé, le serveur doit être on) 
-http://openlatex.blavogiez.fr, http://openlatex-prod.blavogiez.fr, http://openlatex-dev.blavogiez.fr {
+http://openlatex-api.blavogiez.fr, http://openlatex.blavogiez.fr, http://openlatex-prod.blavogiez.fr, http://openlatex-dev.blavogiez.fr {
     handle /collab/* {
         reverse_proxy collab:7000
     }
