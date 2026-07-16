@@ -35,7 +35,8 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-  - host: openlatex.blavogiez.fr
+  # pour namespace prod c'est openlatex.blavogiez.fr pour la version test c'est openlatex-dev.blavogiez.fr
+  - host: {{ .Values.namespacedUrl }}
     http:
       paths:
       - backend:

@@ -10,6 +10,9 @@ images:
 frontendUrl: https://openlatex.github.io
 remoteWriteUrl: http://172.16.10.51:9090/api/v1/write
 
+# deux url différentes sur internet pour accéder aux namespaces afin d'avoir une version stable et une version test
+namespacedUrl: openlatex.blavogiez.fr
+
 nodePort: 30080
 
 # secret de contournement de la limite de compilation, utile pour les tests de charge
@@ -18,5 +21,4 @@ bypassSecret: "changeme"
 hpa:
   minReplicas: 8
   maxReplicas: 20
-
 
