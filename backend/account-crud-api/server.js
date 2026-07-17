@@ -27,7 +27,8 @@ const app = express();
 app.use(cors({
   origin: [
     'https://openlatex.github.io',
-    'https://openlatex.blavogiez.fr'
+    'https://openlatex.blavogiez.fr',
+    'https://openlatex-dev.blavogiez.fr'
   ],
   credentials: true
 }));
