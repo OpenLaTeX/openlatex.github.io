@@ -106,9 +106,10 @@ flowchart LR
 
 L'infrastructure se trouve sur un réseau isolé et n'est pas directement exposée au réseau public. Un **Cloudflare Tunnel** atteint un reverse proxy central, qui redirige ensuite vers la VM OpenLaTeX et ses services internes. À distance, l'administration passe par le VPN de l'hyperviseur Proxmox.
 
-Le frontend peut être servi de deux façons : par GitHub Pages sur `openlatex.github.io`, ou par le conteneur Nginx de la VM API derrière Caddy sur les domaines `openlatex.blavogiez.fr`. Pour le backend, la branche `main` déploie l'environnement `openlatex-prod`, accessible sur [openlatex.blavogiez.fr](https://openlatex.blavogiez.fr) ; les autres branches suivies par le workflow utilisent `openlatex-dev`, accessible sur [openlatex-dev.blavogiez.fr](https://openlatex-dev.blavogiez.fr). Il s'agit de l'URL du backend que contactera le front de l'application ; elle est donc paramétrable. Chaque namespace dispose ainsi de sa propre URL d'Ingress, ce qui permet de tester une version sans remplacer la production. Par ailleurs, les métriques et Dashboards sont consultables par namespace.
+Le frontend peut être servi de deux façons : par GitHub Pages sur `openlatex.github.io`, ou par le conteneur Nginx de la VM API derrière Caddy sur les domaines `openlatex.blavogiez.fr`. Pour le backend, la branche `main` déploie l'environnement `openlatex-prod`, accessible sur [openlatex.blavogiez.fr](https://openlatex.blavogiez.fr) ; les autres branches suivies par le workflow utilisent `openlatex-dev`, accessible sur [openlatex-dev.blavogiez.fr](https://openlatex-dev.blavogiez.fr). Il s'agit de l'URL du backend que contactera le front de l'application ; elle est donc paramétrable. Chaque namespace dispose ainsi de sa propre URL d'Ingress, ce qui permet de tester une version sans remplacer la production. Par ailleurs, les métriques et Dashboards Grafana sont consultables par namespace.
 
-(mettre image)
+<img width="1852" height="962" alt="image" src="https://github.com/user-attachments/assets/44c80388-68c3-46cc-8172-0a332a76f048" />
+
 
 ## Cluster Kubernetes et autoscaling
 
@@ -200,12 +201,12 @@ Grafana est accessible publiquement en lecture seule sur [openlatex.blavogiez.fr
 - **K3S instances** : replicas actuels vs souhaités (HPA min/max visibles), CPU / RAM et redémarrages des pods
 - **PostgreSQL** : connexions actives, taille de la base
 
-Des tests de charge k6 sont lancés automatiquement après les déploiements pour entretenir les métriques et vérifier le comportement réel de l'infrastructure. Les intervalles de scrape sont adaptés à la criticité des services et la rétention reste volontairement courte pour limiter le stockage nécessaire sur la VM.
+Des tests de charge k6 sont lancés automatiquement dans la CI/CD après les déploiements, et également en cronjob en permanence afin d'entretenir les métriques et vérifier le comportement réel de l'infrastructure (= la mettre à l'épreuve pour voir comment je peux l'améliorer). Les intervalles de scrape sont adaptés à la criticité des services et la rétention reste volontairement courte pour limiter le stockage nécessaire sur la VM.
 
 ## Tests et qualité
 
 - **Tests unitaires Jest** sur le backend (`backend/tests/`) : auth, permissions de ressources, compilation stateless. Exécutés dans le job CI `code-test`.
-- **Tests de charge k6** ([`infra/load-tests/k6/`](infra/load-tests/k6/)) : scénarios par persona (Alice, Bob, Charlie, Grouped) via `all-personas.sh`. Le job `infra-load-tests` déclenche `Grouped` après chaque déploiement réussi (~250 compilations en ~1 min 30) pour vérifier que l'infrastructure tient, y compris que l'HPA scale correctement.
+- **Tests de charge k6** ([`infra/load-tests/k6/`](infra/load-tests/k6/)) : scénarios par persona (Alice, Bob, Charlie, Grouped) via `all-personas.sh`. Le job CI/CD `infra-load-tests` déclenche `Grouped` après chaque déploiement réussi (~250 compilations en ~1 min 30) pour vérifier que l'infrastructure tient, y compris que l'HPA scale correctement.
 
 Un secret `TEST_BYPASS_SECRET` permet à k6 de contourner le rate limiting via le header `X-Test-Key` pour que ces tests soient réalistes.
 
