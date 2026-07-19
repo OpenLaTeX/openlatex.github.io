@@ -121,6 +121,8 @@ Le chart Helm configure deux environnements :
 
 - **production** : namespace `openlatex-prod`, URL [openlatex.blavogiez.fr](https://openlatex.blavogiez.fr), de **8 à 20 workers**
 - **développement** : namespace `openlatex-dev`, URL [openlatex-dev.blavogiez.fr](https://openlatex-dev.blavogiez.fr), de **2 à 8 workers**
+<img width="3401" height="765" alt="image" src="https://github.com/user-attachments/assets/dfa16ed8-95f4-46d5-a9a4-8bfd3a51f73f" />
+
 - cible commune : **50 % CPU utilization**
 - `scaleUp` : `stabilizationWindowSeconds: 120`, jusqu'à +3 pods / 60s
 - `scaleDown` : `stabilizationWindowSeconds: 600`, jusqu'à -2 pods / 240s
@@ -128,6 +130,10 @@ Le chart Helm configure deux environnements :
 J'ai volontairement mis une fenêtre de stabilisation plus longue au scale-down qu'au scale-up : un pic de compilations passe vite, et je ne veux pas que l'HPA retire des pods juste après un burst pour devoir les recréer peu après. Mes load tests k6 m'ont aidé à caler ces valeurs en observant les replicas réels dans le dashboard Grafana dédié.
 
 Le control plane est `tainted` pour interdire les workloads compilateur (sinon cela peut créer un bottleneck sur le nœud qui administre le cluster), les workers les accueillent tous. Des **NetworkPolicy** limitent les communications : le producteur et les workers peuvent joindre Redis, mais les composants de compilation n'ont pas un accès libre au reste du réseau.
+
+Vue d'ensemble : 
+<img width="3393" height="1761" alt="image" src="https://github.com/user-attachments/assets/77ad7130-8a42-4ef7-bdf6-e460f8fd703c" />
+
 
 ## Collaboration temps réel
 
