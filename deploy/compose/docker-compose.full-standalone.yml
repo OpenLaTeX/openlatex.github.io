@@ -113,8 +113,8 @@ services:
     ports:
       - "0.0.0.0:9090:9090"
     volumes:
-      - ../../backend/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - ../../backend/monitoring/alert_rules.yml:/etc/prometheus/alert_rules.yml:ro
+      - ../../backend/monitoring/prometheus.full-standalone.yml:/etc/prometheus/prometheus.yml:ro
+      - ../../backend/monitoring/alert_rules.full-standalone.yml:/etc/prometheus/alert_rules.yml:ro
       - prometheus_data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
@@ -146,7 +146,7 @@ services:
     volumes:
       - grafana_data:/var/lib/grafana
       - ../../backend/monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
-      - ../../backend/monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - ../../backend/monitoring/grafana/dashboards-full-standalone:/var/lib/grafana/dashboards:ro
     environment:
       GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
