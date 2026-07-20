@@ -87,7 +87,6 @@ services:
     container_name: openlatex_prometheus
     restart: unless-stopped
     # on ouvre pour que le réseau privé écrive dedans
-    # En réalité, le port n'est jamais exposé en public (configuré dans terraform au niveau security groups)
     ports:
       - "0.0.0.0:9090:9090"
     volumes:
