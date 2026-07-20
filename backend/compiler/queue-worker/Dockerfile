@@ -1,5 +1,5 @@
 # image docker du worker de compilation LaTeX
-# La couche texlive-full (~4 GB) est dans l'image de base — rebuild via build-compiler-base.yml
+# La couche texlive-full (~4 GB) est dans l'image de base - rebuild via build-compiler-base.yml
 FROM ghcr.io/openlatex/openlatex-texlive-base:latest
 
 WORKDIR /app

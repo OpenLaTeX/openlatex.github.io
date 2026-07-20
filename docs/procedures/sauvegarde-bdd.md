@@ -70,7 +70,7 @@ Pour tester un fichier spécifique :
 
 Si une étape échoue (dump, chiffrement ou upload), le script envoie un email à l'admin défini via l'API Resend. L'email contient l'étape échouée, le message d'erreur, un diagnostic système et les 50 dernières lignes de log.
 
-Si `RESEND_API_KEY` n'est pas défini dans le `.env`, l'alerte est silencieuse — seul le log est écrit.
+Si `RESEND_API_KEY` n'est pas défini dans le `.env`, l'alerte est silencieuse - seul le log est écrit.
 
 Pour diagnostiquer manuellement :
 
