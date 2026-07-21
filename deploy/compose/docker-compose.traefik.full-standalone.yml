@@ -1,5 +1,5 @@
 # compose qui intègre le compilateur, pour un déploiement qui n'utiliserait pas Kubernetes / Helm, donc plus léger
-# docker compose -f docker-compose.full-standalone.yml up -d
+# docker compose -f docker-compose.traefik.full-standalone.yml up -d
 # nécessite un .env, sinon les valeurs seront celles par défaut. Il est conseillé de générer aléatoirement ces valeurs
 name: openlatex
 
@@ -76,6 +76,12 @@ services:
     restart: unless-stopped
     environment:
       COMPILER_ADDRESS: ${COMPILER_ADDRESS:-localhost:9000}
+    labels: 
+      - "traefik.enable=true"
+      - "traefik.http.routers.kanboard.rule=Host(`apercu-site.blavogiez.fr`)"
+      - "traefik.http.routers.kanboard.entrypoints=web"
+      - "traefik.http.services.kanboard.loadbalancer.server.port=80"
+
     ports:
       - "80:80"
       - "443:443"
@@ -85,6 +91,7 @@ services:
       - caddy_config:/config
     networks:
       - openlatex
+      - proxy 
 
   collab:
     build:
@@ -167,5 +174,8 @@ volumes:
   grafana_data:
 
 networks:
+  # traefik de Komodo
+  proxy: 
+    external: true 
   openlatex:
     driver: bridge
