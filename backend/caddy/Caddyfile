@@ -1,16 +1,13 @@
-# (site pas encore déployé, le serveur doit être on) 
-http://openlatex-api.blavogiez.fr, http://openlatex.blavogiez.fr, http://openlatex-prod.blavogiez.fr, http://openlatex-dev.blavogiez.fr {
+:80 {
     handle /collab/* {
         reverse_proxy collab:7000
     }
     handle /compile {
         # rediriger vers l'ip du node qui a l'ingress kubernetes (Cest un path type exact et pas prefix)
-        reverse_proxy 172.16.10.52:80
+        # ou bien en local pour le compose (compile-standalone:9000)
+        reverse_proxy {$COMPILER_ADDRESS}
     }
-    # pas accessible
-    handle /metrics {
-        respond 403
-    }
+
     handle /grafana* {
         reverse_proxy grafana:3000
     }
@@ -18,7 +15,20 @@ http://openlatex-api.blavogiez.fr, http://openlatex.blavogiez.fr, http://openlat
     handle @frontend {
         reverse_proxy frontend:80
     }
-    handle {
+    @account path /auth/* /projects/* /health 
+    handle @account {
         reverse_proxy backend:8000
+    }
+
+    # dernier catch all deny
+
+    # pas accessible
+    @monitoring path /metrics /remote_write /prometheus
+    handle @monitoring {
+        respond 403
+    }
+
+    handle {
+        respond 403
     }
 }

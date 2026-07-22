@@ -5,6 +5,8 @@ name: (DOCKER/BACKEND) - Construction et déploiement des images spécifiques + 
 
 on:
   push:
+    branches: 
+      - main 
   workflow_dispatch:
 
 concurrency:
@@ -55,20 +57,7 @@ jobs:
             queue_producer:
               - 'backend/compiler/queue-producer/**'
               - 'backend/package*.json'
-
-  # je ne le build plus dans le runner mais plutot sur l'instance cible, car l'image est assez légère, ça ralentit plus qu'autre chose
-  # build-manager:
-  #   needs: [detect-changes, code-test]
-  # if: needs.detect-changes.outputs.manager == 'true' || github.event_name == 'workflow_dispatch'
-  #   permissions:
-  #     contents: read
-  #     packages: write
-  #   uses: ./.github/workflows/build-image.yml
-  #   secrets: inherit
-  #   with:
-  #     image-name: openlatex-account-manager
-  #     dockerfile: ./backend/account-crud-api/Dockerfile
-
+              
   build-compiler:
     needs: [detect-changes, code-test]
     if: needs.detect-changes.outputs.compiler == 'true' || github.event_name == 'workflow_dispatch'

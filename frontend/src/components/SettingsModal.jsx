@@ -1,7 +1,6 @@
 import Modal from 'react-modal';
 import { Sun, Moon, Link, X, Activity } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
-import { getApiUrl } from '../config/settings';
 import './SettingsModal.css';
 
 export default function SettingsModal({ isOpen, onClose, theme, onThemeChange, apiUrl, onApiUrlChange, autoSaveEnabled, onAutoSaveChange, autoSaveInterval, onAutoSaveIntervalChange }) {
@@ -134,7 +133,7 @@ export default function SettingsModal({ isOpen, onClose, theme, onThemeChange, a
               </span>
             </div>
             <a
-              href="https://openlatex.blavogiez.fr/grafana/dashboards"
+              href={`${apiUrl.replace(/\/$/, '')}/grafana/dashboards`}
               target="_blank"
               rel="noopener noreferrer"
               className="status-link"

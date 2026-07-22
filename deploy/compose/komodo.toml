@@ -1,0 +1,20 @@
+[[stack]]
+name = "openlatex-compose-only"
+deploy = true
+
+[stack.config]
+server = "Local"
+git_provider = "github.com"
+git_account = ""
+repo = "openlatex/openlatex.github.io"
+branch = "32-déploiement-compose-only-alternative-à-helm"
+clone_path = "/etc/komodo/stacks/openlatex"
+run_directory = "/etc/komodo/stacks/openlatex/deploy/compose"
+file_paths = ["docker-compose.traefik.full-standalone.yml"]
+webhook_enabled = false
+auto_pull = true
+
+[stack.config.pre_deploy]
+command = """
+[ -f .env ] || (POSTGRES_PASSWORD="$(openssl rand -hex 32)" && echo "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" >> .env) && (JWT_SECRET="$(openssl rand -hex 32)" && echo "JWT_SECRET=$JWT_SECRET" >> .env) && (TEST_BYPASS_SECRET="$(openssl rand -hex 32)" && echo "TEST_BYPASS_SECRET=$TEST_BYPASS_SECRET" >> .env) && (GRAFANA_ADMIN_PASSWORD="$(openssl rand -hex 32)" && echo "GRAFANA_ADMIN_PASSWORD=$GRAFANA_ADMIN_PASSWORD" >> .env)
+"""

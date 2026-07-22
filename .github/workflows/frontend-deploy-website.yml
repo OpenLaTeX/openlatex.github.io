@@ -2,6 +2,8 @@ name: (FRONTEND) - Deploiement GitHub Pages
 
 on:
   push:
+    branches: 
+      - main 
   pull_request:
   workflow_dispatch:
 

@@ -5,6 +5,7 @@ import { UserStorage } from '../storage/UserStorage';
 import { Download } from 'lucide-react';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
+import { getDisplayErrorMessage } from '../utils/errorMessage';
 import './ProjectList.css';
 
 function ProjectList({ onLoadProject, onNewProject, onConfirm }) {
@@ -24,7 +25,7 @@ function ProjectList({ onLoadProject, onNewProject, onConfirm }) {
             setProjects(data);
             setError('');
         } catch (err) {
-            setError(t.cannotLoadProjects(err.message));
+            setError(t.cannotLoadProjects(getDisplayErrorMessage(err, t.backendUrlError)));
         } finally {
             setLoading(false);
         }
@@ -43,7 +44,7 @@ function ProjectList({ onLoadProject, onNewProject, onConfirm }) {
                   UserStorage.saveLastProject(null, null);
                 }
             } catch (err) {
-                setError(t.cannotDeleteProject(err.message));
+                setError(t.cannotDeleteProject(getDisplayErrorMessage(err, t.backendUrlError)));
             }
         }
     };
@@ -70,7 +71,7 @@ function ProjectList({ onLoadProject, onNewProject, onConfirm }) {
             saveAs(blob, `${projectName}.zip`);
             setError('');
         } catch (err) {
-            setError(t.cannotDownloadProject(err.message));
+            setError(t.cannotDownloadProject(getDisplayErrorMessage(err, t.backendUrlError)));
         }
     };
 

@@ -1,5 +1,5 @@
 /**
- * k6 stress test — POST /compile
+ * k6 stress test - POST /compile
  *
  * Usage:
  *   k6 run -e BURST_RATE=1000 -e TEST_KEY=<secret> scripts/k6/stress-compile.js

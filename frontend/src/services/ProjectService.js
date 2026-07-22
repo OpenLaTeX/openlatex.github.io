@@ -7,7 +7,7 @@ class ProjectService {
         });
 
         if (response.status === 401) {
-            throw new Error('Session expired — please log in again');
+            throw new Error('Session expired - please log in again');
         }
 
         const data = await response.json();
@@ -33,7 +33,7 @@ class ProjectService {
         });
 
         if (response.status === 401) {
-            throw new Error('Session expired — please log in again');
+            throw new Error('Session expired - please log in again');
         }
 
         if (response.status === 413) {
@@ -55,7 +55,7 @@ class ProjectService {
         });
 
         if (response.status === 401) {
-            throw new Error('Session expired — please log in again');
+            throw new Error('Session expired - please log in again');
         }
 
         const data = await response.json();
@@ -81,7 +81,7 @@ class ProjectService {
         });
 
         if (response.status === 401) {
-            throw new Error('Session expired — please log in again');
+            throw new Error('Session expired - please log in again');
         }
 
         if (response.status === 413) {
@@ -104,7 +104,7 @@ class ProjectService {
         });
 
         if (response.status === 401) {
-            throw new Error('Session expired — please log in again');
+            throw new Error('Session expired - please log in again');
         }
 
         const data = await response.json();

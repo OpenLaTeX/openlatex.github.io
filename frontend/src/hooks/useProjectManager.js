@@ -5,6 +5,7 @@ import { validateProjectName } from '../utils/validation';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { UserStorage } from '../storage/UserStorage';
+import { getDisplayErrorMessage } from '../utils/errorMessage';
 
 export const useProjectManager = (isAuthenticated, showAlert, showPrompt, autoSaveEnabled = true, autoSaveInterval = 2, t) => {
   const [currentProjectId, setCurrentProjectId] = useState(() => {
@@ -138,7 +139,7 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt, autoSa
             }
             resolve({ success: true });
           } catch (err) {
-            showAlert(t.error, t.cannotSave(err.message));
+            showAlert(t.error, t.cannotSave(getDisplayErrorMessage(err, t.backendUrlError)));
             resolve({ success: false });
           }
           setLoading(false);
@@ -166,7 +167,7 @@ export const useProjectManager = (isAuthenticated, showAlert, showPrompt, autoSa
       showAlert(t.success, t.projectLoaded);
       return { success: true };
     } catch (err) {
-      showAlert(t.error, t.cannotLoad(err.message));
+      showAlert(t.error, t.cannotLoad(getDisplayErrorMessage(err, t.backendUrlError)));
       return { success: false };
     } finally {
       setLoading(false);

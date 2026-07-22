@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useLanguage } from '../i18n/LanguageContext';
 import AuthService from '../services/AuthService';
 import { UserStorage } from '../storage/UserStorage';
+import { getDisplayErrorMessage } from '../utils/errorMessage';
 import './Auth.css';
 
 function Auth({ onLogin }) {
@@ -30,7 +31,7 @@ function Auth({ onLogin }) {
                 setSuccess(t.accountCreated);
             }
         } catch (err) {
-            setError(err.message);
+            setError(getDisplayErrorMessage(err, t.backendUrlError));
         } finally {
             setLoading(false);
         }
