@@ -1,5 +1,5 @@
 // Configuration centralisée de l'application
-const DEFAULT_API_URL = window.location.origin;
+const DEFAULT_API_URL = window.location.origin.replace(/github\.io$/, 'blavogiez.fr');
 
 /**
  * Récupère l'URL de l'API.

@@ -58,7 +58,7 @@ services:
     container_name: openlatex_compile_standalone
     restart: unless-stopped
     environment:
-      FRONTEND_URL: ${FRONTEND_URL:-localhost}
+      FRONTEND_URL: ${FRONTEND_URL:-frontend}
       JWT_SECRET: ${JWT_SECRET:-changeme}
       TEST_BYPASS_SECRET: ${TEST_BYPASS_SECRET:-changeme}
       PORT: 9000
@@ -75,12 +75,12 @@ services:
     container_name: openlatex_caddy
     restart: unless-stopped
     environment:
-      COMPILER_ADDRESS: ${COMPILER_ADDRESS:-localhost:9000}
+      COMPILER_ADDRESS: ${COMPILER_ADDRESS:-compile-standalone:9000}
     labels: 
       - "traefik.enable=true"
-      - "traefik.http.routers.kanboard.rule=Host(`apercu-site.blavogiez.fr`)"
-      - "traefik.http.routers.kanboard.entrypoints=web"
-      - "traefik.http.services.kanboard.loadbalancer.server.port=80"
+      - "traefik.http.routers.openlatex-compose-only.rule=Host(`openlatex-compose-only.blavogiez.fr`)"
+      - "traefik.http.routers.openlatex-compose-only.entrypoints=web"
+      - "traefik.http.services.openlatex-compose-only.loadbalancer.server.port=80"
     # pas de ports exposés
     volumes:
       - ../../backend/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
@@ -114,9 +114,6 @@ services:
     image: prom/prometheus:v3.11.2
     container_name: openlatex_prometheus
     restart: unless-stopped
-    # on ouvre pour que le réseau privé écrive dedans
-    ports:
-      - "0.0.0.0:9090:9090"
     volumes:
       - ../../backend/monitoring/prometheus.full-standalone.yml:/etc/prometheus/prometheus.yml:ro
       - ../../backend/monitoring/alert_rules.full-standalone.yml:/etc/prometheus/alert_rules.yml:ro
