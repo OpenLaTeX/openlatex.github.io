@@ -1,6 +1,6 @@
 # compose qui intègre le compilateur, pour un déploiement qui n'utiliserait pas Kubernetes / Helm, donc plus léger
 # docker compose -f docker-compose.full-standalone.yml up -d
-# nécessite un .env, sinon les valeurs seront celles par défaut. Il est conseillé de générer aléatoirement ces valeurs
+# nécessite un .env, sinon les valeurs seront celles par défaut. Il est conseillé de générer aléatoirement ces valeurs avec le script gen-env.sh
 name: openlatex
 
 services:

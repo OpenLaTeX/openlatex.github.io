@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import ApiService from '../services/ApiService';
 import { parseLatexLogs } from '../utils/LogParser';
+import { getDisplayErrorMessage } from '../utils/errorMessage';
 
 export const useCompilation = (project, resolveFiles, apiUrl, showAlert, setLoading, t) => {
   const [pdfUrl, setPdfUrl] = useState(null);
@@ -35,7 +36,7 @@ export const useCompilation = (project, resolveFiles, apiUrl, showAlert, setLoad
       setShowErrorPanel(true);
       showAlert(
         t.compilationErrorTitle,
-        t.compilationErrorMsg(err.message)
+        t.compilationErrorMsg(getDisplayErrorMessage(err, t.backendUrlError))
       );
     }
     setLoading(false);
