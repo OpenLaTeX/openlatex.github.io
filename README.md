@@ -247,37 +247,23 @@ Les quotas sont garantis par PostgreSQL : `project_count` est mis à jour par `t
 
 ## Installation
 
-Et maintenant, si l'on voulait installer tout ça ?
+### Au plus simple (Compose only)
 
-### Frontend
+Une version de l'application sans Kubernetes existe, avec le compilateur LaTeX embarqué dans Docker Compose. Ainsi, avec un seul fichier nous pouvons tout installer. Il s'agit du déploiement le plus simple possible.
 
-Vous l'aurez deviné, cette partie est la plus simple. Dans le dossier frontend :
-
-```bash
-npm install
-npm run dev
-```
-
-### Backend
-
-Si l'on devait redéployer l'infrastructure ailleurs, Docker et Terraform couvrent l'essentiel. Le reste, c'est configurer le serveur.
-
-#### Configuration locale
+Un petit script va cloner le dépôt, générer le `.env` et lancer la stack. En une commande, on peut obtenir ce script et l'exécuter, c'est un peu un "déploiement curl".
 
 ```bash
-cd deploy/compose
-cp .env.example .env
-# remplir les variables (voir .env.example)
-docker compose up -d
+curl -fsSL https://raw.githubusercontent.com/OpenLaTeX/openlatex.github.io/refs/heads/main/deploy/curl/install-compose-standalone.sh | sh
 ```
 
-Cette configuration démarre PostgreSQL, le frontend Nginx, l'Account Manager, le service de collaboration, Caddy et le monitoring. Elle ne publie pas directement le port 8000 : seuls les ports 80 et 443 de Caddy sont exposés. Le `Caddyfile` fourni cible les domaines de déploiement et doit donc être adapté pour utiliser `localhost`.
+La stack va donc tourner pleinement en local, et c'est le plus simple. Elle embarque le frontend, la base de données, l'API de comptes, le monitoring... et se comporte comme la version Kubernetes, mais sans le scaling et la gestion avancée des compilations (Gestion de queue + Redis). Pour un usage très simple cela convient (= moins de 5 compilations à la seconde). Il faudra entre 500 et 1000Mi de RAM (on peut aller plus bas en enlevant le monitoring).
 
-La stack Compose ne contient pas Redis, le producteur BullMQ ni les workers LaTeX ; la compilation complète nécessite le chart Kubernetes. Ce n'est donc pas encore une installation locale autonome de toute la plateforme.
+Une version est déployée sur [openlatex-compose-only.blavogiez.fr](https://openlatex-compose-only.blavogiez.fr). On peut également voir son monitoring sur [openlatex-compose-only.blavogiez.fr/grafana/dashboards](https://openlatex-compose-only.blavogiez.fr/grafana/dashboards). Il est très probable que les métriques soient vide car je ne mets pas de tests de charge sur cette version.
 
-#### Déploiement en production
+### Déploiement en production
 
-On va ici partir sur une approche GitOps / Infrastructure as Code.
+On va ici partir sur une approche Git comme source de vérité et Infrastructure as Code.
 
 **Sur votre machine / repo GitHub :**
 
@@ -302,13 +288,11 @@ L'infrastructure n'étant pas exposée directement au réseau public, l'accès W
 
 ## Procédures
 
-J'ai écrit quelques procédures pour les principales tâches de maintenance (qui ne seraient pas couvertes par le README) :
+J'ai écrit quelques procédures pour les principales tâches de maintenance (qui ne seraient pas couvertes par les README) :
 
 - [Sauvegarde de la BDD](docs/procedures/sauvegarde-bdd.md)
 - [Restauration d'une BDD](docs/procedures/restaurer-bdd.md)
 - [Transition cloud / migration de VPS](docs/procedures/transition-cloud.md)
-
-Que ce soit pour soi-même ou les autres, je pense que c'est toujours un réflexe à prendre que de documenter ce qu'on fait.
 
 ## Remarque personnelle
 
@@ -318,9 +302,9 @@ Je trouve que LaTeX est génial pour écrire des documents académiques parfaits
 
 Il me fallait une façon d'écrire les rapports en cours ou depuis chez moi, donc avec une base de données. Cela permet également, lors d'un travail de groupe, à d'autres personnes de contribuer à un rapport sans être familières avec LaTeX.
 
-Mais par dessus tout, c'était surtout un bon moyen d'apprendre une stack sur un cas pratique qui m'a accompagné pendant plusieurs mois. À chaque fois que je veux appliquer un composant ou paradigme de développement j'ai juste à l'implémenter dans l'application. 
+Mais par dessus tout, c'était surtout un bon moyen d'apprendre une stack sur un cas pratique qui m'a accompagné pendant plusieurs mois. À chaque fois que je veux appliquer un composant ou paradigme de développement, j'ai juste à l'implémenter dans l'application. 
 
-Je me suis surtout concentré sur la partie Infrastructure, je n'ai pas beaucoup de temps et je préfère passer du temps dessus plutôt que le Front par exemple. Cela correspond mieux à mon parcours professionnel cible.
+Je me suis surtout concentré sur la partie infrastructure et déploiement, je n'ai pas beaucoup de temps et je préfère passer du temps dessus plutôt que le Front par exemple. Cela correspond mieux à mon parcours professionnel cible.
 
 ## Stack technique
 
