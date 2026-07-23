@@ -24,6 +24,7 @@ services:
       context: ../../frontend
       dockerfile: Dockerfile
     container_name: openlatex_frontend 
+    restart: unless-stopped
     networks:
       - openlatex  
 
