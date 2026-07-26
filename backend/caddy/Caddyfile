@@ -15,7 +15,7 @@
     handle @frontend {
         reverse_proxy frontend:80
     }
-    @account path /auth/* /projects/* /health 
+    @account path /auth/* /projects /projects/* /health
     handle @account {
         reverse_proxy backend:8000
     }

@@ -22,7 +22,7 @@ export const useCollaboration = (projectId, project, setProject) => {
     const ydoc = new Y.Doc();
     ydocRef.current = ydoc;
 
-    const wsUrl = getApiUrl().replace(/^https/, 'wss') + '/collab';
+    const wsUrl = getApiUrl().replace(/^http/, 'ws').replace(/\/$/, '') + '/collab';
     const provider = new WebsocketProvider(wsUrl, projectId, ydoc, { connect: true });
     providerRef.current = provider;
 

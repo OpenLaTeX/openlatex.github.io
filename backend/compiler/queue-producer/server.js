@@ -64,11 +64,7 @@ async function pingRedis() {
 const app = express();
 
 app.use(cors({
-    origin: [
-        'https://openlatex.github.io',
-        'https://openlatex.blavogiez.fr',
-        'https://openlatex-dev.blavogiez.fr'
-    ],
+    origin: true,
     credentials: true
 }));
 app.use(cookieParser());
