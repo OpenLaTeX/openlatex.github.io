@@ -18,3 +18,24 @@ type: Opaque
 # a set dans le déploiement helm
 stringData:
   TEST_BYPASS_SECRET: {{ .Values.bypassSecret | quote }}
+---
+apiVersion: v1
+data:
+  POSTGRES_DB: {{ .Values.POSTGRES_DB }}
+  POSTGRES_HOST: {{ .Values.POSTGRES_HOST }}
+  POSTGRES_PORT: {{ .Values.POSTGRES_PORT }}
+  POSTGRES_USER: {{ .Values.POSTGRES_USER }}
+kind: ConfigMap
+metadata:
+  name: latex-postgres-connection
+  namespace: {{ .Values.namespace }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: latex-postgres-password
+  namespace: {{ .Values.namespace }}
+type: Opaque
+# a set dans le déploiement helm
+stringData:
+  POSTGRES_PASSWORD: {{ .Values.POSTGRES_PASSWORD | quote }}

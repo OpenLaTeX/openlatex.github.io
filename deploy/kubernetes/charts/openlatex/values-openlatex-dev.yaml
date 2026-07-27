@@ -6,6 +6,19 @@ images:
   producer: ghcr.io/openlatex/openlatex-queue-producer:latest
   redis: redis
   prometheus: prom/prometheus:v2.55.1
+  crud-api: ghcr.io/openlatex/openlatex-crud-api:latest
+  collab-websocket: ghcr.io/openlatex/openlatex-collab-websocket:latest
+  latex-postgres: postgres:latest
+  latex-frontend: caddy:2
+  latex-prometheus: prom/prometheus:v2.55.1
+  latex-grafana: grafana/grafana-oss:10.4.3
+
+POSTGRES_DB: openlatex
+POSTGRES_HOST: latex-postgres
+POSTGRES_PORT: 5432
+POSTGRES_USER: openlatex
+# sera changé / randomisé au playbook
+POSTGRES_PASSWORD: openlatex
 
 frontendUrl: https://openlatex.github.io
 remoteWriteUrl: http://172.16.10.51:9090/api/v1/write
@@ -22,4 +35,3 @@ bypassSecret: "changeme"
 hpa:
   minReplicas: 2
   maxReplicas: 8
-
