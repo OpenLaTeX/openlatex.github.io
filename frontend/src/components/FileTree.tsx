@@ -3,13 +3,13 @@ import { Tree } from 'react-arborist';
 import { ActionIcon, Box, Group, Menu, Text, ThemeIcon } from '@mantine/core';
 import { useElementSize } from '@mantine/hooks';
 import {
-  ChevronDown,
   ChevronRight,
   File,
   FileCode,
   FileImage,
   FileText,
   Folder,
+  FolderOpen,
   MoreHorizontal,
   Pencil,
   Trash2
@@ -29,8 +29,21 @@ interface Props {
 
 const indent = 32;
 
-const icon = (item: TreeItem) => {
-  if (item.type === 'folder') return <Folder size={15} />;
+const icon = (item: TreeItem, isOpen: boolean) => {
+  if (item.type === 'folder') {
+    return (
+      <Box component="span" pos="relative" display="inline-flex">
+        {isOpen ? <FolderOpen size={15} /> : <Folder size={15} />}
+        {!isOpen && (
+          <ChevronRight
+            size={8}
+            strokeWidth={3}
+            style={{ position: 'absolute', right: -3, bottom: -1 }}
+          />
+        )}
+      </Box>
+    );
+  }
   if (['png', 'jpg', 'jpeg'].includes(item.fileType ?? '')) return <FileImage size={15} />;
   if (item.fileType === 'pdf') return <FileText size={15} />;
   if (['cls', 'sty'].includes(item.fileType ?? '')) return <FileCode size={15} />;
@@ -55,23 +68,8 @@ const TreeNode = ({
         paddingLeft: 12 + node.level * indent,
         paddingRight: 12
       }}
-      onClick={node.handleClick}
-      onDoubleClick={() => node.isInternal && node.toggle()}
+      onClick={() => node.isInternal ? node.toggle() : node.handleClick()}
     >
-      {node.isInternal && (
-        <ActionIcon
-          aria-label={node.isOpen ? 'Fermer le dossier' : 'Ouvrir le dossier'}
-          size="xs"
-          variant="transparent"
-          color="gray"
-          onClick={(event) => {
-            event.stopPropagation();
-            node.toggle();
-          }}
-        >
-          {node.isOpen ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
-        </ActionIcon>
-      )}
       <Group
         gap={10}
         flex={1}
@@ -86,7 +84,7 @@ const TreeNode = ({
           variant="transparent"
           color={node.isSelected ? 'var(--openlatex-accent-text)' : 'gray'}
         >
-          {icon(node.data)}
+          {icon(node.data, node.isOpen)}
         </ThemeIcon>
         <Text fz={13} fw={node.isSelected ? 600 : 400} truncate flex={1}>
           {node.data.name}

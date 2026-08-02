@@ -30,9 +30,9 @@ export const SettingsModal = (props: Props) => {
   };
 
   return (
-    <Modal opened={props.opened} onClose={props.onClose} title={t('settingsTitle')} size="lg">
-      <Stack gap="xl">
-        <Stack gap="xs">
+    <Modal opened={props.opened} onClose={props.onClose} title={t('settingsTitle')} size="lg" padding="xl">
+      <Stack gap={40}>
+        <Stack gap="lg">
           <Title order={3} size="sm">{t('appearance')}</Title>
           <Text size="xs" c="dimmed">{t('themeDesc')}</Text>
           <SegmentedControl
@@ -51,7 +51,7 @@ export const SettingsModal = (props: Props) => {
             data={[{ value: 'fr', label: 'Français' }, { value: 'en', label: 'English' }]}
           />
         </Stack>
-        <Stack gap="xs">
+        <Stack gap="lg">
           <Title order={3} size="sm">{t('configuration')}</Title>
           <Group justify="space-between">
             <div>
@@ -81,7 +81,7 @@ export const SettingsModal = (props: Props) => {
             <Button variant="default" onClick={saveUrl}>Enregistrer</Button>
           </Group>
         </Stack>
-        <Stack gap="xs">
+        <Stack gap="lg">
           <Title order={3} size="sm">{t('about')}</Title>
           <Anchor href={`${getApiUrl()}/grafana/dashboards`} target="_blank">
             <Group gap="xs"><Activity size={16} /> Grafana <ExternalLink size={13} /></Group>

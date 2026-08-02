@@ -21,7 +21,6 @@ import {
   Play,
   Save,
   Settings,
-  User,
   Users
 } from 'lucide-react';
 import { useRef } from 'react';
@@ -77,14 +76,21 @@ export const Sidebar = ({
   return (
     <Stack h="100%" gap={0} bg="var(--openlatex-sidebar)">
       <Stack p="md" gap="sm">
-        <Image src="/assets/logo.png" alt="OpenLaTeX" h={54} fit="contain" />
+        <Box
+          component="a"
+          href="https://github.com/OpenLaTeX/openlatex.github.io"
+          target="_blank"
+          rel="noreferrer"
+          aria-label="Dépôt GitHub OpenLaTeX"
+        >
+          <Image src="/assets/logo.png" alt="OpenLaTeX" h={54} fit="contain" />
+        </Box>
         {email ? (
           <Menu width="target">
             <Menu.Target>
               <Button
                 variant="default"
                 fullWidth
-                leftSection={<User size={16} />}
                 rightSection={<ChevronDown size={14} />}
                 justify="space-between"
               >
@@ -145,6 +151,7 @@ export const Sidebar = ({
             <Button
               size="compact-xs"
               variant="subtle"
+              fw={400}
               justify="flex-start"
               leftSection={<FolderOpen size={14} />}
               onClick={onProjects}
@@ -155,6 +162,7 @@ export const Sidebar = ({
               <Button
                 size="compact-xs"
                 variant="subtle"
+                fw={400}
                 justify="flex-start"
                 leftSection={<Download size={14} />}
                 onClick={() => void workspace.download()}
@@ -166,6 +174,7 @@ export const Sidebar = ({
               <Button
                 size="compact-xs"
                 variant="subtle"
+                fw={400}
                 justify="flex-start"
                 leftSection={<Users size={14} />}
                 onClick={onCollaborators}
