@@ -48,6 +48,7 @@ services:
       POSTGRES_PORT: 5432
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-1h}
+      NODE_ENV: ${JWT_EXPIRES_IN:-dev}
       PORT: 8000
     networks:
       - openlatex

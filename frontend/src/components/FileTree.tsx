@@ -68,7 +68,7 @@ const TreeNode = ({
         paddingLeft: 12 + node.level * indent,
         paddingRight: 12
       }}
-      onClick={() => node.isInternal ? node.toggle() : node.handleClick()}
+      onClick={(event) => node.isInternal ? node.toggle() : node.handleClick(event)}
     >
       <Group
         gap={10}
