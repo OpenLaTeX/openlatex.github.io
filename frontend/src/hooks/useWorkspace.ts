@@ -90,7 +90,7 @@ export const useWorkspace = ({
         await api.updateProject(projectId, name, snapshot);
         dispatch({ type: 'saved', name, revision });
         setLastSaved(new Date());
-        if (!quiet) notifications.show({ color: 'green', message: t('projectUpdated') });
+        if (!quiet) notifications.show({ color: 'navy', message: t('projectUpdated') });
       } catch (error) {
         notifications.show({ color: 'red', message: t('cannotSave', { message: errorMessage(error) }) });
       } finally {
@@ -135,7 +135,7 @@ export const useWorkspace = ({
       }
       dispatch({ type: 'saved', name, revision });
       setLastSaved(new Date());
-      notifications.show({ color: 'green', message: projectId ? t('projectUpdated') : t('projectCreated') });
+      notifications.show({ color: 'navy', message: projectId ? t('projectUpdated') : t('projectCreated') });
     } catch (error) {
       notifications.show({ color: 'red', message: t('cannotSave', { message: errorMessage(error) }) });
     } finally {

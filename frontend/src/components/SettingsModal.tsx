@@ -23,7 +23,7 @@ export const SettingsModal = (props: Props) => {
   const saveUrl = () => {
     try {
       setApiUrl(url);
-      notifications.show({ color: 'green', message: 'URL enregistrée' });
+      notifications.show({ color: 'navy', message: 'URL enregistrée' });
     } catch {
       notifications.show({ color: 'red', message: 'URL invalide' });
     }

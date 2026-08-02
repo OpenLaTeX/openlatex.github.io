@@ -22,7 +22,7 @@ export const AuthView = ({ auth, onBack }: { auth: Auth; onBack: () => void }) =
     try {
       if (mode === 'register') {
         await auth.register.mutateAsync(values);
-        notifications.show({ color: 'green', message: t('accountCreated') });
+        notifications.show({ color: 'navy', message: t('accountCreated') });
         setMode('login');
         return;
       }
