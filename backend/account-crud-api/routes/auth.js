@@ -61,8 +61,15 @@ router.post('/login', async (req, res) => {
             { expiresIn: process.env.JWT_EXPIRES_IN }
         );
 
-        res.cookie('token', token, { httpOnly: true, secure: true, sameSite: 'none' });
-        res.json({ token });
+        // = autoriser le cookie en http ou pas (secure). En déploiement on le met (donc https), en dev on le met pas
+        // pour same site le front est à openlatex.github.io mais le back à openlatex.blavogiez.fr, donc on doit mettre à none 
+        const isDev = process.env.NODE_ENV === 'dev';
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: !isDev,
+            sameSite: isDev ? 'lax' : 'none'
+        });
+        res.json({ email });
     } catch (err) {
         console.error('erreur login:', err);
         res.status(500).json({ error: 'Server error during login' });

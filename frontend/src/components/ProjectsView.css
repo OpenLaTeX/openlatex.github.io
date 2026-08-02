@@ -1,0 +1,35 @@
+.projects-view-error {
+  border: 1px solid var(--mantine-color-error);
+}
+
+.projects-view-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.projects-view-card:hover {
+  border-color: var(--mantine-color-dimmed);
+  box-shadow: var(--mantine-shadow-sm);
+  transform: translateY(-1px);
+}
+
+.projects-view-actions {
+  border-top: 1px solid var(--mantine-color-default-hover);
+}
+
+.projects-view-action-button {
+  min-width: 0;
+}
+
+.projects-view-empty {
+  border-style: dashed;
+}
+
+@media (max-width: 30em) {
+  .projects-view-action-button {
+    min-height: 44px;
+    padding-inline: 6px;
+  }
+}

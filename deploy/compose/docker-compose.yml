@@ -44,7 +44,7 @@ services:
       POSTGRES_HOST: postgres
       POSTGRES_PORT: 5432
       JWT_SECRET: ${JWT_SECRET}
-      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-1h}
       PORT: 8000
     networks:
       - openlatex
