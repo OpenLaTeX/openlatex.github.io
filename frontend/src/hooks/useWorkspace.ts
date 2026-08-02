@@ -33,8 +33,8 @@ const initialProject = (name: string) => {
   };
 };
 
-const errorMessage = (error: unknown) =>
-  error instanceof Error ? error.message : 'Une erreur est survenue';
+const errorMessage = (error: unknown, fallback: string) =>
+  error instanceof Error ? error.message : fallback;
 
 export const useWorkspace = ({
   authenticated,
@@ -57,6 +57,10 @@ export const useWorkspace = ({
   const projectRef = useRef(project);
   const saving = useRef(false);
   const collaboration = useCollaboration(projectId, project, dispatch);
+  const translatedValidation = (validator: (value: string) => string | null) => (value: string) => {
+    const error = validator(value);
+    return error ? t(error) : null;
+  };
 
   useEffect(() => {
     projectRef.current = project;
@@ -92,7 +96,7 @@ export const useWorkspace = ({
         setLastSaved(new Date());
         if (!quiet) notifications.show({ color: 'navy', message: t('projectUpdated') });
       } catch (error) {
-        notifications.show({ color: 'red', message: t('cannotSave', { message: errorMessage(error) }) });
+        notifications.show({ color: 'red', message: t('cannotSave', { message: errorMessage(error, t('unknownError')) }) });
       } finally {
         saving.current = false;
       }
@@ -118,7 +122,7 @@ export const useWorkspace = ({
       projectId ? t('updateProjectTitle') : t('createProjectTitle'),
       t('projectNameLabel'),
       project.name,
-      validateProjectName
+      translatedValidation(validateProjectName)
     );
     if (!name) return;
     setLoading(true);
@@ -137,7 +141,7 @@ export const useWorkspace = ({
       setLastSaved(new Date());
       notifications.show({ color: 'navy', message: projectId ? t('projectUpdated') : t('projectCreated') });
     } catch (error) {
-      notifications.show({ color: 'red', message: t('cannotSave', { message: errorMessage(error) }) });
+      notifications.show({ color: 'red', message: t('cannotSave', { message: errorMessage(error, t('unknownError')) }) });
     } finally {
       setLoading(false);
     }
@@ -161,7 +165,7 @@ export const useWorkspace = ({
       storage.saveLastProject({ pno: value.pno, name: value.name, isOwner: value.is_owner });
       return true;
     } catch (error) {
-      notifications.show({ color: 'red', message: t('cannotLoad', { message: errorMessage(error) }) });
+      notifications.show({ color: 'red', message: t('cannotLoad', { message: errorMessage(error, t('unknownError')) }) });
       return false;
     } finally {
       setLoading(false);
@@ -193,7 +197,7 @@ export const useWorkspace = ({
     } catch (error) {
       const logs = error instanceof ApiError ? String(error.data?.logs ?? '') : '';
       setErrors(parseLatexLogs(logs));
-      notifications.show({ color: 'red', message: t('compilationErrorMsg', { message: errorMessage(error) }) });
+      notifications.show({ color: 'red', message: t('compilationErrorMsg', { message: errorMessage(error, t('unknownError')) }) });
     } finally {
       setLoading(false);
     }
@@ -205,11 +209,14 @@ export const useWorkspace = ({
       try {
         loaded.push(await readUpload(file));
       } catch (error) {
-        notifications.show({ color: 'red', message: errorMessage(error) });
+        notifications.show({ color: 'red', message: errorMessage(error, t('unknownError')) });
       }
     }
     const duplicates = loaded.filter((file) => project.files.some((item) => item.path === file.path));
-    if (duplicates.length && !(await confirmDialog('Remplacer les fichiers', `${duplicates.length} fichier(s) existe(nt) déjà.`))) return;
+    if (duplicates.length && !(await confirmDialog(
+      t('replaceFilesTitle'),
+      t('replaceFilesMsg', { count: duplicates.length })
+    ))) return;
     loaded.forEach((file) => {
       dispatch({ type: 'upsert', file });
       collaboration.setFile(file);
@@ -217,11 +224,11 @@ export const useWorkspace = ({
   };
 
   const createFile = async () => {
-    const path = await promptDialog('Nouveau fichier', 'Chemin', '', validatePath);
+    const path = await promptDialog(t('newFile'), t('pathLabel'), '', translatedValidation(validatePath));
     if (!path || project.files.some((file) => file.path === path)) return;
     const type = fileTypeFromPath(path);
     if (!type || isBinaryType(type)) {
-      notifications.show({ color: 'red', message: 'Utilisez un fichier .tex, .cls ou .sty' });
+      notifications.show({ color: 'red', message: t('textFileOnly') });
       return;
     }
     const file = { path, type, content: '' };
@@ -231,7 +238,7 @@ export const useWorkspace = ({
   };
 
   const rename = async (path: string) => {
-    const next = await promptDialog(t('renameFileTitle'), t('newNameLabel'), path, validatePath);
+    const next = await promptDialog(t('renameFileTitle'), t('newNameLabel'), path, translatedValidation(validatePath));
     if (!next || next === path || project.files.some((file) => file.path === next)) return;
     dispatch({ type: 'rename', from: path, to: next });
     collaboration.rename(path, next);
@@ -264,7 +271,7 @@ export const useWorkspace = ({
 
   const insertFigure = async () => {
     try {
-      const image = await readClipboardImage();
+      const image = await readClipboardImage(t);
       const view = editorRef.current?.getView();
       if (!image || !view || !project.currentFile) {
         notifications.show({ color: 'red', message: image ? t('editorUnavailable') : t('noImageMsg') });
@@ -290,7 +297,7 @@ export const useWorkspace = ({
       dispatch({ type: 'upsert', file });
       collaboration.setFile(file);
     } catch (error) {
-      notifications.show({ color: 'red', message: t('clipboardError', { message: errorMessage(error) }) });
+      notifications.show({ color: 'red', message: t('clipboardError', { message: errorMessage(error, t('unknownError')) }) });
     }
   };
 

@@ -3,6 +3,7 @@ import { notifications } from '@mantine/notifications';
 import { Activity, ExternalLink } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { languageOptions, resolveLanguage } from '../i18n/translations';
 import { getApiUrl, setApiUrl } from '../lib/api';
 
 interface Props {
@@ -23,9 +24,9 @@ export const SettingsModal = (props: Props) => {
   const saveUrl = () => {
     try {
       setApiUrl(url);
-      notifications.show({ color: 'navy', message: 'URL enregistrée' });
+      notifications.show({ color: 'navy', message: t('apiUrlSaved') });
     } catch {
-      notifications.show({ color: 'red', message: 'URL invalide' });
+      notifications.show({ color: 'red', message: t('apiUrlInvalid') });
     }
   };
 
@@ -46,9 +47,9 @@ export const SettingsModal = (props: Props) => {
           />
           <SegmentedControl
             fullWidth
-            value={i18n.language === 'en' ? 'en' : 'fr'}
+            value={resolveLanguage(i18n.resolvedLanguage ?? i18n.language)}
             onChange={(value) => void i18n.changeLanguage(value)}
-            data={[{ value: 'fr', label: 'Français' }, { value: 'en', label: 'English' }]}
+            data={languageOptions}
           />
         </Stack>
         <Stack gap="lg">
@@ -78,7 +79,7 @@ export const SettingsModal = (props: Props) => {
               value={url}
               onChange={(event) => setUrl(event.currentTarget.value)}
             />
-            <Button variant="default" onClick={saveUrl}>Enregistrer</Button>
+            <Button variant="default" onClick={saveUrl}>{t('saveUrl')}</Button>
           </Group>
         </Stack>
         <Stack gap="lg">

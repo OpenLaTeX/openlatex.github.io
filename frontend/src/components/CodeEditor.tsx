@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef } from 'react';
 import { Box } from '@mantine/core';
 import { EditorState } from '@codemirror/state';
 import {
@@ -28,6 +28,7 @@ import { latex } from 'codemirror-lang-latex';
 import { yCollab } from 'y-codemirror.next';
 import type * as Y from 'yjs';
 import type { WebsocketProvider } from 'y-websocket';
+import { useTranslation } from 'react-i18next';
 import type { EditorHandle } from '../types';
 
 interface Props {
@@ -40,6 +41,36 @@ interface Props {
   onCompile: () => void;
   onFigure: (() => void) | null;
 }
+
+const codeMirrorTranslationKeys = {
+  'Control character': 'codeMirrorControlCharacter',
+  'Selection deleted': 'codeMirrorSelectionDeleted',
+  Find: 'codeMirrorFind',
+  Replace: 'codeMirrorReplace',
+  next: 'codeMirrorNext',
+  previous: 'codeMirrorPrevious',
+  all: 'codeMirrorAll',
+  'match case': 'codeMirrorMatchCase',
+  regexp: 'codeMirrorRegexp',
+  'by word': 'codeMirrorByWord',
+  replace: 'codeMirrorReplace',
+  'replace all': 'codeMirrorReplaceAll',
+  close: 'codeMirrorClose',
+  'current match': 'codeMirrorCurrentMatch',
+  'on line': 'codeMirrorOnLine',
+  'replaced match on line $': 'codeMirrorReplacedMatch',
+  'replaced $ matches': 'codeMirrorReplacedMatches',
+  'Go to line': 'codeMirrorGoToLine',
+  go: 'codeMirrorGo',
+  Completions: 'codeMirrorCompletions',
+  'Folded lines': 'codeMirrorFoldedLines',
+  'Unfolded lines': 'codeMirrorUnfoldedLines',
+  to: 'codeMirrorTo',
+  'folded code': 'codeMirrorFoldedCode',
+  unfold: 'codeMirrorUnfold',
+  'Fold line': 'codeMirrorFoldLine',
+  'Unfold line': 'codeMirrorUnfoldLine'
+} as const;
 
 const palettes = {
   light: {
@@ -133,6 +164,10 @@ const editorTheme = (dark: boolean) => {
 
 export const CodeEditor = forwardRef<EditorHandle, Props>(
   ({ documentKey, value, dark, yText, awareness, onChange, onCompile, onFigure }, ref) => {
+    const { t } = useTranslation();
+    const phrases = useMemo(() => Object.fromEntries(
+      Object.entries(codeMirrorTranslationKeys).map(([phrase, key]) => [phrase, t(key)])
+    ), [t]);
     const host = useRef<HTMLDivElement>(null);
     const view = useRef<EditorView | null>(null);
     const callbacks = useRef({ onChange, onCompile, onFigure });
@@ -173,6 +208,7 @@ export const CodeEditor = forwardRef<EditorHandle, Props>(
         drawSelection(),
         dropCursor(),
         EditorState.allowMultipleSelections.of(true),
+        EditorState.phrases.of(phrases),
         bracketMatching(),
         closeBrackets(),
         autocompletion(),
@@ -210,7 +246,7 @@ export const CodeEditor = forwardRef<EditorHandle, Props>(
         next.destroy();
         view.current = null;
       };
-    }, [documentKey, dark, yText, awareness]);
+    }, [documentKey, dark, yText, awareness, phrases]);
 
     return <Box ref={host} h="100%" style={{ overflow: 'hidden' }} />;
   }

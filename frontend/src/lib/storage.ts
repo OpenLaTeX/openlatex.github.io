@@ -37,8 +37,8 @@ export const storage = {
     value ? write('lastProject', value) : localStorage.removeItem('lastProject'),
   theme: () => (localStorage.getItem('theme') === 'dark' ? 'dark' : 'light'),
   setTheme: (theme: 'light' | 'dark') => localStorage.setItem('theme', theme),
-  language: () => (localStorage.getItem('language') === 'en' ? 'en' : 'fr'),
-  setLanguage: (language: 'fr' | 'en') => localStorage.setItem('language', language),
+  language: () => localStorage.getItem('language') ?? '',
+  setLanguage: (language: string) => localStorage.setItem('language', language),
   autoSave: () => localStorage.getItem('autoSave') !== 'false',
   setAutoSave: (enabled: boolean) => localStorage.setItem('autoSave', String(enabled)),
   autoSaveInterval: () => {

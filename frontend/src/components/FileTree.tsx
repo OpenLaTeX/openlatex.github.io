@@ -14,6 +14,7 @@ import {
   Pencil,
   Trash2
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { buildTree, movePath, type TreeItem } from '../lib/files';
 import type { ProjectFile } from '../types';
 
@@ -58,6 +59,7 @@ const TreeNode = ({
   onRemove,
   onRemoveFolder
 }: NodeRendererProps<TreeItem> & Pick<Props, 'onRename' | 'onRemove' | 'onRemoveFolder'>) => {
+  const { t } = useTranslation();
   return (
     <Group
       ref={dragHandle}
@@ -68,7 +70,6 @@ const TreeNode = ({
         paddingLeft: 12 + node.level * indent,
         paddingRight: 12
       }}
-      onClick={(event) => node.isInternal ? node.toggle() : node.handleClick(event)}
     >
       <Group
         gap={10}
@@ -93,7 +94,7 @@ const TreeNode = ({
       <Menu position="bottom-end" withinPortal>
         <Menu.Target>
           <ActionIcon
-            aria-label="Actions du fichier"
+            aria-label={t('fileActions')}
             size="xs"
             variant="transparent"
             color="gray"
@@ -105,7 +106,7 @@ const TreeNode = ({
         <Menu.Dropdown>
           {node.isLeaf && (
             <Menu.Item leftSection={<Pencil size={14} />} onClick={() => onRename(node.data.path)}>
-              Renommer
+              {t('rename')}
             </Menu.Item>
           )}
           <Menu.Item
@@ -116,7 +117,7 @@ const TreeNode = ({
               else onRemoveFolder(node.data.path);
             }}
           >
-            Supprimer
+            {t('delete')}
           </Menu.Item>
         </Menu.Dropdown>
       </Menu>

@@ -108,22 +108,22 @@ export const projectReducer = (state: ProjectState, action: ProjectAction): Proj
 
 export const validatePath = (path: string): string | null => {
   const value = path.trim();
-  if (!value) return 'Le chemin ne peut pas être vide';
+  if (!value) return 'validatePathRequired';
   if (value.length > 512 || value.split('/').some((part) => !part || part === '.' || part === '..')) {
-    return 'Chemin invalide';
+    return 'validatePathInvalid';
   }
   if (/[<>:"\\|?*]/.test(value) || [...value].some((char) => char.charCodeAt(0) < 32)) {
-    return 'Le chemin contient des caractères invalides';
+    return 'validatePathCharacters';
   }
   return null;
 };
 
 export const validateProjectName = (name: string): string | null => {
   const value = name.trim();
-  if (!value) return 'Le nom du projet ne peut pas être vide';
-  if (value.length > 100) return 'Le nom ne doit pas dépasser 100 caractères';
+  if (!value) return 'validateProjectNameRequired';
+  if (value.length > 100) return 'validateProjectNameLength';
   if (/[<>:"/\\|?*]/.test(value) || [...value].some((char) => char.charCodeAt(0) < 32)) {
-    return 'Le nom contient des caractères invalides';
+    return 'validateProjectNameCharacters';
   }
   return null;
 };

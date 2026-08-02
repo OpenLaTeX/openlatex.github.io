@@ -19,7 +19,8 @@ export const ProjectsView = ({
   onOpen: (id: string) => Promise<boolean>;
   onNew: () => Promise<void>;
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const dateFormat = new Intl.DateTimeFormat(i18n.resolvedLanguage ?? i18n.language);
   const client = useQueryClient();
   const projects = useQuery({ queryKey: ['projects'], queryFn: api.projects });
   const remove = useMutation({
@@ -84,7 +85,7 @@ export const ProjectsView = ({
                     </Text>
                   )}
                   <Text fz={11} c="dimmed" mt={10}>
-                    {new Date(project.created_at).toLocaleDateString()}
+                    {dateFormat.format(new Date(project.created_at))}
                   </Text>
                   <Text fz={10} c="dimmed" opacity={0.6}>{project.pno.slice(0, 5)}</Text>
                 </Box>

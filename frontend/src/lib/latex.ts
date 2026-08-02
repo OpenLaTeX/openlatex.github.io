@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next';
 import type { CompilationError, FigureOptions, ImageData } from '../types';
 
 export const parseLatexLogs = (logs: string): CompilationError[] => {
@@ -16,25 +17,29 @@ export const parseLatexLogs = (logs: string): CompilationError[] => {
   return errors;
 };
 
-export const readClipboardImage = async (): Promise<ImageData | null> => {
-  const items = await navigator.clipboard.read();
-  for (const item of items) {
-    const mimeType = item.types.find((type) => type.startsWith('image/'));
-    if (!mimeType) continue;
-    const blob = await item.getType(mimeType);
-    const base64 = await new Promise<string>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onerror = () => reject(new Error('Lecture du presse-papiers impossible'));
-      reader.onload = () => resolve(String(reader.result).split(',')[1] ?? '');
-      reader.readAsDataURL(blob);
-    });
-    return {
-      base64,
-      mimeType,
-      extension: mimeType.includes('jpeg') ? 'jpg' : 'png'
-    };
+export const readClipboardImage = async (t: TFunction): Promise<ImageData | null> => {
+  try {
+    const items = await navigator.clipboard.read();
+    for (const item of items) {
+      const mimeType = item.types.find((type) => type.startsWith('image/'));
+      if (!mimeType) continue;
+      const blob = await item.getType(mimeType);
+      const base64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onerror = () => reject(new Error(t('clipboardReadError')));
+        reader.onload = () => resolve(String(reader.result).split(',')[1] ?? '');
+        reader.readAsDataURL(blob);
+      });
+      return {
+        base64,
+        mimeType,
+        extension: mimeType.includes('jpeg') ? 'jpg' : 'png'
+      };
+    }
+    return null;
+  } catch {
+    throw new Error(t('clipboardReadError'));
   }
-  return null;
 };
 
 const slug = (value: string) =>

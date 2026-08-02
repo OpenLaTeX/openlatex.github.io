@@ -13,8 +13,8 @@ export const AuthView = ({ auth, onBack }: { auth: Auth; onBack: () => void }) =
   const form = useForm({
     initialValues: { email: '', password: '' },
     validate: {
-      email: (value) => /^\S+@\S+$/.test(value) ? null : 'Email invalide',
-      password: (value) => value.length >= 8 ? null : '8 caractères minimum'
+      email: (value) => /^\S+@\S+$/.test(value) ? null : t('invalidEmail'),
+      password: (value) => value.length >= 8 ? null : t('passwordMinLength')
     }
   });
 
@@ -62,7 +62,7 @@ export const AuthView = ({ auth, onBack }: { auth: Auth; onBack: () => void }) =
               ]}
             />
             <TextInput
-              label="Email"
+              label={t('email')}
               type="email"
               autoComplete="email"
               {...form.getInputProps('email')}

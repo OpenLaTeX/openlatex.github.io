@@ -1,13 +1,14 @@
 import type { FileType, ProjectFile } from '../types';
 import { fileTypeFromPath } from '../domain/project';
+import i18n from '../i18n';
 import { isBinaryType } from '../types';
 
 export const readUpload = async (file: File): Promise<ProjectFile> => {
   const type = fileTypeFromPath(file.name);
-  if (!type) throw new Error(`Type non supporté : ${file.name}`);
+  if (!type) throw new Error(i18n.t('unsupportedFileType', { name: file.name }));
   const content = await new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
-    reader.onerror = () => reject(new Error(`Lecture impossible : ${file.name}`));
+    reader.onerror = () => reject(new Error(i18n.t('cannotReadFile', { name: file.name })));
     reader.onload = () => {
       const value = String(reader.result ?? '');
       resolve(isBinaryType(type) ? value.split(',')[1] ?? '' : value);

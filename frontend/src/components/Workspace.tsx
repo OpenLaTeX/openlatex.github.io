@@ -16,6 +16,7 @@ import {
 import { useMediaQuery } from '@mantine/hooks';
 import { FileText, PanelRight, Play } from 'lucide-react';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
+import { useTranslation } from 'react-i18next';
 import type { useWorkspace } from '../hooks/useWorkspace';
 import type { EditorHandle } from '../types';
 import { CodeEditor } from './CodeEditor';
@@ -63,6 +64,7 @@ export const Workspace = ({
   onSettings,
   onCollaborators
 }: Props) => {
+  const { t } = useTranslation();
   const compact = useMediaQuery('(max-width: 64em)');
   const [drawer, setDrawer] = useState(false);
   const [tab, setTab] = useState<string | null>('editor');
@@ -104,7 +106,7 @@ export const Workspace = ({
     <Stack h="100%" gap={0}>
       <Group h={48} px="md" wrap="nowrap">
         <FileText size={15} />
-        <Text size="sm" fw={600} truncate>{file?.path ?? 'Sans titre'}</Text>
+        <Text size="sm" fw={600} truncate>{file?.path ?? t('untitled')}</Text>
       </Group>
       <Box flex={1} mih={0}>{editor}</Box>
     </Stack>
@@ -130,13 +132,13 @@ export const Workspace = ({
     return (
       <Stack h="100dvh" gap={0}>
         <Group h={48} px="xs" justify="space-between" wrap="nowrap">
-          <Burger aria-label="Ouvrir les fichiers" opened={drawer} onClick={() => setDrawer((value) => !value)} size="sm" />
+          <Burger aria-label={t('openFiles')} opened={drawer} onClick={() => setDrawer((value) => !value)} size="sm" />
           {file ? (
             <Text size="sm" fw={600} truncate>{file.path}</Text>
           ) : (
             <Image src="/assets/logo.png" alt="OpenLaTeX" h={24} w={100} fit="contain" />
           )}
-          <ActionIcon aria-label="Compiler" variant="subtle" loading={workspace.loading} onClick={() => void workspace.compile()}>
+          <ActionIcon aria-label={t('compile')} variant="subtle" loading={workspace.loading} onClick={() => void workspace.compile()}>
             <Play size={17} />
           </ActionIcon>
         </Group>
@@ -151,7 +153,7 @@ export const Workspace = ({
         </Drawer>
         <Tabs value={tab} onChange={setTab} flex={1} mih={0} keepMounted={false}>
           <Tabs.List grow>
-            <Tabs.Tab value="editor" leftSection={<FileText size={14} />}>Éditeur</Tabs.Tab>
+            <Tabs.Tab value="editor" leftSection={<FileText size={14} />}>{t('editor')}</Tabs.Tab>
             <Tabs.Tab value="pdf" leftSection={<PanelRight size={14} />}>PDF</Tabs.Tab>
           </Tabs.List>
           <Tabs.Panel value="editor" h="calc(100% - 37px)">{editorPane}</Tabs.Panel>

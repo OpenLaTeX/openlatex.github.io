@@ -24,6 +24,7 @@ import {
   Users
 } from 'lucide-react';
 import { useRef } from 'react';
+import type { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
 import type { useWorkspace } from '../hooks/useWorkspace';
 import { FileTree } from './FileTree';
@@ -40,18 +41,18 @@ interface Props {
   onCollaborators: () => void;
 }
 
-const saveStatus = (workspace: Workspace, savedLabel: string) => {
+const saveStatus = (workspace: Workspace, t: TFunction, locale: string) => {
   if (workspace.projectId && !workspace.owner) {
-    return { color: 'red', text: 'Seul le propriétaire peut sauvegarder' };
+    return { color: 'red', text: t('ownerOnly') };
   }
   if (workspace.lastSaved) {
-    const time = workspace.lastSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    return { color: 'dimmed', text: `${savedLabel} ${time}` };
+    const time = new Intl.DateTimeFormat(locale, { hour: '2-digit', minute: '2-digit' }).format(workspace.lastSaved);
+    return { color: 'dimmed', text: `${t('savedAt')} ${time}` };
   }
   if (workspace.project.dirty) {
-    return { color: 'dimmed', text: 'Modifications non sauvegardées' };
+    return { color: 'dimmed', text: t('unsavedChanges') };
   }
-  return { color: 'dimmed', text: 'À jour' };
+  return { color: 'dimmed', text: t('upToDate') };
 };
 
 export const Sidebar = ({
@@ -63,14 +64,22 @@ export const Sidebar = ({
   onSettings,
   onCollaborators
 }: Props) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const locale = i18n.resolvedLanguage ?? i18n.language;
   const fileInput = useRef<HTMLInputElement>(null);
   const folderInput = useRef<HTMLInputElement>(null);
   const projectSize = workspace.project.files.reduce((size, file) => size + file.content.length, 0);
-  const status = saveStatus(workspace, t('savedAt'));
+  const status = saveStatus(workspace, t, locale);
   let projectMeta = t('newProject');
   if (workspace.projectId) {
-    projectMeta = `${workspace.projectId.slice(0, 6)} · ${(projectSize / 1_048_576).toFixed(2)} Mo`;
+    const size = new Intl.NumberFormat(locale, {
+      style: 'unit',
+      unit: 'megabyte',
+      unitDisplay: 'short',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(projectSize / 1_048_576);
+    projectMeta = `${workspace.projectId.slice(0, 6)} · ${size}`;
   }
 
   return (
@@ -81,7 +90,7 @@ export const Sidebar = ({
           href="https://github.com/OpenLaTeX/openlatex.github.io"
           target="_blank"
           rel="noreferrer"
-          aria-label="Dépôt GitHub OpenLaTeX"
+          aria-label={t('repositoryLabel')}
         >
           <Image src="/assets/logo.png" alt="OpenLaTeX" h={54} fit="contain" />
         </Box>
@@ -190,18 +199,18 @@ export const Sidebar = ({
         <Group justify="space-between">
           <Text fz={10} fw={700} c="dimmed">{t('files').toUpperCase()}</Text>
           <Group gap={2}>
-            <Tooltip label="Ajouter des fichiers">
-              <ActionIcon aria-label="Ajouter des fichiers" variant="subtle" size="sm" onClick={() => fileInput.current?.click()}>
+            <Tooltip label={t('addFile')}>
+              <ActionIcon aria-label={t('addFile')} variant="subtle" size="sm" onClick={() => fileInput.current?.click()}>
                 <FilePlus size={15} />
               </ActionIcon>
             </Tooltip>
-            <Tooltip label="Ajouter un dossier">
-              <ActionIcon aria-label="Ajouter un dossier" variant="subtle" size="sm" onClick={() => folderInput.current?.click()}>
+            <Tooltip label={t('addFolder')}>
+              <ActionIcon aria-label={t('addFolder')} variant="subtle" size="sm" onClick={() => folderInput.current?.click()}>
                 <FolderUp size={15} />
               </ActionIcon>
             </Tooltip>
-            <Tooltip label="Nouveau fichier">
-              <ActionIcon aria-label="Nouveau fichier" variant="subtle" size="sm" onClick={() => void workspace.createFile()}>
+            <Tooltip label={t('newFile')}>
+              <ActionIcon aria-label={t('newFile')} variant="subtle" size="sm" onClick={() => void workspace.createFile()}>
                 <Files size={15} />
               </ActionIcon>
             </Tooltip>

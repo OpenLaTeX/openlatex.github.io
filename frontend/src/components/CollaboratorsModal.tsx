@@ -3,6 +3,7 @@ import { notifications } from '@mantine/notifications';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Trash2, UserPlus } from 'lucide-react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { api } from '../lib/api';
 
 export const CollaboratorsModal = ({
@@ -14,6 +15,7 @@ export const CollaboratorsModal = ({
   opened: boolean;
   onClose: () => void;
 }) => {
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const client = useQueryClient();
   const key = ['collaborators', projectId];
@@ -36,13 +38,13 @@ export const CollaboratorsModal = ({
   });
 
   return (
-    <Modal opened={opened} onClose={onClose} title="Collaborateurs">
+    <Modal opened={opened} onClose={onClose} title={t('collaboratorsTitle')}>
       <Stack>
         <Group align="flex-end">
           <TextInput
             flex={1}
             type="email"
-            label="Email"
+            label={t('email')}
             value={email}
             onChange={(event) => setEmail(event.currentTarget.value)}
           />
@@ -52,14 +54,14 @@ export const CollaboratorsModal = ({
             disabled={!email}
             onClick={() => invite.mutate()}
           >
-            Inviter
+            {t('invite')}
           </Button>
         </Group>
         {collaborators.isPending && <Loader size="sm" />}
         {collaborators.data?.map((collaborator) => (
           <Group key={collaborator.email} justify="space-between">
             <Text size="sm">{collaborator.email}</Text>
-            <ActionIcon aria-label={`Retirer ${collaborator.email}`} color="red" variant="subtle" onClick={() => remove.mutate(collaborator.email)}>
+            <ActionIcon aria-label={t('removeCollaborator', { email: collaborator.email })} color="red" variant="subtle" onClick={() => remove.mutate(collaborator.email)}>
               <Trash2 size={16} />
             </ActionIcon>
           </Group>

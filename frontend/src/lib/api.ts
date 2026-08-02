@@ -1,3 +1,4 @@
+import i18n from '../i18n';
 import type {
   AuthSession,
   Collaborator,
@@ -39,13 +40,13 @@ const request = async <T>(path: string, options: RequestInit = {}): Promise<T> =
         ...options.headers
       }
     });
-  } catch (error) {
-    throw new ApiError(error instanceof Error ? error.message : 'Erreur réseau');
+  } catch {
+    throw new ApiError(i18n.t('networkError'));
   }
 
   const data = (await response.json().catch(() => ({}))) as Record<string, unknown>;
   if (!response.ok) {
-    throw new ApiError(String(data.error ?? 'La requête a échoué'), response.status, data);
+    throw new ApiError(String(data.error ?? i18n.t('requestFailed')), response.status, data);
   }
   return data as T;
 };
