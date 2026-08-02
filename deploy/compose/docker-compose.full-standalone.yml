@@ -47,7 +47,7 @@ services:
       POSTGRES_HOST: postgres
       POSTGRES_PORT: 5432
       JWT_SECRET: ${JWT_SECRET}
-      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-1h}
       PORT: 8000
     networks:
       - openlatex
@@ -76,7 +76,7 @@ services:
     container_name: openlatex_caddy
     restart: unless-stopped
     environment:
-      COMPILER_ADDRESS: ${COMPILER_ADDRESS:-localhost:9000}
+      COMPILER_ADDRESS: ${COMPILER_ADDRESS:-compile-standalone:9000}
     ports:
       - "80:80"
       - "443:443"
