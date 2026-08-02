@@ -18,7 +18,7 @@ spec:
         app: latex-crud-api
     spec:
       containers:
-      - image: {{ .Values.images.crud-api }}
+      - image: {{ index .Values.images "crud-api" }}
         name: latex-crud-api
         resources: {}
         envFrom:
@@ -47,7 +47,7 @@ spec:
         app: latex-collab-websocket
     spec:
       containers:
-      - image: {{ .Values.images.collab-websocket }}
+      - image: {{ index .Values.images "collab-websocket" }}
         name: latex-collab-websocket
         resources: {}
         envFrom:
@@ -56,5 +56,3 @@ spec:
           - secretRef:
               name: latex-postgres-password 
 status: {}
---- 
-# postgres todo en statefulset + PVC

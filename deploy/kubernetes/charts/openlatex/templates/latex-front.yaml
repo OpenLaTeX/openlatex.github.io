@@ -18,7 +18,7 @@ spec:
         app: latex-frontend
     spec:
       containers:
-      - image: {{ .Values.images.latex-frontend }}
+      - image: {{ index .Values.images "latex-frontend" }}
         name: latex-frontend
         resources: {}
 status: {}
@@ -42,7 +42,7 @@ spec:
         app: latex-prometheus
     spec:
       containers:
-      - image: {{ .Values.images.latex-prometheus }}
+      - image: {{ index .Values.images "latex-prometheus" }}
         name: latex-prometheus
         resources: {}
 status: {}
@@ -66,7 +66,7 @@ spec:
         app: latex-grafana
     spec:
       containers:
-      - image: {{ .Values.images.latex-grafana }}
+      - image: {{ index .Values.images "latex-grafana" }}
         name: latex-grafana
         resources: {}
 status: {}

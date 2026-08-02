@@ -8,8 +8,7 @@ images:
   prometheus: prom/prometheus:v2.55.1
   crud-api: ghcr.io/openlatex/openlatex-crud-api:latest
   collab-websocket: ghcr.io/openlatex/openlatex-collab-websocket:latest
-  latex-postgres: postgres:latest
-  latex-frontend: caddy:2
+  latex-frontend: ghcr.io/openlatex/openlatex-frontend:latest
   latex-prometheus: prom/prometheus:v2.55.1
   latex-grafana: grafana/grafana-oss:10.4.3
 
@@ -19,6 +18,31 @@ POSTGRES_PORT: 5432
 POSTGRES_USER: openlatex
 # sera changé / randomisé au playbook
 POSTGRES_PASSWORD: openlatex
+
+postgresql:
+  enabled: true
+  fullnameOverride: latex-postgres
+  architecture: standalone
+  auth:
+    enablePostgresUser: false
+    username: openlatex
+    database: openlatex
+    existingSecret: latex-postgres-password
+    secretKeys:
+      userPasswordKey: POSTGRES_PASSWORD
+  primary:
+    initdb:
+      scriptsConfigMap: latex-postgres-initdb
+    persistence:
+      enabled: true
+      size: 3Gi
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
 
 frontendUrl: https://openlatex.github.io
 remoteWriteUrl: http://172.16.10.51:9090/api/v1/write

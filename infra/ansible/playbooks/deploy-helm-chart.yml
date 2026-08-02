@@ -11,6 +11,7 @@
     target_namespace: "{{ release_namespace | default('openlatex-dev' )}}"
     # secret de contournement de la limite de compilation, utile pour les tests de charge
     test_bypass_secret: "{{ lookup('env', 'TEST_BYPASS_SECRET') }}"
+    postgres_password: "{{ lookup('env', 'POSTGRES_PASSWORD') }}"
   environment:
     K8S_AUTH_KUBECONFIG: "{{ lookup('env', 'KUBECONFIG') | default('./k3s.yaml', true) }}"
   tasks:
@@ -50,13 +51,13 @@
           - "{{ playbook_dir }}/../../../deploy/kubernetes/charts/openlatex/values-{{ target_namespace }}.yaml"
         release_namespace: "{{ target_namespace }}"
         create_namespace: true
-        set_values:
-          - value: "bypassSecret={{ test_bypass_secret }}"
-            value_type: "string"
-          - value: "namespace={{ target_namespace }}"
-            value_type: "string"
+        values:
+          bypassSecret: "{{ test_bypass_secret }}"
+          POSTGRES_PASSWORD: "{{ postgres_password }}"
+          namespace: "{{ target_namespace }}"
         # l'image de compilation est assez lourde donc un délai de pull est à prendre en compte
         timeout: 1800s
         wait: true
-      # pas montrer le secret en CI
+      # ne pas montrer les secrets dans les logs CI
+      no_log: true
          

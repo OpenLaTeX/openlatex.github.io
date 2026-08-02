@@ -21,10 +21,10 @@ stringData:
 ---
 apiVersion: v1
 data:
-  POSTGRES_DB: {{ .Values.POSTGRES_DB }}
-  POSTGRES_HOST: {{ .Values.POSTGRES_HOST }}
-  POSTGRES_PORT: {{ .Values.POSTGRES_PORT }}
-  POSTGRES_USER: {{ .Values.POSTGRES_USER }}
+  POSTGRES_DB: {{ .Values.POSTGRES_DB | quote }}
+  POSTGRES_HOST: {{ .Values.POSTGRES_HOST | quote }}
+  POSTGRES_PORT: {{ .Values.POSTGRES_PORT | quote }}
+  POSTGRES_USER: {{ .Values.POSTGRES_USER | quote }}
 kind: ConfigMap
 metadata:
   name: latex-postgres-connection
