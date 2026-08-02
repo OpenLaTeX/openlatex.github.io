@@ -8,8 +8,8 @@ RUN npm ci
 RUN npm run check
 RUN npm run build
 
-FROM nginx:alpine
+FROM caddy:2-alpine
 
-COPY --from=builder /tobuild/dist /usr/share/nginx/html
+COPY --from=builder /tobuild/dist /usr/share/caddy
 
 EXPOSE 80
