@@ -1,2 +1,6 @@
-[ -f .env ] || (POSTGRES_PASSWORD="$(openssl rand -hex 32)" && echo "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" >> .env) && (JWT_SECRET="$(openssl rand -hex 32)" && echo "JWT_SECRET=$JWT_SECRET" >> .env) && (TEST_BYPASS_SECRET="$(openssl rand -hex 32)" && echo "TEST_BYPASS_SECRET=$TEST_BYPASS_SECRET" >> .env) && (GRAFANA_ADMIN_PASSWORD="$(openssl rand -hex 32)" && echo "GRAFANA_ADMIN_PASSWORD=$GRAFANA_ADMIN_PASSWORD" >> .env)
+gen() {
+    echo "$1=$(openssl rand -hex 32)" >> .env
+}
+
+[ -f .env ] || (gen POSTGRES_PASSWORD && gen JWT_SECRET && gen TEST_BYPASS_SECRET && gen GRAFANA_ADMIN_PASSWORD && gen GPG_PASSPHRASE)
 chmod 600 .env
