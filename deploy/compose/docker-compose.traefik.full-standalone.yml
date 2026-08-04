@@ -26,7 +26,7 @@ services:
     image: jkaninda/pg-bkup:latest
     container_name: openlatex_pg_bkup
     restart: unless-stopped
-    command: backup
+    command: ["backup", "--storage", "${BACKUP_STORAGE:-local}"]
     depends_on:
       postgres:
         condition: service_healthy
@@ -38,6 +38,12 @@ services:
       DB_NAME: ${POSTGRES_DB:-openlatex}
       DB_USERNAME: ${POSTGRES_USER:-openlatex}
       DB_PASSWORD: ${POSTGRES_PASSWORD:-openlatex}
+      # l'upload S3 est optionnel . Preciser la variable BACKUP_STORAGE=s3
+      AWS_S3_ENDPOINT: ${B2_S3_ENDPOINT:-}
+      AWS_S3_BUCKET_NAME: ${B2_BUCKET_NAME:-}
+      AWS_REGION: ${B2_REGION:-}
+      AWS_ACCESS_KEY: ${B2_APPLICATION_KEY_ID:-}
+      AWS_SECRET_KEY: ${B2_APPLICATION_KEY:-}
       BACKUP_CRON_EXPRESSION: "${BACKUP_CRON_EXPRESSION:-0 10,15,23 * * *}"
       BACKUP_RETENTION_DAYS: ${BACKUP_RETENTION_DAYS:-7}
       GPG_PASSPHRASE: ${GPG_PASSPHRASE:?GPG_PASSPHRASE pas present faire ./gen-env.sh}
