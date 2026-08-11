@@ -2,8 +2,8 @@
 namespace: "openlatex-dev"
 
 images:
-  worker: ghcr.io/openlatex/openlatex-compile:latest
-  producer: ghcr.io/openlatex/openlatex-queue-producer:latest
+  worker: ghcr.io/openlatex/compile/openlatex-queue-worker:latest
+  producer: ghcr.io/openlatex/compile/openlatex-queue-producer:latest
   redis: redis
   prometheus: prom/prometheus:v2.55.1
   crud-api: ghcr.io/openlatex/openlatex-crud-api:latest

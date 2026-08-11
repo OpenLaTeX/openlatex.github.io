@@ -7,6 +7,7 @@ on:
   push:
     branches: 
       - main 
+      - 39*
   workflow_dispatch:
 
 concurrency:
@@ -15,7 +16,7 @@ concurrency:
 
 jobs:
   code-test:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -29,7 +30,7 @@ jobs:
         working-directory: backend
 
   detect-changes:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     outputs:
       manager: ${{ steps.filter.outputs.manager }}
       compiler: ${{ steps.filter.outputs.compiler }}
@@ -57,49 +58,47 @@ jobs:
             queue_producer:
               - 'backend/compiler/queue-producer/**'
               - 'backend/package*.json'
-              
-  build-compiler:
-    needs: [detect-changes, code-test]
-    if: needs.detect-changes.outputs.compiler == 'true' || github.event_name == 'workflow_dispatch'
-    permissions:
-      contents: read
-      packages: write
-    uses: ./.github/workflows/build-image.yml
-    secrets: inherit
-    with:
-      image-name: openlatex-compile
-      dockerfile: ./backend/compiler/queue-worker/Dockerfile
-
+   
+  # todo build conditionné aux detect changes à adapter à la nouvelle version matrix
   build-images:
     needs: [detect-changes, code-test]
-    
-
-  build-crud-api:
-    needs: [detect-changes, code-test]
     permissions:
       contents: read
       packages: write
-    uses: ./.github/workflows/build-image.yml
-    secrets: inherit
-    with:
-      image-name: openlatex-crud-api
-      dockerfile: ./backend/compiler/account-crud-api/Dockerfile
+    strategy:
+      fail-fast: false 
+      matrix: 
+        include: 
+          - container-image: queue-producer 
+            build-path: backend/compiler/queue-producer 
+            context: ./backend
+          
+          - container-image: queue-worker 
+            build-path: backend/compiler/queue-worker
+            context: ./backend
 
-  build-queue-producer:
-    needs: [detect-changes, code-test]
-    if: needs.detect-changes.outputs.queue_producer == 'true' || github.event_name == 'workflow_dispatch'
-    permissions:
-      contents: read
-      packages: write
+          - container-image: account-crud-api
+            build-path: backend/account-crud-api 
+            context: ./backend
+
+          - container-image: collab-websocket
+            build-path: backend/collab-websocket
+            context: ./backend
+
+          - container-image: frontend
+            build-path: frontend
+            context: ./frontend
+
     uses: ./.github/workflows/build-image.yml
-    secrets: inherit
     with:
-      image-name: openlatex-queue-producer
-      dockerfile: ./backend/compiler/queue-producer/Dockerfile
+      image-name: ${{ matrix.container-image }}
+      dockerfile: ${{ matrix.build-path }}/Dockerfile
+      context: ${{ matrix.context }}
+    secrets: inherit
 
   deploy:
-    needs: [build-compiler, build-queue-producer]
-    if: always() && !failure() && !cancelled()
+    needs: [build-images]
+    if: always() && !failure() && !cancelled() && github.ref == 'refs/heads/main'
     runs-on: self-hosted
     steps:
       - name: Config SSH
@@ -152,7 +151,7 @@ jobs:
             -u "$VPS_USER"
 
   deploy-k3s:
-    needs: [build-compiler, build-queue-producer]
+    needs: [build-images]
     if: always() && !failure() && !cancelled()
     runs-on: self-hosted
     steps:
