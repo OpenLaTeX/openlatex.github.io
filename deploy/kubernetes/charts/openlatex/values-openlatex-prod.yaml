@@ -17,7 +17,7 @@ POSTGRES_HOST: latex-postgres
 POSTGRES_PORT: 5432
 POSTGRES_USER: openlatex
 # sera changé / randomisé au playbook
-POSTGRES_PASSWORD: openlatex
+postgresPassword: openlatex
 
 postgresql:
   enabled: true

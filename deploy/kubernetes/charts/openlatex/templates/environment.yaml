@@ -38,4 +38,4 @@ metadata:
 type: Opaque
 # a set dans le déploiement helm
 stringData:
-  POSTGRES_PASSWORD: {{ .Values.POSTGRES_PASSWORD | quote }}
+  POSTGRES_PASSWORD: {{ .Values.postgresPassword | quote }}

@@ -10,8 +10,8 @@
   vars:
     target_namespace: "{{ release_namespace | default('openlatex-dev' )}}"
     # secret de contournement de la limite de compilation, utile pour les tests de charge
-    test_bypass_secret: "{{ lookup('env', 'TEST_BYPASS_SECRET') }}"
-    postgres_password: "{{ lookup('env', 'POSTGRES_PASSWORD') }}"
+    test_bypass_secret: "{{ TEST_BYPASS_SECRET | default(lookup('env', 'TEST_BYPASS_SECRET'), true) }}"
+    postgres_password: "{{ postgresPassword | default(lookup('env', 'POSTGRES_PASSWORD'), true) }}"
   environment:
     K8S_AUTH_KUBECONFIG: "{{ lookup('env', 'KUBECONFIG') | default('./k3s.yaml', true) }}"
   tasks:
@@ -53,8 +53,12 @@
         create_namespace: true
         values:
           bypassSecret: "{{ test_bypass_secret }}"
-          POSTGRES_PASSWORD: "{{ postgres_password }}"
+          postgresPassword: "{{ postgres_password }}"
           namespace: "{{ target_namespace }}"
+          global:
+            postgresql:
+              auth:
+                password: "{{ postgres_password }}"
         # l'image de compilation est assez lourde donc un délai de pull est à prendre en compte
         timeout: 1800s
         wait: true

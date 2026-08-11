@@ -70,6 +70,21 @@ jobs:
       image-name: openlatex-compile
       dockerfile: ./backend/compiler/queue-worker/Dockerfile
 
+  build-images:
+    needs: [detect-changes, code-test]
+    
+
+  build-crud-api:
+    needs: [detect-changes, code-test]
+    permissions:
+      contents: read
+      packages: write
+    uses: ./.github/workflows/build-image.yml
+    secrets: inherit
+    with:
+      image-name: openlatex-crud-api
+      dockerfile: ./backend/compiler/account-crud-api/Dockerfile
+
   build-queue-producer:
     needs: [detect-changes, code-test]
     if: needs.detect-changes.outputs.queue_producer == 'true' || github.event_name == 'workflow_dispatch'
