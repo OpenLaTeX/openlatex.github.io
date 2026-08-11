@@ -7,6 +7,7 @@ const promClient = require('prom-client');
 const authRoutes = require('./routes/auth');
 const projectsRoutes = require('./routes/projects');
 const { defaultProtectionLimiter, authLimiter } = require('./middleware/rateLimiter');
+const saveMetrics = require('./middleware/saveMetrics');
 
 promClient.collectDefaultMetrics();
 
@@ -24,6 +25,7 @@ const httpDuration = new promClient.Histogram({
 });
 
 const app = express();
+app.use(saveMetrics);
 app.use(cors({
   origin: true,
   credentials: true

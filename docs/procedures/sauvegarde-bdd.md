@@ -16,6 +16,9 @@ Rétention :
 
 Les fichiers ont la forme `openlatex_YYYYMMDD_HHMMSS.dump.gpg`.
 
+- Créer une clé S3 sur Backblaze (exemple)
+![créer une clé S3 sur Backblaze (exemple)](image.png)
+
 ## Lancer une sauvegarde manuellement
 
 ```bash

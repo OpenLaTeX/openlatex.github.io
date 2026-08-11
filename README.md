@@ -203,6 +203,7 @@ Le Prometheus agent du cluster K3S fait du **remote-write** vers le Prometheus c
 Grafana est accessible publiquement en lecture seule sur [openlatex.blavogiez.fr/grafana/dashboards](https://openlatex.blavogiez.fr/grafana/dashboards). Les dashboards Kubernetes et compilateur permettent de sélectionner le namespace `openlatex-prod` ou `openlatex-dev`. Dashboards en place :
 
 - **Account Manager** : durées HTTP (p50/p95), débit, mémoire, event loop lag
+- **Sauvegardes utilisateurs** : nombre par heure, taux de succès et codes d'erreur
 - **Compilateur** : durée de compilation (p50/p95), débit, erreurs et profondeur de la file Redis
 - **K3S instances** : replicas actuels vs souhaités (HPA min/max visibles), CPU / RAM et redémarrages des pods
 - **PostgreSQL** : connexions actives, taille de la base

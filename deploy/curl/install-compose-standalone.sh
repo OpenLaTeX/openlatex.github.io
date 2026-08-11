@@ -1,7 +1,7 @@
 #!/bin/bash
 git clone https://github.com/OpenLaTeX/openlatex.github.io openlatex
 cd openlatex
-git checkout 32-déploiement-compose-only-alternative-à-helm
+git checkout 56-frontend-rebuild
 cd deploy/compose
 
 # generation passwords

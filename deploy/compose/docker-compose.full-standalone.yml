@@ -21,6 +21,35 @@ services:
       retries: 5
     networks:
       - openlatex
+
+  pg-bkup:
+    image: jkaninda/pg-bkup:latest
+    container_name: openlatex_pg_bkup
+    restart: unless-stopped
+    command: ["backup", "--storage", "${BACKUP_STORAGE:-local}"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - pg_bkup_data:/backup
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${POSTGRES_DB:-openlatex}
+      DB_USERNAME: ${POSTGRES_USER:-openlatex}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-openlatex}
+      # l'upload S3 est optionnel . Preciser la variable BACKUP_STORAGE=s3
+      AWS_S3_ENDPOINT: ${B2_S3_ENDPOINT:-}
+      AWS_S3_BUCKET_NAME: ${B2_BUCKET_NAME:-}
+      AWS_REGION: ${B2_REGION:-}
+      AWS_ACCESS_KEY: ${B2_APPLICATION_KEY_ID:-}
+      AWS_SECRET_KEY: ${B2_APPLICATION_KEY:-}
+      BACKUP_CRON_EXPRESSION: "${BACKUP_CRON_EXPRESSION:-0 10,15,23 * * *}"
+      BACKUP_RETENTION_DAYS: ${BACKUP_RETENTION_DAYS:-7}
+      GPG_PASSPHRASE: ${GPG_PASSPHRASE:?GPG_PASSPHRASE pas present faire ./gen-env.sh}
+      TZ: Europe/Paris
+    networks:
+      - openlatex
   
   frontend:
     build: 
@@ -47,7 +76,8 @@ services:
       POSTGRES_HOST: postgres
       POSTGRES_PORT: 5432
       JWT_SECRET: ${JWT_SECRET}
-      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-1h}
+      NODE_ENV: ${JWT_EXPIRES_IN:-dev}
       PORT: 8000
     networks:
       - openlatex
@@ -76,7 +106,7 @@ services:
     container_name: openlatex_caddy
     restart: unless-stopped
     environment:
-      COMPILER_ADDRESS: ${COMPILER_ADDRESS:-localhost:9000}
+      COMPILER_ADDRESS: ${COMPILER_ADDRESS:-compile-standalone:9000}
     ports:
       - "80:80"
       - "443:443"
@@ -163,6 +193,7 @@ services:
 volumes:
   caddy_data:
   caddy_config:
+  pg_bkup_data:
   postgres_data:
   prometheus_data:
   grafana_data:
