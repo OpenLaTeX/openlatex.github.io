@@ -1,16 +1,49 @@
 # peut être set par le playbook / CI/CD à openlatex-prod si la branche est main
 namespace: "openlatex-dev"
 
-images:
-  worker: ghcr.io/openlatex/openlatex-compile:latest
-  producer: ghcr.io/openlatex/openlatex-queue-producer:latest
-  redis: redis
-  prometheus: prom/prometheus:v2.55.1
-  crud-api: ghcr.io/openlatex/openlatex-crud-api:latest
-  collab-websocket: ghcr.io/openlatex/openlatex-collab-websocket:latest
-  latex-frontend: ghcr.io/openlatex/openlatex-frontend:latest
-  latex-prometheus: prom/prometheus:v2.55.1
-  latex-grafana: grafana/grafana-oss:10.4.3
+deployments:
+  worker:
+    name: worker
+    image: ghcr.io/openlatex/queue-worker:latest
+    port: 9000
+    compileRelated: true
+  producer:
+    name: producer
+    image: ghcr.io/openlatex/queue-producer:latest
+    port: 9000
+    compileRelated: true
+    compileSecret: true
+  redis:
+    name: redis
+    image: redis
+    port: 6379
+    compileRelated: true
+  prometheus:
+    name: prometheus
+    image: prom/prometheus:v2.55.1
+    port: 9090
+  crud-api:
+    name: crud-api
+    image: ghcr.io/openlatex/account-crud-api:latest
+    port: 8000
+    postgresRelated: true
+  collab-websocket:
+    name: collab-websocket
+    image: ghcr.io/openlatex/collab-websocket:latest
+    port: 7000
+    postgresRelated: true
+  frontend:
+    name: latex-frontend
+    image: ghcr.io/openlatex/frontend:latest
+    port: 80
+  latex-prometheus:
+    name: latex-prometheus
+    image: prom/prometheus:v2.55.1
+    port: 9090
+  latex-grafana:
+    name: latex-grafana
+    image: grafana/grafana-oss:10.4.3
+    port: 3000
 
 POSTGRES_DB: openlatex
 POSTGRES_HOST: latex-postgres

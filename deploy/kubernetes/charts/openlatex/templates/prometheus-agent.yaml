@@ -63,7 +63,7 @@ spec:
           effect: NoSchedule
       containers:
         - name: prometheus
-          image: {{ .Values.images.prometheus }}
+          image: {{ .Values.deployments.prometheus.image }}
           args:
             - '--config.file=/etc/prometheus/prometheus.yml'
             - '--enable-feature=agent'

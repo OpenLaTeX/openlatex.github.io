@@ -1,0 +1,58 @@
+{{- range $key, $deployment := .Values.deployments }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: {{ $deployment.name }}
+  name: {{ $deployment.name }}
+  namespace: {{ $.Values.namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ $deployment.name }}
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: {{ $deployment.name }}
+    spec:
+      containers:
+      - image: {{ $deployment.image }}
+        name: {{ $deployment.name }}
+        resources: {}
+        ports:
+          - containerPort: {{ $deployment.port }}
+
+        {{ if or $deployment.postgresRelated $deployment.compileRelated }}
+        envFrom:
+        {{ if $deployment.postgresRelated }}
+          - configMapRef:
+              name: latex-postgres-connection
+          - secretRef:
+              name: latex-postgres-password
+        {{ end }}
+        {{ if $deployment.compileRelated }}
+          - configMapRef:
+              name: latex-compile-config
+          {{ if $deployment.compileSecret }}
+          - secretRef:
+              name: latex-compile-secret
+          {{ end }}
+        {{ end }}
+        {{ end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $deployment.name }}-svc
+  namespace: {{ $.Values.namespace }}
+spec:
+  type: ClusterIP
+  selector:
+    app: {{ $deployment.name }}
+  ports:
+  - port: {{ $deployment.port }}
+    targetPort: {{ $deployment.port }}
+---
+{{ end }}

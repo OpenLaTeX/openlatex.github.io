@@ -6,8 +6,8 @@ metadata:
   namespace: {{ .Values.namespace }}
 data:
   FRONTEND_URL: {{ .Values.frontendUrl }}
-  REDIS_HOST: latex-compile-redis-svc
-  REDIS_PORT: "6379"
+  REDIS_HOST: {{ .Values.deployments.redis.name }}-svc
+  REDIS_PORT: {{ .Values.deployments.redis.port | quote }}
 ---
 apiVersion: v1
 kind: Secret

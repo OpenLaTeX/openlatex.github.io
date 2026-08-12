@@ -13,11 +13,11 @@ scrape_configs:
           names: ['{{ .Values.namespace }}']
     relabel_configs:
       - source_labels: [__meta_kubernetes_pod_label_app]
-        regex: latex-compile-queue-producer
+        regex: {{ .Values.deployments.producer.name }}
         action: keep
       - source_labels: [__meta_kubernetes_pod_ip]
         target_label: __address__
-        replacement: ${1}:9000
+        replacement: ${1}:{{ .Values.deployments.producer.port }}
       - source_labels: [__meta_kubernetes_namespace]
         target_label: namespace
       - source_labels: [__meta_kubernetes_pod_name]

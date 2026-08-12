@@ -55,13 +55,9 @@
           bypassSecret: "{{ test_bypass_secret }}"
           postgresPassword: "{{ postgres_password }}"
           namespace: "{{ target_namespace }}"
-          global:
-            postgresql:
-              auth:
-                password: "{{ postgres_password }}"
         # l'image de compilation est assez lourde donc un délai de pull est à prendre en compte
         timeout: 1800s
         wait: true
       # ne pas montrer les secrets dans les logs CI
-      no_log: true
+      # no_log: true
          
