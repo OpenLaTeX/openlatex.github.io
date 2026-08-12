@@ -23,8 +23,6 @@
           - key: node-role.kubernetes.io/control-plane
             effect: NoSchedule
       loop: "{{ query('kubernetes.core.k8s', kind='Node', label_selector='node-role.kubernetes.io/control-plane') | map(attribute='metadata.name') | list }}"
-      
-
 
     - name: Déployer le helm chart kube state metrics (il est cluster wide)
       kubernetes.core.helm:
@@ -59,5 +57,5 @@
         timeout: 1800s
         wait: true
       # ne pas montrer les secrets dans les logs CI
-      # no_log: true
+      no_log: true
          

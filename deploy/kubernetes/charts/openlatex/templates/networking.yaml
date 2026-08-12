@@ -1,29 +1,6 @@
 # ici : services, ingress, networkpolicy
 ---
 apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: {{ .Values.deployments.producer.name }}-ingress
-  namespace: {{ .Values.namespace }}
-spec:
-  ingressClassName: traefik
-  rules:
-  # pour namespace prod c'est openlatex.blavogiez.fr pour la version test c'est openlatex-dev.blavogiez.fr
-  - host: {{ .Values.namespacedUrl }}
-    http:
-      paths:
-      - backend:
-          service:
-            name: {{ .Values.deployments.producer.name }}-svc
-            port:
-              number: {{ .Values.deployments.producer.port }}
-        path: /compile
-        pathType: Exact 
-status:
-  loadBalancer: {}
-# curl -v --resolve openlatex.blavogiez.fr:80:172.16.10.52 http://openlatex.blavogiez.fr/compile
----
-apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy 
 metadata: 
   name: {{ .Values.deployments.worker.name }}-network-policy
