@@ -5,7 +5,6 @@ deployments:
   worker:
     name: worker
     image: ghcr.io/openlatex/queue-worker:latest
-    port: 9000
     compileRelated: true
     resources:
       requests:

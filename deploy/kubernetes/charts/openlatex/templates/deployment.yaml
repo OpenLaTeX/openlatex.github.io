@@ -24,8 +24,10 @@ spec:
         resources:
 {{ toYaml $deployment.resources | indent 8 }}
         {{- end }}
+        {{- if $deployment.port }}
         ports:
           - containerPort: {{ $deployment.port }}
+        {{- end }}
 
         {{ if or $deployment.postgresRelated $deployment.compileRelated }}
         envFrom:
@@ -45,6 +47,7 @@ spec:
         {{ end }}
         {{ end }}
 ---
+{{ if $deployment.port }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -57,5 +60,6 @@ spec:
   ports:
   - port: {{ $deployment.port }}
     targetPort: {{ $deployment.port }}
+{{ end }}
 ---
 {{ end }}
