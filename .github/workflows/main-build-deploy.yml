@@ -187,6 +187,8 @@ jobs:
           # secret de contournement de la limite de compilation, utile pour les tests de charge
           TEST_BYPASS_SECRET: ${{ secrets.TEST_BYPASS_SECRET }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          JWT_EXPIRES_IN: ${{ secrets.JWT_EXPIRES_IN }}
         run: | 
           echo "deploy pour le namespace $RELEASE_NAMESPACE" 
           export KUBECONFIG=${{ github.workspace }}/.kube/config 

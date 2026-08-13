@@ -15,4 +15,4 @@ shut-dev-v:
 	$(MAKE) shut-dev EXTRA_ARGS="-v $(EXTRA_ARGS)"
 
 deploy-helm:
-	ansible-playbook infra/ansible/playbooks/deploy-helm-chart.yml -e "TEST_BYPASS_SECRET=$$(openssl rand -hex 16)" -e "postgresPassword=$$(openssl rand -hex 16)" -K
+	ansible-playbook infra/ansible/playbooks/deploy-helm-chart.yml -e "TEST_BYPASS_SECRET=$$(openssl rand -hex 16)" -e "postgresPassword=$$(openssl rand -hex 16)" -e "jwtSecret=$$(openssl rand -hex 32)" -K

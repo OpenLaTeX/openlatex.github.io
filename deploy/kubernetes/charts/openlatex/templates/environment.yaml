@@ -39,3 +39,15 @@ type: Opaque
 # a set dans le déploiement helm
 stringData:
   POSTGRES_PASSWORD: {{ .Values.postgresPassword | quote }}
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: latex-jwt-secret
+  namespace: {{ .Values.namespace }}
+type: Opaque
+# a set dans le déploiement helm
+stringData:
+  JWT_SECRET: {{ .Values.jwtSecret | quote }}
+  JWT_EXPIRES_IN: {{ .Values.jwtExpiresIn | quote }}

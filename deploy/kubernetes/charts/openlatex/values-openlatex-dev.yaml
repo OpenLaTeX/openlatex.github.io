@@ -30,13 +30,13 @@ deployments:
     image: ghcr.io/openlatex/account-crud-api:latest
     port: 8000
     envFromConfigMaps: [latex-postgres-connection]
-    envFromSecrets: [latex-postgres-password]
+    envFromSecrets: [latex-postgres-password, latex-jwt-secret]
   collabWebsocket:
     name: collab-websocket
     image: ghcr.io/openlatex/collab-websocket:latest
     port: 7000
     envFromConfigMaps: [latex-postgres-connection]
-    envFromSecrets: [latex-postgres-password]
+    envFromSecrets: [latex-postgres-password, latex-jwt-secret]
   frontend:
     name: latex-frontend
     image: ghcr.io/openlatex/frontend:latest
@@ -81,6 +81,8 @@ namespacedUrl: openlatex-dev.blavogiez.fr
 
 # secret de contournement de la limite de compilation, utile pour les tests de charge
 bypassSecret: "changeme"
+jwtSecret: "changeme"
+jwtExpiresIn: "1h"
 
 hpa:
   minReplicas: 2
