@@ -1,3 +1,4 @@
+# different du template de deploiement habituel, à part car il a bcp plus de besoins que les autres (ici RBAC) et ça rendrait le contrat de template trop gros
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -63,7 +64,7 @@ spec:
           effect: NoSchedule
       containers:
         - name: prometheus
-          image: {{ .Values.deployments.prometheus.image }}
+          image: {{ .Values.prometheusAgent.image }}
           args:
             - '--config.file=/etc/prometheus/prometheus.yml'
             - '--enable-feature=agent'

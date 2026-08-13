@@ -17,22 +17,34 @@ spec:
       labels:
         app: {{ $deployment.name }}
     spec:
+      {{- if $deployment.volumes }}
+      volumes:
+      {{- toYaml $deployment.volumes | nindent 8 }}
+      {{- end }}
       containers:
       - image: {{ $deployment.image }}
         name: {{ $deployment.name }}
         securityContext:
           runAsUser: {{ $deployment.uid | default 10000 }}
           runAsNonRoot: true
+        {{- if $deployment.env }}
+        env:
+        {{- toYaml $deployment.env | nindent 10 }}
+        {{- end }}
         {{- if $deployment.resources }}
         resources:
-{{ toYaml $deployment.resources | indent 8 }}
+        {{- toYaml $deployment.resources | nindent 10 }}
         {{- end }}
         {{- if $deployment.port }}
         ports:
           - containerPort: {{ $deployment.port }}
         {{- end }}
+        {{- if $deployment.volumeMounts }}
+        volumeMounts:
+        {{- toYaml $deployment.volumeMounts | nindent 10 }}
+        {{- end }}
 
-        {{ if or $deployment.postgresRelated $deployment.compileRelated }}
+        {{ if or $deployment.postgresRelated $deployment.compileRelated $deployment.grafanaRelated }}
         envFrom:
         {{ if $deployment.postgresRelated }}
           - configMapRef:
@@ -47,6 +59,10 @@ spec:
           - secretRef:
               name: latex-compile-secret
           {{ end }}
+        {{ end }}
+        {{ if $deployment.grafanaRelated }}
+          - configMapRef:
+              name: latex-grafana-config
         {{ end }}
         {{ end }}
 ---
