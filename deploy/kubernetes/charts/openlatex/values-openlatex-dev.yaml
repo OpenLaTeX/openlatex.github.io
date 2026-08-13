@@ -105,9 +105,6 @@ remoteWriteUrl: http://172.16.10.51:9090/api/v1/write
 # deux url différentes sur internet pour accéder aux namespaces afin d'avoir une version stable et une version test
 namespacedUrl: openlatex-dev.blavogiez.fr
 
-# nodeport différent en dev/prod car le binding est unique
-nodePort: 30081
-
 # secret de contournement de la limite de compilation, utile pour les tests de charge
 bypassSecret: "changeme"
 

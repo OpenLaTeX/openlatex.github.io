@@ -1,10 +1,10 @@
 # peut être set par le playbook / CI/CD à openlatex-prod si la branche est main
-namespace: "openlatex-dev"
+namespace: "openlatex-prod"
 
 deployments:
   worker:
     name: worker
-    image: ghcr.io/openlatex/compile/openlatex-queue-worker:latest
+    image: ghcr.io/openlatex/queue-worker:latest
     envFromConfigMaps: [latex-compile-config]
     resources:
       requests:
@@ -15,7 +15,7 @@ deployments:
         memory: 2000Mi
   producer:
     name: producer
-    image: ghcr.io/openlatex/compile/openlatex-queue-producer:latest
+    image: ghcr.io/openlatex/queue-producer:latest
     port: 9000
     envFromConfigMaps: [latex-compile-config]
     envFromSecrets: [latex-compile-secret]
@@ -26,19 +26,19 @@ deployments:
     envFromConfigMaps: [latex-compile-config]
   crudApi:
     name: crud-api
-    image: ghcr.io/openlatex/openlatex-crud-api:latest
+    image: ghcr.io/openlatex/account-crud-api:latest
     port: 8000
     envFromConfigMaps: [latex-postgres-connection]
     envFromSecrets: [latex-postgres-password]
   collabWebsocket:
     name: collab-websocket
-    image: ghcr.io/openlatex/openlatex-collab-websocket:latest
+    image: ghcr.io/openlatex/collab-websocket:latest
     port: 7000
     envFromConfigMaps: [latex-postgres-connection]
     envFromSecrets: [latex-postgres-password]
   frontend:
     name: latex-frontend
-    image: ghcr.io/openlatex/openlatex-frontend:latest
+    image: ghcr.io/openlatex/frontend:latest
     port: 80
   latexGrafana:
     name: latex-grafana
@@ -103,8 +103,6 @@ remoteWriteUrl: http://172.16.10.51:9090/api/v1/write
 
 # deux url différentes sur internet pour accéder aux namespaces afin d'avoir une version stable et une version test
 namespacedUrl: openlatex.blavogiez.fr
-
-nodePort: 30080
 
 # secret de contournement de la limite de compilation, utile pour les tests de charge
 bypassSecret: "changeme"
