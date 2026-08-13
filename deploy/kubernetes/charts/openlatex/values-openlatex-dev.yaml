@@ -7,6 +7,13 @@ deployments:
     image: ghcr.io/openlatex/queue-worker:latest
     port: 9000
     compileRelated: true
+    resources:
+      requests:
+        cpu: 400m
+        memory: 200Mi
+      limits:
+        cpu: 1200m
+        memory: 2000Mi
   producer:
     name: producer
     image: ghcr.io/openlatex/queue-producer:latest

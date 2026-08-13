@@ -20,7 +20,10 @@ spec:
       containers:
       - image: {{ $deployment.image }}
         name: {{ $deployment.name }}
-        resources: {}
+        {{- if $deployment.resources }}
+        resources:
+{{ toYaml $deployment.resources | indent 8 }}
+        {{- end }}
         ports:
           - containerPort: {{ $deployment.port }}
 
