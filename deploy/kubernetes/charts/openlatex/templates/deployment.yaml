@@ -20,6 +20,9 @@ spec:
       containers:
       - image: {{ $deployment.image }}
         name: {{ $deployment.name }}
+        securityContext:
+          runAsUser: {{ $deployment.uid | default 10000 }}
+          runAsNonRoot: true
         {{- if $deployment.resources }}
         resources:
 {{ toYaml $deployment.resources | indent 8 }}
