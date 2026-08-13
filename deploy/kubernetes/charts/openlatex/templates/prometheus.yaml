@@ -1,4 +1,4 @@
-# different du template de deploiement habituel, à part car il a bcp plus de besoins que les autres et ça rendrait le contrat de template trop gros
+  # different du template de deploiement habituel, à part car il a bcp plus de besoins que les autres et ça rendrait le contrat de template trop gros
 apiVersion: v1
 kind: ConfigMap
 metadata:

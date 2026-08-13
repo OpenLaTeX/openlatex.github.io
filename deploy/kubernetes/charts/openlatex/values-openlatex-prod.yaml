@@ -61,9 +61,6 @@ deployments:
         configMap:
           name: grafana-dashboards
 
-prometheusAgent:
-  image: prom/prometheus:v2.55.1
-
 prometheusImage: prom/prometheus:v2.55.1
 
 POSTGRES_DB: openlatex
@@ -99,7 +96,6 @@ postgresql:
         memory: 512Mi
 
 frontendUrl: https://openlatex.github.io
-remoteWriteUrl: http://172.16.10.51:9090/api/v1/write
 
 # deux url différentes sur internet pour accéder aux namespaces afin d'avoir une version stable et une version test
 namespacedUrl: openlatex.blavogiez.fr
