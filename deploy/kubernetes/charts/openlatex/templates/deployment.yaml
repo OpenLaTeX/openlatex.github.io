@@ -44,27 +44,17 @@ spec:
         {{- toYaml $deployment.volumeMounts | nindent 10 }}
         {{- end }}
 
-        {{ if or $deployment.postgresRelated $deployment.compileRelated $deployment.grafanaRelated }}
+        {{- if or $deployment.envFromConfigMaps $deployment.envFromSecrets }}
         envFrom:
-        {{ if $deployment.postgresRelated }}
+        {{- range $deployment.envFromConfigMaps }}
           - configMapRef:
-              name: latex-postgres-connection
+              name: {{ . }}
+        {{- end }}
+        {{- range $deployment.envFromSecrets }}
           - secretRef:
-              name: latex-postgres-password
-        {{ end }}
-        {{ if $deployment.compileRelated }}
-          - configMapRef:
-              name: latex-compile-config
-          {{ if $deployment.compileSecret }}
-          - secretRef:
-              name: latex-compile-secret
-          {{ end }}
-        {{ end }}
-        {{ if $deployment.grafanaRelated }}
-          - configMapRef:
-              name: latex-grafana-config
-        {{ end }}
-        {{ end }}
+              name: {{ . }}
+        {{- end }}
+        {{- end }}
 ---
 {{ if $deployment.port }}
 apiVersion: v1

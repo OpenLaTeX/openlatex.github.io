@@ -5,7 +5,7 @@ deployments:
   worker:
     name: worker
     image: ghcr.io/openlatex/compile/openlatex-queue-worker:latest
-    compileRelated: true
+    envFromConfigMaps: [latex-compile-config]
     resources:
       requests:
         cpu: 400m
@@ -17,23 +17,25 @@ deployments:
     name: producer
     image: ghcr.io/openlatex/compile/openlatex-queue-producer:latest
     port: 9000
-    compileRelated: true
-    compileSecret: true
+    envFromConfigMaps: [latex-compile-config]
+    envFromSecrets: [latex-compile-secret]
   redis:
     name: redis
     image: redis
     port: 6379
-    compileRelated: true
+    envFromConfigMaps: [latex-compile-config]
   crudApi:
     name: crud-api
     image: ghcr.io/openlatex/openlatex-crud-api:latest
     port: 8000
-    postgresRelated: true
+    envFromConfigMaps: [latex-postgres-connection]
+    envFromSecrets: [latex-postgres-password]
   collabWebsocket:
     name: collab-websocket
     image: ghcr.io/openlatex/openlatex-collab-websocket:latest
     port: 7000
-    postgresRelated: true
+    envFromConfigMaps: [latex-postgres-connection]
+    envFromSecrets: [latex-postgres-password]
   frontend:
     name: latex-frontend
     image: ghcr.io/openlatex/openlatex-frontend:latest
@@ -43,7 +45,7 @@ deployments:
     uid: 472
     image: grafana/grafana-oss:10.4.3
     port: 3000
-    grafanaRelated: true
+    envFromConfigMaps: [latex-grafana-config]
     volumeMounts:
       - name: provisioning
         mountPath: /etc/grafana/provisioning
