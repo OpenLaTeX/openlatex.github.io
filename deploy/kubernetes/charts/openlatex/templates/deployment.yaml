@@ -7,7 +7,6 @@ metadata:
   name: {{ $deployment.name }}
   namespace: {{ $.Values.namespace }}
 spec:
-  replicas: 1
   selector:
     matchLabels:
       app: {{ $deployment.name }}
