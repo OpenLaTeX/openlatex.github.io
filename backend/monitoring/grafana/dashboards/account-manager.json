@@ -159,7 +159,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum(rate(http_request_duration_seconds_count{job=\"account-manager\",status!~\"4..|5..\"}[5m])) / sum(rate(http_request_duration_seconds_count{job=\"account-manager\"}[5m])) * 100",
+          "expr": "sum(rate(http_request_duration_seconds_count{job=\"account-manager\",status_code!~\"4..|5..\"}[5m])) / sum(rate(http_request_duration_seconds_count{job=\"account-manager\"}[5m])) * 100",
           "instant": false,
           "legendFormat": "Taux de succès",
           "range": true,
@@ -619,7 +619,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "rate(http_request_duration_seconds_count{job=\"account-manager\",status=~\"4..|5..\"}[5m]) * 60",
+          "expr": "rate(http_request_duration_seconds_count{job=\"account-manager\",status_code=~\"4..|5..\"}[5m]) * 60",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,

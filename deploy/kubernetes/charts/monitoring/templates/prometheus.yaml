@@ -8,17 +8,21 @@ data:
     global:
       scrape_interval: 15s
     scrape_configs:
-{{- range .Values.namespaces }}
-      - job_name: 'compile-{{ . }}'
+      - job_name: 'k3s-compiler'
         static_configs:
+{{- range .Values.namespaces }}
           - targets: ['producer-svc.{{ . }}.svc:9000']
             labels:
               namespace: {{ . }}
-      - job_name: 'account-{{ . }}'
+              cluster: {{ . }}
+{{- end }}
+      - job_name: 'account-manager'
         static_configs:
+{{- range .Values.namespaces }}
           - targets: ['crud-api-svc.{{ . }}.svc:8000']
             labels:
               namespace: {{ . }}
+              cluster: {{ . }}
 {{- end }}
       - job_name: 'kube-state-metrics'
         static_configs:

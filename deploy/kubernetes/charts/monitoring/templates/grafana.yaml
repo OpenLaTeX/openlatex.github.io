@@ -73,12 +73,7 @@ spec:
             runAsNonRoot: true
           volumeMounts:
             - name: provisioning
-              mountPath: /etc/grafana/provisioning/datasources
-              subPath: prometheus.yml
-              readOnly: true
-            - name: provisioning
-              mountPath: /etc/grafana/provisioning/dashboards
-              subPath: dashboards.yml
+              mountPath: /etc/grafana/provisioning
               readOnly: true
             - name: dashboards
               mountPath: /var/lib/grafana/dashboards
@@ -94,6 +89,11 @@ spec:
         - name: provisioning
           configMap:
             name: grafana-provisioning
+            items:
+              - key: prometheus.yml
+                path: datasources/prometheus.yml
+              - key: dashboards.yml
+                path: dashboards/dashboards.yml
         - name: dashboards
           configMap:
             name: grafana-dashboards
