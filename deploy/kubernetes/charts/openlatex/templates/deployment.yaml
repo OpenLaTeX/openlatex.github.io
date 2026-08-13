@@ -30,6 +30,10 @@ spec:
         env:
         {{- toYaml $deployment.env | nindent 10 }}
         {{- end }}
+        {{- if $deployment.args }}
+        args:
+        {{- toYaml $deployment.args | nindent 10 }}
+        {{- end }}
         {{- if $deployment.resources }}
         resources:
         {{- toYaml $deployment.resources | nindent 10 }}

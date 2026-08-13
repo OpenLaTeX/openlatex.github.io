@@ -24,6 +24,7 @@ deployments:
     image: redis
     port: 6379
     envFromConfigMaps: [latex-compile-config]
+    args: ["--save", "", "--appendonly", "no"]
   crudApi:
     name: crud-api
     image: ghcr.io/openlatex/account-crud-api:latest
