@@ -1,8 +1,14 @@
 enabled: true
-# ce chart marche pour tout le cluster, dont on met un namespace à part de openlatex
+# ce chart marche pour tout le cluster, donc namespace à part de openlatex
 namespace: monitoring
 
 replicas: 1
+
+# namespaces applicatifs dont les métriques sont scrappées par le prometheus central
+namespaces: [openlatex-dev, openlatex-prod]
+
+prometheusImage: prom/prometheus:v2.55.1
+grafanaImage: grafana/grafana-oss:10.4.3
 
 serviceAccount:
   create: true

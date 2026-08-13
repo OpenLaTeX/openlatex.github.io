@@ -1,4 +1,3 @@
-  # different du template de deploiement habituel, à part car il a bcp plus de besoins que les autres et ça rendrait le contrat de template trop gros
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -9,12 +8,18 @@ data:
     global:
       scrape_interval: 15s
     scrape_configs:
-      - job_name: 'openlatex-compiler'
+{{- range .Values.namespaces }}
+      - job_name: 'compile-{{ . }}'
         static_configs:
-          - targets: ['producer-svc:9000']
-      - job_name: 'openlatex-account'
+          - targets: ['producer-svc.{{ . }}.svc:9000']
+            labels:
+              namespace: {{ . }}
+      - job_name: 'account-{{ . }}'
         static_configs:
-          - targets: ['crud-api-svc:8000']
+          - targets: ['crud-api-svc.{{ . }}.svc:8000']
+            labels:
+              namespace: {{ . }}
+{{- end }}
       - job_name: 'kube-state-metrics'
         static_configs:
           - targets: ['kube-state-metrics.monitoring.svc.cluster.local:8080']
@@ -27,7 +32,7 @@ metadata:
   labels:
     app: prometheus
 spec:
-  replicas: 1
+  replicas: {{ .Values.replicas }}
   selector:
     matchLabels:
       app: prometheus
@@ -52,11 +57,11 @@ spec:
             - containerPort: 9090
           resources:
             requests:
-              cpu: 100m
-              memory: 256Mi
+              cpu: 200m
+              memory: 512Mi
             limits:
-              cpu: 500m
-              memory: 1Gi
+              cpu: 1
+              memory: 2Gi
       volumes:
         - name: config
           configMap:

@@ -24,7 +24,7 @@
             effect: NoSchedule
       loop: "{{ query('kubernetes.core.k8s', kind='Node', label_selector='node-role.kubernetes.io/control-plane') | map(attribute='metadata.name') | list }}"
 
-    - name: Déployer le helm chart kube state metrics (il est cluster wide)
+    - name: Déployer le helm chart monitoring (prometheus, grafana, kube state metrics)
       kubernetes.core.helm:
         name: kube-state-metrics
         chart_ref: "{{ playbook_dir }}/../../../deploy/kubernetes/charts/monitoring"
@@ -35,8 +35,6 @@
         set_values:
           - value: "namespace=monitoring"
             value_type: "string"
-        # l'image de compilation est assez lourde donc un délai de pull est à prendre en compte
-        timeout: 1800s
         wait: true
          
 
@@ -57,5 +55,5 @@
         timeout: 1800s
         wait: true
       # ne pas montrer les secrets dans les logs CI
-      no_log: true
+      # no_log: true
          

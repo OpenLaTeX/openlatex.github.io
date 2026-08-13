@@ -83,8 +83,9 @@ spec:
             type: PathPrefix
             value: /grafana
       backendRefs:
-        - name: {{ .Values.deployments.latexGrafana.name }}-svc
-          port: {{ .Values.deployments.latexGrafana.port }}
+        - name: grafana-svc
+          namespace: monitoring
+          port: 3000
     - matches:
         - path:
             type: Exact

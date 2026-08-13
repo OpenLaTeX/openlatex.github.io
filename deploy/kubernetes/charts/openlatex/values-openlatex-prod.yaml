@@ -40,28 +40,6 @@ deployments:
     name: latex-frontend
     image: ghcr.io/openlatex/frontend:latest
     port: 80
-  latexGrafana:
-    name: latex-grafana
-    uid: 472
-    image: grafana/grafana-oss:10.4.3
-    port: 3000
-    envFromConfigMaps: [latex-grafana-config]
-    volumeMounts:
-      - name: provisioning
-        mountPath: /etc/grafana/provisioning
-        readOnly: true
-      - name: dashboards
-        mountPath: /var/lib/grafana/dashboards
-        readOnly: true
-    volumes:
-      - name: provisioning
-        configMap:
-          name: grafana-provisioning
-      - name: dashboards
-        configMap:
-          name: grafana-dashboards
-
-prometheusImage: prom/prometheus:v2.55.1
 
 POSTGRES_DB: openlatex
 POSTGRES_HOST: latex-postgres
