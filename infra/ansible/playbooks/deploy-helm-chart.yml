@@ -11,9 +11,9 @@
     target_namespace: "{{ release_namespace | default('openlatex-dev' )}}"
     # secret de contournement de la limite de compilation, utile pour les tests de charge
     test_bypass_secret: "{{ TEST_BYPASS_SECRET | default(lookup('env', 'TEST_BYPASS_SECRET'), true) }}"
-    postgres_password: "{{ postgresPassword | default(lookup('env', 'POSTGRES_PASSWORD'), true) }}"
-    jwt_secret: "{{ jwtSecret | default(lookup('env', 'JWT_SECRET'), true) }}"
-    jwt_expires_in: "{{ jwtExpiresIn | default('1h', true) }}"
+    postgres_password: "{{ POSTGRES_PASSWORD | default(lookup('env', 'POSTGRES_PASSWORD'), true) }}"
+    jwt_secret: "{{ JWT_SECRET | default(lookup('env', 'JWT_SECRET'), true) }}"
+    jwt_expires_in: "{{ JWT_EXPIRES_IN | default('1h', true) }}"
   environment:
     K8S_AUTH_KUBECONFIG: "{{ lookup('env', 'KUBECONFIG') | default('./k3s.yaml', true) }}"
   tasks:
@@ -50,10 +50,10 @@
         release_namespace: "{{ target_namespace }}"
         create_namespace: true
         values:
-          bypassSecret: "{{ test_bypass_secret }}"
-          postgresPassword: "{{ postgres_password }}"
-          jwtSecret: "{{ jwt_secret }}"
-          jwtExpiresIn: "{{ jwt_expires_in }}"
+          TEST_BYPASS_SECRET: "{{ test_bypass_secret }}"
+          POSTGRES_PASSWORD: "{{ postgres_password }}"
+          JWT_SECRET: "{{ jwt_secret }}"
+          JWT_EXPIRES_IN: "{{ jwt_expires_in }}"
           namespace: "{{ target_namespace }}"
         # l'image de compilation est assez lourde donc un délai de pull est à prendre en compte
         timeout: 1800s

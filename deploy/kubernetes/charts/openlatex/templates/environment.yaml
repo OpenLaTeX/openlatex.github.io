@@ -17,7 +17,7 @@ metadata:
 type: Opaque
 # a set dans le déploiement helm
 stringData:
-  TEST_BYPASS_SECRET: {{ .Values.bypassSecret | quote }}
+  TEST_BYPASS_SECRET: {{ .Values.TEST_BYPASS_SECRET | quote }}
 ---
 apiVersion: v1
 data:
@@ -38,7 +38,7 @@ metadata:
 type: Opaque
 # a set dans le déploiement helm
 stringData:
-  POSTGRES_PASSWORD: {{ .Values.postgresPassword | quote }}
+  POSTGRES_PASSWORD: {{ .Values.POSTGRES_PASSWORD | quote }}
 
 ---
 apiVersion: v1
@@ -49,5 +49,5 @@ metadata:
 type: Opaque
 # a set dans le déploiement helm
 stringData:
-  JWT_SECRET: {{ .Values.jwtSecret | quote }}
-  JWT_EXPIRES_IN: {{ .Values.jwtExpiresIn | quote }}
+  JWT_SECRET: {{ .Values.JWT_SECRET | quote }}
+  JWT_EXPIRES_IN: {{ .Values.JWT_EXPIRES_IN | quote }}

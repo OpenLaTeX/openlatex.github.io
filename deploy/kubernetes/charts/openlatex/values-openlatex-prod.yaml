@@ -47,7 +47,7 @@ POSTGRES_HOST: latex-postgres
 POSTGRES_PORT: 5432
 POSTGRES_USER: openlatex
 # sera changé / randomisé au playbook
-postgresPassword: openlatex
+POSTGRES_PASSWORD: openlatex
 
 postgresql:
   enabled: true
@@ -80,9 +80,9 @@ frontendUrl: https://openlatex.github.io
 namespacedUrl: openlatex.blavogiez.fr
 
 # secret de contournement de la limite de compilation, utile pour les tests de charge
-bypassSecret: "changeme"
-jwtSecret: "changeme"
-jwtExpiresIn: "1h"
+TEST_BYPASS_SECRET: "changeme"
+JWT_SECRET: "changeme"
+JWT_EXPIRES_IN: "1h"
 
 hpa:
   minReplicas: 8
