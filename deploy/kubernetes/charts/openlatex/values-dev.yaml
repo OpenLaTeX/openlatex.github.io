@@ -1,0 +1,5 @@
+namespace: "openlatex-dev"
+namespacedUrl: openlatex-dev.blavogiez.fr
+workerHpa:
+  minReplicas: 2
+  maxReplicas: 8

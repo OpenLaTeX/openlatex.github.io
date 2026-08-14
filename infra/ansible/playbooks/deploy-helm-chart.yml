@@ -45,8 +45,9 @@
         name: openlatex-compile
         chart_ref: "{{ playbook_dir }}/../../../deploy/kubernetes/charts/openlatex"
         values_files: 
-          # values personnalisées par namespace
-          - "{{ playbook_dir }}/../../../deploy/kubernetes/charts/openlatex/values-{{ target_namespace }}.yaml"
+          # values personnalisées par namespace (dev/prod overrides par-dessus values.yaml)
+          - "{{ playbook_dir }}/../../../deploy/kubernetes/charts/openlatex/values.yaml"
+          - "{{ playbook_dir }}/../../../deploy/kubernetes/charts/openlatex/values-{{ target_namespace | replace('openlatex-', '') }}.yaml"
         release_namespace: "{{ target_namespace }}"
         create_namespace: true
         values:

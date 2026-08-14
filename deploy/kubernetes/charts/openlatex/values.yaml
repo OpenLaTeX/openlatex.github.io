@@ -1,6 +1,7 @@
 # peut être set par le playbook / CI/CD à openlatex-prod si la branche est main
-namespace: "openlatex-prod"
+namespace: "openlatex-dev"
 
+# contrat de template qui regroupe les besoins simples des deployments. Il va pas trop loin dans la modularité pour pas avoir une map trop grosse
 deployments:
   worker:
     name: worker
@@ -58,7 +59,7 @@ JWT_EXPIRES_IN: "1h"
 
 frontendUrl: https://openlatex.github.io
 # deux url différentes sur internet pour accéder aux namespaces afin d'avoir une version stable et une version test
-namespacedUrl: openlatex.blavogiez.fr
+namespacedUrl: openlatex-dev.blavogiez.fr
 
 postgresql:
   enabled: true
