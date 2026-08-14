@@ -43,12 +43,24 @@ deployments:
     image: ghcr.io/openlatex/frontend:latest
     port: 80
 
+workerHpa:
+  minReplicas: 2
+  maxReplicas: 8
+
 POSTGRES_DB: openlatex
 POSTGRES_HOST: latex-postgres
 POSTGRES_PORT: 5432
 POSTGRES_USER: openlatex
-# sera changé / randomisé au playbook
-POSTGRES_PASSWORD: openlatex
+# seront changés par le playbook
+POSTGRES_PASSWORD: "changeme"
+TEST_BYPASS_SECRET: "changeme"
+JWT_SECRET: "changeme"
+JWT_EXPIRES_IN: "1h"
+
+frontendUrl: https://openlatex.github.io
+# deux url différentes sur internet pour accéder aux namespaces afin d'avoir une version stable et une version test
+namespacedUrl: openlatex.blavogiez.fr
+
 
 postgresql:
   enabled: true
@@ -75,16 +87,3 @@ postgresql:
         cpu: 500m
         memory: 512Mi
 
-frontendUrl: https://openlatex.github.io
-
-# deux url différentes sur internet pour accéder aux namespaces afin d'avoir une version stable et une version test
-namespacedUrl: openlatex-dev.blavogiez.fr
-
-# secret de contournement de la limite de compilation, utile pour les tests de charge
-TEST_BYPASS_SECRET: "changeme"
-JWT_SECRET: "changeme"
-JWT_EXPIRES_IN: "1h"
-
-hpa:
-  minReplicas: 2
-  maxReplicas: 8
