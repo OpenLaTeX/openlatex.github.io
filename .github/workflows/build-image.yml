@@ -12,9 +12,13 @@ on:
       context:
         required: true
         type: string
+      changed:
+        required: true
+        type: boolean
 
 jobs:
   build:
+    if: ${{ inputs.changed }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
