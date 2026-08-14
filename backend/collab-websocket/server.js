@@ -46,5 +46,5 @@ server.on('upgrade', async (req, socket, head) => {
 });
 
 server.listen(PORT, () => {
-    console.log('collab demarre sur le port', PORT);
+    console.log('collab websocket demarre sur le port', PORT);
 });

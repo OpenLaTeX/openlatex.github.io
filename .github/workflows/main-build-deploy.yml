@@ -42,7 +42,7 @@ jobs:
         with:
           # l action prend tous les fichiers qui ont changé depuis les derniers commits, et compare leur chemin à ces expressions
           # si ca match, ca extrait le ?P<service> comme service ayant changé et l'ajoute au json matrix. Du coup on rebuild les images conteneur que à leur changement
-          pattern: (?P<service>account-crud-api|collab-websocket|queue-producer|queue-worker|frontend)/
+          pattern: (?:backend/(?:compiler/)?)?(?P<service>account-crud-api|collab-websocket|queue-producer|queue-worker|frontend)(?=/)
           default-patterns: |
             backend/shared/**
             backend/package*.json
@@ -79,7 +79,7 @@ jobs:
       dockerfile: ${{ matrix.build-path }}/Dockerfile
       context: ${{ matrix.context }}
       # = on le re build ou pas, grace à la detection de chemins precedemment effectuee
-      changed: ${{ contains(needs.services-to-build.outputs.matrix, matrix.container-image) }} || github.event_name == 'workflow_dispatch'
+      changed: ${{ contains(needs.services-to-build.outputs.matrix, matrix.container-image) || github.event_name == 'workflow_dispatch' }}
     secrets: inherit
 
   deploy-k3s-helm:
