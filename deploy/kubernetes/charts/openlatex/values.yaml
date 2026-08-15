@@ -1,0 +1,87 @@
+# peut être set par le playbook / CI/CD à openlatex-prod si la branche est main
+namespace: "openlatex-dev"
+
+# contrat de template qui regroupe les besoins simples des deployments. Il va pas trop loin dans la modularité pour pas avoir une map trop grosse
+deployments:
+  worker:
+    name: worker
+    image: ghcr.io/openlatex/queue-worker:latest
+    envFromConfigMaps: [latex-compile-config]
+    resources:
+      requests:
+        cpu: 400m
+        memory: 200Mi
+      limits:
+        cpu: 1200m
+        memory: 2000Mi
+  producer:
+    name: producer
+    image: ghcr.io/openlatex/queue-producer:latest
+    port: 9000
+    envFromConfigMaps: [latex-compile-config]
+    envFromSecrets: [latex-compile-secret]
+  redis:
+    name: redis
+    image: redis
+    port: 6379
+    envFromConfigMaps: [latex-compile-config]
+    args: ["--save", "", "--appendonly", "no"]
+  crudApi:
+    name: crud-api
+    image: ghcr.io/openlatex/account-crud-api:latest
+    port: 8000
+    envFromConfigMaps: [latex-postgres-connection]
+    envFromSecrets: [latex-postgres-password, latex-jwt-secret]
+  collabWebsocket:
+    name: collab-websocket
+    image: ghcr.io/openlatex/collab-websocket:latest
+    port: 7000
+    envFromConfigMaps: [latex-postgres-connection]
+    envFromSecrets: [latex-postgres-password, latex-jwt-secret]
+  frontend:
+    name: latex-frontend
+    image: ghcr.io/openlatex/frontend:latest
+    port: 80
+
+workerHpa:
+  minReplicas: 2
+  maxReplicas: 8
+
+POSTGRES_DB: openlatex
+POSTGRES_HOST: latex-postgres
+POSTGRES_PORT: 5432
+POSTGRES_USER: openlatex
+# seront changés par le playbook
+POSTGRES_PASSWORD: "changeme"
+TEST_BYPASS_SECRET: "changeme"
+JWT_SECRET: "changeme"
+JWT_EXPIRES_IN: "1h"
+
+frontendUrl: https://openlatex.github.io
+# deux url différentes sur internet pour accéder aux namespaces afin d'avoir une version stable et une version test
+namespacedUrl: openlatex-dev.blavogiez.fr
+
+postgresql:
+  enabled: true
+  fullnameOverride: latex-postgres
+  architecture: standalone
+  auth:
+    enablePostgresUser: false
+    username: openlatex
+    database: openlatex
+    existingSecret: latex-postgres-password
+    secretKeys:
+      userPasswordKey: POSTGRES_PASSWORD
+  primary:
+    initdb:
+      scriptsConfigMap: latex-postgres-initdb
+    persistence:
+      enabled: true
+      size: 3Gi
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi

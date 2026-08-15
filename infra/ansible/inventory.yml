@@ -1,0 +1,6 @@
+all:
+  vars:
+    ansible_user: admin
+  hosts: 
+    k3s-control-plane: 
+      ansible_host: 172.16.10.52

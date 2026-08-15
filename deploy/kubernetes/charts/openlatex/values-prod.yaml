@@ -1,0 +1,5 @@
+namespace: "openlatex-prod"
+namespacedUrl: openlatex.blavogiez.fr
+workerHpa:
+  minReplicas: 8
+  maxReplicas: 20

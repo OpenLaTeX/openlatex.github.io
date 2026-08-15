@@ -85,7 +85,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "avg_over_time(up{job=\"account-manager\"}[30d]) * 100",
+          "expr": "avg_over_time(up{job=\"account-manager\",namespace=\"$namespace\"}[30d]) * 100",
           "instant": true,
           "legendFormat": "Disponibilité (5j)",
           "range": false,
@@ -159,7 +159,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum(rate(http_request_duration_seconds_count{job=\"account-manager\",status!~\"4..|5..\"}[5m])) / sum(rate(http_request_duration_seconds_count{job=\"account-manager\"}[5m])) * 100",
+          "expr": "sum(rate(http_request_duration_seconds_count{job=\"account-manager\",namespace=\"$namespace\",status_code!~\"4..|5..\"}[5m])) / sum(rate(http_request_duration_seconds_count{job=\"account-manager\",namespace=\"$namespace\"}[5m])) * 100",
           "instant": false,
           "legendFormat": "Taux de succès",
           "range": true,
@@ -233,7 +233,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "process_resident_memory_bytes{job=\"account-manager\"}",
+          "expr": "process_resident_memory_bytes{job=\"account-manager\",namespace=\"$namespace\"}",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -329,7 +329,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "rate(http_request_duration_seconds_count{job=\"account-manager\"}[5m]) * 60",
+          "expr": "rate(http_request_duration_seconds_count{job=\"account-manager\",namespace=\"$namespace\"}[5m]) * 60",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -426,7 +426,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.5, rate(http_request_duration_seconds_bucket{job=\"account-manager\"}[5m]))",
+          "expr": "histogram_quantile(0.5, rate(http_request_duration_seconds_bucket{job=\"account-manager\",namespace=\"$namespace\"}[5m]))",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -523,7 +523,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job=\"account-manager\"}[5m]))",
+          "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job=\"account-manager\",namespace=\"$namespace\"}[5m]))",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -619,7 +619,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "rate(http_request_duration_seconds_count{job=\"account-manager\",status=~\"4..|5..\"}[5m]) * 60",
+          "expr": "rate(http_request_duration_seconds_count{job=\"account-manager\",namespace=\"$namespace\",status_code=~\"4..|5..\"}[5m]) * 60",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -684,7 +684,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "rate(http_request_duration_seconds_count{job=\"account-manager\"}[5m])",
+          "expr": "rate(http_request_duration_seconds_count{job=\"account-manager\",namespace=\"$namespace\"}[5m])",
           "instant": false,
           "legendFormat": "{{status_code}}",
           "range": true,
@@ -780,7 +780,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "nodejs_eventloop_lag_seconds{job=\"account-manager\"}",
+          "expr": "nodejs_eventloop_lag_seconds{job=\"account-manager\",namespace=\"$namespace\"}",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -877,7 +877,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "nodejs_heap_size_used_bytes{job=\"account-manager\"}",
+          "expr": "nodejs_heap_size_used_bytes{job=\"account-manager\",namespace=\"$namespace\"}",
           "instant": false,
           "legendFormat": "Heap utilisé",
           "range": true,
@@ -889,7 +889,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "nodejs_heap_size_total_bytes{job=\"account-manager\"}",
+          "expr": "nodejs_heap_size_total_bytes{job=\"account-manager\",namespace=\"$namespace\"}",
           "instant": false,
           "legendFormat": "Heap total",
           "range": true,
@@ -903,7 +903,30 @@
   "schemaVersion": 39,
   "tags": [],
   "templating": {
-    "list": []
+    "list": [
+      {
+        "current": {},
+        "definition": null,
+        "hide": 0,
+        "includeAll": false,
+        "multi": false,
+        "name": "namespace",
+        "options": [],
+        "query": {
+          "query": "label_values(up{job=\"account-manager\"}, namespace)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        }
+      }
+    ]
   },
   "time": {
     "from": "now-6h",

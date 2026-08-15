@@ -6,8 +6,8 @@ metadata:
   namespace: {{ .Values.namespace }}
 data:
   FRONTEND_URL: {{ .Values.frontendUrl }}
-  REDIS_HOST: latex-compile-redis-svc
-  REDIS_PORT: "6379"
+  REDIS_HOST: {{ .Values.deployments.redis.name }}-svc
+  REDIS_PORT: {{ .Values.deployments.redis.port | quote }}
 ---
 apiVersion: v1
 kind: Secret
@@ -17,4 +17,37 @@ metadata:
 type: Opaque
 # a set dans le déploiement helm
 stringData:
-  TEST_BYPASS_SECRET: {{ .Values.bypassSecret | quote }}
+  TEST_BYPASS_SECRET: {{ .Values.TEST_BYPASS_SECRET | quote }}
+---
+apiVersion: v1
+data:
+  POSTGRES_DB: {{ .Values.POSTGRES_DB | quote }}
+  POSTGRES_HOST: {{ .Values.POSTGRES_HOST | quote }}
+  POSTGRES_PORT: {{ .Values.POSTGRES_PORT | quote }}
+  POSTGRES_USER: {{ .Values.POSTGRES_USER | quote }}
+kind: ConfigMap
+metadata:
+  name: latex-postgres-connection
+  namespace: {{ .Values.namespace }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: latex-postgres-password
+  namespace: {{ .Values.namespace }}
+type: Opaque
+# a set dans le déploiement helm
+stringData:
+  POSTGRES_PASSWORD: {{ .Values.POSTGRES_PASSWORD | quote }}
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: latex-jwt-secret
+  namespace: {{ .Values.namespace }}
+type: Opaque
+# a set dans le déploiement helm
+stringData:
+  JWT_SECRET: {{ .Values.JWT_SECRET | quote }}
+  JWT_EXPIRES_IN: {{ .Values.JWT_EXPIRES_IN | quote }}

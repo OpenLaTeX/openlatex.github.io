@@ -7,6 +7,7 @@ on:
   push:
     branches: 
       - main 
+      - 39*
   workflow_dispatch:
 
 concurrency:
@@ -15,7 +16,7 @@ concurrency:
 
 jobs:
   code-test:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -28,116 +29,61 @@ jobs:
       - run: npm test
         working-directory: backend
 
-  detect-changes:
-    runs-on: self-hosted
+  services-to-build:
+    runs-on: ubuntu-latest
     outputs:
-      manager: ${{ steps.filter.outputs.manager }}
-      compiler: ${{ steps.filter.outputs.compiler }}
-      queue_producer: ${{ steps.filter.outputs.queue_producer }}
+      matrix: ${{ steps.neo.outputs.matrix }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 2
-      - name: Résoudre le SHA du commit précédent
-        id: prev
-        run: echo "sha=$(git rev-parse HEAD~1)" >> $GITHUB_OUTPUT
-      - uses: dorny/paths-filter@v3
-        id: filter
+      - uses: hellofresh/action-changed-files@v3
+        id: neo
         with:
-          base: ${{ steps.prev.outputs.sha }}
-          filters: |
-            manager:
-              - 'backend/account-crud-api/**'
-              - 'backend/shared/**'
-              - 'backend/package*.json'
-            compiler:
-              - 'backend/compiler/queue-worker/**'
-              - 'backend/shared/**'
-              - 'backend/package*.json'
-            queue_producer:
-              - 'backend/compiler/queue-producer/**'
-              - 'backend/package*.json'
-              
-  build-compiler:
-    needs: [detect-changes, code-test]
-    if: needs.detect-changes.outputs.compiler == 'true' || github.event_name == 'workflow_dispatch'
+          # l action prend tous les fichiers qui ont changé depuis les derniers commits, et compare leur chemin à ces expressions
+          # si ca match, ca extrait le ?P<service> comme service ayant changé et l'ajoute au json matrix. Du coup on rebuild les images conteneur que à leur changement
+          pattern: (?:backend/(?:compiler/)?)?(?P<service>account-crud-api|collab-websocket|queue-producer|queue-worker|frontend)(?=/)
+          default-patterns: |
+            backend/shared/**
+            backend/package*.json
+            backend/compiler/Dockerfile.base
+
+  build-push-container-images:
+    needs: [services-to-build, code-test]
+    if: ${{ fromJson(needs.services-to-build.outputs.matrix).include[0] || github.event_name == 'workflow_dispatch' }}
     permissions:
       contents: read
       packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - container-image: queue-producer
+            build-path: backend/compiler/queue-producer
+            context: ./backend
+          - container-image: queue-worker
+            build-path: backend/compiler/queue-worker
+            context: ./backend
+          - container-image: account-crud-api
+            build-path: backend/account-crud-api
+            context: ./backend
+          - container-image: collab-websocket
+            build-path: backend/collab-websocket
+            context: ./backend
+          - container-image: frontend
+            build-path: frontend
+            context: ./frontend
     uses: ./.github/workflows/build-image.yml
-    secrets: inherit
     with:
-      image-name: openlatex-compile
-      dockerfile: ./backend/compiler/queue-worker/Dockerfile
-
-  build-queue-producer:
-    needs: [detect-changes, code-test]
-    if: needs.detect-changes.outputs.queue_producer == 'true' || github.event_name == 'workflow_dispatch'
-    permissions:
-      contents: read
-      packages: write
-    uses: ./.github/workflows/build-image.yml
+      image-name: ${{ matrix.container-image }}
+      dockerfile: ${{ matrix.build-path }}/Dockerfile
+      context: ${{ matrix.context }}
+      # = on le re build ou pas, grace à la detection de chemins precedemment effectuee
+      changed: ${{ contains(needs.services-to-build.outputs.matrix, matrix.container-image) || github.event_name == 'workflow_dispatch' }}
     secrets: inherit
-    with:
-      image-name: openlatex-queue-producer
-      dockerfile: ./backend/compiler/queue-producer/Dockerfile
 
-  deploy:
-    needs: [build-compiler, build-queue-producer]
-    if: always() && !failure() && !cancelled()
-    runs-on: self-hosted
-    steps:
-      - name: Config SSH
-        uses: webfactory/ssh-agent@v0.7.0
-        with:
-          ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
-
-      - name: Config SSH no strict host checking
-        run: |
-          mkdir -p ~/.ssh
-          echo "StrictHostKeyChecking no" >> ~/.ssh/config
-          chmod 600 ~/.ssh/config
-
-      - uses: actions/checkout@v4
-
-      - name: Installer ansible
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install ansible-core
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
-          export PATH="$HOME/.local/bin:$PATH"
-          ansible-galaxy collection install community.docker
-
-      - name: Déployer sur le VPS
-        env:
-          VPS_HOST: ${{ secrets.VPS_HOST }}
-          VPS_USER: ${{ secrets.VPS_USER }}
-          DEPLOY_BRANCH: ${{ github.ref_name }}
-          REPO_URL: https://github.com/${{ github.repository }}.git
-          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          JWT_EXPIRES_IN: ${{ secrets.JWT_EXPIRES_IN }}
-          FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
-          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
-          TEST_BYPASS_SECRET: ${{ secrets.TEST_BYPASS_SECRET }}
-          GRAFANA_ADMIN_USER: ${{ secrets.GRAFANA_ADMIN_USER }}
-          GRAFANA_ADMIN_PASSWORD: ${{ secrets.GRAFANA_ADMIN_PASSWORD }}
-          BACKUP_STORAGE: ${{ secrets.BACKUP_STORAGE }}
-          B2_S3_ENDPOINT: ${{ secrets.B2_S3_ENDPOINT }}
-          B2_BUCKET_NAME: ${{ secrets.B2_BUCKET_NAME }}
-          B2_REGION: ${{ secrets.B2_REGION }}
-          B2_APPLICATION_KEY_ID: ${{ secrets.B2_APPLICATION_KEY_ID }}
-          B2_APPLICATION_KEY: ${{ secrets.B2_APPLICATION_KEY }}
-          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-        run: |
-          ansible-playbook infra/ansible/playbooks/deploy-compose.yml \
-            -i "$VPS_HOST," \
-            -u "$VPS_USER"
-
-  deploy-k3s:
-    needs: [build-compiler, build-queue-producer]
+  deploy-k3s-helm:
+    needs: [build-push-container-images]
     if: always() && !failure() && !cancelled()
     runs-on: self-hosted
     steps:
@@ -162,7 +108,6 @@ jobs:
       - name: Récupérer le kubeconfig depuis le master
         run: |
           mkdir -p ${{ github.workspace }}/.kube
-          # StrictHostKeyChecking=no pour simplifier (le master k3s est une instance différente du VPS, pas de known_hosts dédié)
           ssh -o StrictHostKeyChecking=no admin@${{ vars.K3S_MASTER_IP }} cat /etc/rancher/k3s/k3s.yaml > ${{ github.workspace }}/.kube/config
           sed -i "s/127.0.0.1/${{ vars.K3S_MASTER_IP }}/g" ${{ github.workspace }}/.kube/config
           chmod 600 ${{ github.workspace }}/.kube/config
@@ -172,19 +117,22 @@ jobs:
           RELEASE_NAMESPACE: ${{ case(github.ref_name == 'main', 'openlatex-prod', 'openlatex-dev') }}
           # secret de contournement de la limite de compilation, utile pour les tests de charge
           TEST_BYPASS_SECRET: ${{ secrets.TEST_BYPASS_SECRET }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          JWT_EXPIRES_IN: ${{ secrets.JWT_EXPIRES_IN }}
         run: | 
           echo "deploy pour le namespace $RELEASE_NAMESPACE" 
           export KUBECONFIG=${{ github.workspace }}/.kube/config 
           ansible-playbook infra/ansible/playbooks/deploy-helm-chart.yml -e "target_namespace=$RELEASE_NAMESPACE"
 
   infra-load-tests:
-    needs: [deploy, deploy-k3s]
+    needs: [deploy-k3s-helm]
     if: always() && !failure() && !cancelled()
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
 
-      - name: Installer k6
+      - name: Installer k6 (procedure d install donnee sur le site)
         run: |
           curl -fsSL https://dl.k6.io/key.gpg | sudo gpg --batch --yes --dearmor -o /usr/share/keyrings/k6-archive-keyring.gpg
           echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list

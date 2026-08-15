@@ -1,0 +1,77 @@
+{{- range $key, $deployment := .Values.deployments }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: {{ $deployment.name }}
+  name: {{ $deployment.name }}
+  namespace: {{ $.Values.namespace }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ $deployment.name }}
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: {{ $deployment.name }}
+    spec:
+      {{- if $deployment.volumes }}
+      volumes:
+      {{- toYaml $deployment.volumes | nindent 8 }}
+      {{- end }}
+      containers:
+      - image: {{ $deployment.image }}
+        name: {{ $deployment.name }}
+        securityContext:
+          runAsUser: {{ $deployment.uid | default 10000 }}
+          runAsNonRoot: true
+        {{- if $deployment.env }}
+        env:
+        {{- toYaml $deployment.env | nindent 10 }}
+        {{- end }}
+        {{- if $deployment.args }}
+        args:
+        {{- toYaml $deployment.args | nindent 10 }}
+        {{- end }}
+        {{- if $deployment.resources }}
+        resources:
+        {{- toYaml $deployment.resources | nindent 10 }}
+        {{- end }}
+        {{- if $deployment.port }}
+        ports:
+          - containerPort: {{ $deployment.port }}
+        {{- end }}
+        {{- if $deployment.volumeMounts }}
+        volumeMounts:
+        {{- toYaml $deployment.volumeMounts | nindent 10 }}
+        {{- end }}
+
+        {{- if or $deployment.envFromConfigMaps $deployment.envFromSecrets }}
+        envFrom:
+        {{- range $deployment.envFromConfigMaps }}
+          - configMapRef:
+              name: {{ . }}
+        {{- end }}
+        {{- range $deployment.envFromSecrets }}
+          - secretRef:
+              name: {{ . }}
+        {{- end }}
+        {{- end }}
+---
+{{ if $deployment.port }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $deployment.name }}-svc
+  namespace: {{ $.Values.namespace }}
+spec:
+  type: ClusterIP
+  selector:
+    app: {{ $deployment.name }}
+  ports:
+  - port: {{ $deployment.port }}
+    targetPort: {{ $deployment.port }}
+{{ end }}
+---
+{{ end }}

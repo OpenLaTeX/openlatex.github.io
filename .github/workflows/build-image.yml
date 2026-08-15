@@ -9,9 +9,16 @@ on:
       dockerfile:
         required: true
         type: string
+      context:
+        required: true
+        type: string
+      changed:
+        required: true
+        type: boolean
 
 jobs:
   build:
+    if: ${{ inputs.changed }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -35,7 +42,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
-          context: ./backend
+          context: ${{ inputs.context }}
           file: ${{ inputs.dockerfile }}
           push: true
           tags: ghcr.io/${{ env.OWNER_LC }}/${{ inputs.image-name }}:latest
