@@ -1,5 +1,8 @@
 # ici : networkpolicy
+# cf default-networking.yaml (aucune ingress / egress, sauf ingress traefik gateway api et egress coredns)
 # CF https://kubernetes.io/docs/concepts/services-networking/network-policies/
+
+# queue-worker / producer sont autorisés à sortir que vers redis
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy 
 metadata: 
@@ -31,6 +34,7 @@ spec:
         - protocol: UDP
           port: 53 
 ---
+# redis autorise queue-worker et queue-producer à venir (redis ici c'est la file des documents à compiler)
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy 
 metadata: 
@@ -46,13 +50,87 @@ spec:
   ingress:
     - from:
         - podSelector:
-            matchLabels:
-              app: {{ .Values.deployments.worker.name }} 
-        - podSelector:
-            matchLabels:
-              app: {{ .Values.deployments.producer.name }} 
+            matchExpressions:
+              - key: app 
+                operator: In 
+                values: 
+                  - {{ .Values.deployments.worker.name }} 
+                  - {{ .Values.deployments.producer.name }} 
       ports:
         - protocol: TCP
-          port: {{ .Values.deployments.redis.port }} 
-
-          
+          port: {{ .Values.deployments.redis.port }}
+---
+# postgresql autorise crud-api, collab-websocket et pg-bkup à venir
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy 
+metadata: 
+  name: {{ .Values.postgresql.fullnameOverride }}-network-policy
+  namespace: {{ .Values.namespace }}
+spec:
+  podSelector:
+    matchLabels:
+      app: {{ .Values.postgresql.fullnameOverride }}
+  policyTypes:
+  - Ingress
+  
+  ingress:
+    - from:
+        - podSelector:
+            matchExpressions:
+              - key: app
+                operator: In
+                values: 
+                  - {{ .Values.deployments.crudApi.name }}
+                  - {{ .Values.deployments.collabWebsocket.name }}
+                  - {{ (index .Values.deployments "pg-bkup-s3").name }} 
+      ports:
+        - protocol: TCP
+          port: 5432
+---
+# crud-api, collab-websocket et pg-bkup autorisés à sortir vers postgresql
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy 
+metadata: 
+  name: postgres-clients-egress-network-policy
+  namespace: {{ .Values.namespace }}
+spec:
+  podSelector:
+    matchExpressions:
+      - key: app
+        operator: In
+        values: 
+          - {{ .Values.deployments.crudApi.name }}
+          - {{ .Values.deployments.collabWebsocket.name }}
+          - {{ (index .Values.deployments "pg-bkup-s3").name }} 
+  policyTypes:
+  - Egress
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app: {{ .Values.postgresql.fullnameOverride }}
+      ports:
+        - protocol: TCP
+          port: 5432
+---
+# pg-bkup autorisé à sortir vers S3 (HTTPS 443) 
+{{- if (index .Values.deployments "pg-bkup-s3").enabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: pg-bkup-s3-egress-network-policy
+  namespace: {{ .Values.namespace }}
+spec:
+  podSelector:
+    matchLabels:
+      app: {{ (index .Values.deployments "pg-bkup-s3").name }}
+  policyTypes:
+  - Egress
+  egress:
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+      ports:
+        - protocol: TCP
+          port: 443
+{{- end }}
