@@ -1,295 +1,255 @@
 ![Logo OpenLaTeX](docs/assets/logo.png)
 
-**Fork pour épingler sur le profil `blavogiez` - pour voir les runs CI/CD, consultez le [dépôt original](https://github.com/OpenLaTeX/openlatex.github.io)**
-
-# [OpenLaTeX : Éditeur LaTeX Web collaboratif](https://openlatex.github.io)
-
-## Sommaire
-
-- [Informations de développement](#informations-de-développement)
-- [Présentation](#présentation)
-- [Architecture](#architecture)
-- [Cluster Kubernetes et autoscaling](#cluster-kubernetes-et-autoscaling)
-- [Collaboration temps réel](#collaboration-temps-réel)
-- [Sécurité](#sécurité)
-- [Sauvegardes](#sauvegardes)
-- [Monitoring](#monitoring)
-- [Tests et qualité](#tests-et-qualité)
-- [CI/CD](#cicd)
-- [Limites](#limites)
-- [Installation](#installation)
-- [Procédures](#procédures)
-- [Remarque personnelle](#remarque-personnelle)
-- [Stack technique](#stack-technique)
-- [Licence](#licence)
+# [openlatex.github.io : Éditeur LaTeX Web collaboratif](https://openlatex.github.io)
 
 ## Informations de développement
 
 **Réalisé par** : Baptiste Lavogiez  
-**Contact** :  
+**Liens** :  
 - Mail : [baptiste.lavogiez@proton.me](mailto:baptiste.lavogiez@proton.me)  
 - Page GitHub : [blavogiez](https://github.com/blavogiez) | [OpenLaTeX (hosting GitHub Pages)](https://github.com/OpenLaTeX)
+- Hébergé sur [mon infra proxmox](https://github.com/blavogiez-org/proxmox-configuration) sur Kubernetes, auto-déployé et accessible sur [openlatex.blavogiez.fr](https://openlatex.blavogiez.fr) 
 
-## Présentation
+## Sommaire
 
-Ce projet offre un moyen simple de déployer un serveur LaTeX collaboratif open-source accessible par le Web, permettant d'utiliser LaTeX depuis un navigateur.
-Il met également à disposition une base de données intégrée pour que les utilisateurs puissent enregistrer et gérer leurs projets d'où qu'ils soient, et collaborer en temps réel sur un même document grâce à Yjs !
+- [Présentation et objectifs](#présentation-et-objectifs)
+- [Installation rapide](#installation-rapide)
+  - [1. Déploiement basique (Compose standalone en 1 ligne)](#1-déploiement-basique-compose-standalone-en-1-ligne)
+  - [2. Déploiement avancé (Cluster Kubernetes & Helm)](#2-déploiement-avancé-cluster-kubernetes--helm)
+- [Architecture Kubernetes en situation](#architecture-kubernetes-en-situation)
+- [Cluster Kubernetes et autoscaling](#cluster-kubernetes-et-autoscaling)
+- [Collaboration temps réel](#collaboration-temps-réel)
+- [Sécurité & Réseau](#sécurité--réseau)
 
-La stack permet d'automatiser les déploiements (CI/CD, Ansible, Helm), d'observer les métriques de l'application ([voir les dashboards Grafana, avec namespace prod / dev](https://openlatex.blavogiez.fr/grafana/dashboards)) et de mieux la maintenir / sécuriser (chiffrement, sauvegardes automatiques, isolation réseau...).
 
-L'objectif de ce projet, au-delà de son utilité primaire, est de monter en compétences sur des cas concrets de production, afin de me préparer à ma poursuite d'études et mon alternance. Je me suis particulièrement concentré sur l'aspect **Git | CI/CD** (l'infrastructure et les déploiements sont décrits et dans le dépôt et automatisés), **Infrastructure as Code** (VM Proxmox provisionnées par Terraform et K3S installé par cloud-init), **sécurité** (sauvegardes chiffrées GPG, compilation durcie, rate limiting et isolation réseau) et **optimisation** (HPA calibré grâce aux tests de charge k6 et métriques Prometheus).
+## Présentation et objectifs
 
-Ce projet est donc une application typique à petite échelle ; du CRUD de comptes / projets (éditeur) et un processus stateless (compilation). C'est le terrain parfait pour pratiquer du DevOps.
+Ce projet permet de déployer un serveur LaTeX collaboratif open-source accessible par le Web, avec une base de données intégrée pour gérer ses projets et collaborer en temps réel sur un même document grâce à Yjs.
 
-## Architecture
+Au niveau technique, la stack automatise les déploiements (CI/CD GitHub Actions, Ansible, Helm), observe les métriques de l'application ([dashboards Grafana par namespace](https://openlatex.blavogiez.fr/grafana/dashboards)) et durcit l'infrastructure (chiffrement GPG, sauvegardes automatiques S3, hardening NetworkPolicies, compilation isolée et rate limiting).
 
-L'architecture est entièrement conteneurisée. Au-delà des « outils » (Kubernetes, Prometheus...), elle s'organise autour de trois briques applicatives. La compilation est elle-même séparée en deux processus Node.js : un producteur HTTP et des workers BullMQ :
+L'objectif est de monter en compétences sur des cas concrets : **Git / CI/CD** (auto-déploiement, matrix builds sélectifs), **Infrastructure as Code** (Terraform pour Proxmox, cloud-init pour K3S), et surtout **Kubernetes / Helm** (conception de l'architecture découpée et scalable, HPA, déploiement automatisé par namespace selon branche, sécurisation NetworkPolicies) et **observabilité** (Prometheus & Grafana).
 
-| Service | Port | Rôle | Où ça tourne |
-|---|---|---|---|
-| Collaboration | 7000 | WebSocket Yjs pour l'édition temps réel | Docker Compose (VM API) |
-| Account Manager | 8000 | Auth JWT, CRUD projets/fichiers et PostgreSQL | Docker Compose (VM API) |
-| Compilateur | 9000 | Producteur BullMQ, file Redis et workers `pdflatex` | Cluster K3S (workers scalés par HPA) |
+***je précise que l'utilisation de Kubernetes est probablement over-engineer pour ce projet, et c'est intentionnel car je voulais à travers ce projet pouvoir m'entrainer au déploiement d'applications typiques (du CRUD, des files de jobs, du backup, de la gateway api, du hardening...) sur Kubernetes. L'installation compose suffit pour la majorité des cas.***
 
-**Caddy** fait office de reverse proxy : il route les requêtes vers le frontend servi par son conteneur Nginx, l'API de comptes, le WebSocket de collaboration, Grafana et l'Ingress Kubernetes. L'infrastructure actuelle tourne sur **4 VM Debian hébergées par Proxmox** : une VM centrale pour Docker Compose et un cluster K3S composé d'un control plane et de deux workers. Les VM sont décrites avec Terraform ; au cloud-init, les nœuds installent K3S et rejoignent automatiquement le cluster.
+## Installation rapide
 
-L'infrastructure a d'abord été hébergée sur AWS avec des instances EC2, ce qui m'a permis d'utiliser les crédits gratuits pour apprendre à gérer une petite infrastructure cloud. Une fois ces crédits consommés, je suis passé à un hébergement local Proxmox, beaucoup moins cher sur le long terme. Cette migration a aussi donné lieu à un projet plus large d'infrastructure Proxmox décrite dans Git et auto-déployée : [proxmox-gitops](https://github.com/jobacogiez-org/proxmox-gitops).
+### 1. Déploiement basique (Compose standalone en 1 ligne)
 
-```mermaid
-flowchart LR
-    subgraph Internet
-      U[Utilisateur navigateur]
-      Tunnel[Cloudflare Tunnel]
-    end
-    subgraph GHPages[GitHub Pages]
-      FEPages[Frontend React / Vite]
-    end
-    subgraph API[VM API Proxmox - Docker Compose]
-      Caddy[Caddy reverse proxy]
-      FECompose[Frontend Nginx]
-      AM[Account Manager - 8000]
-      Collab[Collaboration - 7000]
-      PG[(PostgreSQL)]
-      Prom[Prometheus central]
-      Graf[Grafana]
-      PGE[postgres-exporter]
-    end
-    subgraph K3S[Cluster K3S - 1 control plane + 2 workers]
-      Ingress[Ingress Traefik prod / dev]
-      Producer[Producteur BullMQ - 9000]
-      Redis[(Redis)]
-      HPA{HPA workers prod 8 à 20}
-      Comp[Workers LaTeX]
-      PromAgent[Prometheus agent]
-      KSM[kube-state-metrics]
-    end
-    U -->|HTTPS| FEPages
-    U -->|HTTPS| Tunnel
-    Tunnel --> Caddy
-    Caddy --> FECompose
-    Caddy --> AM
-    Caddy --> Collab
-    Caddy -->|/compile| Ingress
-    Ingress --> Producer
-    Producer --> Redis
-    Redis --> Comp
-    AM --> PG
-    Collab --> PG
-    HPA -.scale.-> Comp
-    PromAgent -->|remote-write| Prom
-    PGE --> Prom
-    AM --> Prom
-    Comp --> PromAgent
-    KSM --> PromAgent
-    Graf --> Prom
-```
-
-L'infrastructure se trouve sur un réseau isolé et n'est pas directement exposée au réseau public. Un **Cloudflare Tunnel** atteint un reverse proxy central, qui redirige ensuite vers la VM OpenLaTeX et ses services internes. À distance, l'administration passe par le VPN de l'hyperviseur Proxmox.
-
-Le frontend peut être servi de deux façons : par GitHub Pages sur `openlatex.github.io`, ou par le conteneur Nginx de la VM API derrière Caddy sur les domaines `openlatex.blavogiez.fr`. Pour le backend, la branche `main` déploie l'environnement `openlatex-prod`, accessible sur [openlatex.blavogiez.fr](https://openlatex.blavogiez.fr) ; les autres branches suivies par le workflow utilisent `openlatex-dev`, accessible sur [openlatex-dev.blavogiez.fr](https://openlatex-dev.blavogiez.fr). Il s'agit de l'URL du backend que contactera le front de l'application ; elle est donc paramétrable. Chaque namespace dispose ainsi de sa propre URL d'Ingress, ce qui permet de tester une version sans remplacer la production. Par ailleurs, les métriques et Dashboards Grafana sont consultables par namespace.
-
-<img width="1852" height="962" alt="image" src="https://github.com/user-attachments/assets/44c80388-68c3-46cc-8172-0a332a76f048" />
-
-
-## Cluster Kubernetes et autoscaling
-
-***Petite précision : Kubernetes est probablement surdimensionné pour ce projet. Je l'intègre surtout pour apprendre en situation réelle et mesurer l'impact en performances sur les dashboards Grafana.***
-
-Le compilateur est le seul service applicatif sur le cluster parce que c'est celui qui gagne vraiment à être scalé : les compilations sont gourmandes en CPU, indépendantes et sans état partagé. L'API de compilation ajoute les tâches à une file **BullMQ**, stockée dans **Redis**, puis les workers disponibles les consomment. L'HPA ne scale que ces workers ; le producteur et Redis gardent chacun une replica.
-
-Le chart Helm configure deux environnements :
-
-- **production** : namespace `openlatex-prod`, URL [openlatex.blavogiez.fr](https://openlatex.blavogiez.fr), de **8 à 20 workers**
-- **développement** : namespace `openlatex-dev`, URL [openlatex-dev.blavogiez.fr](https://openlatex-dev.blavogiez.fr), de **2 à 8 workers**
-<img width="3401" height="765" alt="image" src="https://github.com/user-attachments/assets/dfa16ed8-95f4-46d5-a9a4-8bfd3a51f73f" />
-
-- cible commune : **50 % CPU utilization**
-- `scaleUp` : `stabilizationWindowSeconds: 120`, jusqu'à +3 pods / 60s
-- `scaleDown` : `stabilizationWindowSeconds: 600`, jusqu'à -2 pods / 240s
-
-J'ai volontairement mis une fenêtre de stabilisation plus longue au scale-down qu'au scale-up : un pic de compilations passe vite, et je ne veux pas que l'HPA retire des pods juste après un burst pour devoir les recréer peu après. Mes load tests k6 m'ont aidé à caler ces valeurs en observant les replicas réels dans le dashboard Grafana dédié.
-
-Le control plane est `tainted` pour interdire les workloads compilateur (sinon cela peut créer un bottleneck sur le nœud qui administre le cluster), les workers les accueillent tous. Des **NetworkPolicy** limitent les communications : le producteur et les workers peuvent joindre Redis, mais les composants de compilation n'ont pas un accès libre au reste du réseau.
-
-Vue d'ensemble : 
-<img width="3393" height="1761" alt="image" src="https://github.com/user-attachments/assets/77ad7130-8a42-4ef7-bdf6-e460f8fd703c" />
-
-
-## Collaboration temps réel
-
-Le service `collab` (port **7000**, [`backend/collab-websocket/`](backend/collab-websocket/)) est un serveur Node.js WebSocket basé sur **Yjs** + **y-websocket**. Le JWT et l'accès au projet sont vérifiés pendant l'upgrade WebSocket avant d'accepter la connexion.
-
-À l'ouverture d'un projet, le service initialise le document Yjs à partir des fichiers stockés dans PostgreSQL. L'état collaboratif Yjs n'est en revanche pas persisté directement : `writeState` est actuellement vide et il n'existe pas de table `yjs_state`. Les fichiers enregistrés survivent donc aux redémarrages, mais pas l'historique interne du document Yjs.
-
-Côté client, Yjs se branche sur CodeMirror 6 (c'est un éditeur de code en JS similaire à VS Code).
-
-## Sécurité
-
-La gestion des informations secrètes est prioritaire :
-
-- la clé JWT et la clé SSH de déploiement sont injectées depuis les secrets GitHub Actions ([workflow](.github/workflows/main-build-deploy.yml))
-- la clé SSH utilisée par la CI est dédiée au déploiement
-- les conteneurs Node.js tournent avec un utilisateur non-root
-- les `NetworkPolicy` Kubernetes limitent les communications entre le producteur, Redis et les workers
-
-Caddy assure ici le routage HTTP interne. Le HTTPS public et les protections placées devant l'application dépendent du Cloudflare Tunnel et du reverse proxy central.
-
-**Compilation durcie** ([`backend/compiler/queue-worker/lib/Compiler.js`](backend/compiler/queue-worker/lib/Compiler.js)) :
-
-- `pdflatex -interaction=nonstopmode -no-shell-escape`
-- validation du chemin et du nom du fichier principal
-- timeout dur à **30 s** et `maxBuffer` de 10 Mio
-- exécution dans un répertoire temporaire supprimé après la compilation, qu'elle réussisse ou échoue
-- suppression immédiate des jobs BullMQ réussis ; les jobs échoués restent au maximum **1 heure** dans Redis pour diagnostic
-
-**Auth** : `bcrypt` (salt rounds 10) pour les mots de passe, JWT pour les sessions.
-
-**Rate limiting** (`express-rate-limit`) :
-
-| Endpoint | Limite réellement appliquée |
-|---|---|
-| Compilations | 10 / min par IP |
-| Tentatives d'auth | 15 / 5 min par IP |
-| Protection par défaut des API HTTP | 30 / min par IP |
-
-Le serveur WebSocket de collaboration n'est pas couvert par ces limiteurs Express. L'endpoint `/metrics` est monté **avant** le middleware de rate limiting pour éviter que Prometheus se fasse bloquer par ses propres scrapes.
-
-## Sauvegardes
-
-La base de données est dumpée **trois fois par jour** via cron (2h, 11h et 20h, voir le playbook Ansible [`setup-backup.yml`](infra/ansible/playbooks/setup-backup.yml)). Le pipeline ([`dump_db.sh`](backend/cron/db-save/dump_db.sh)) fait :
-
-1. `pg_dump -Fc` via `docker exec` sur le conteneur PostgreSQL
-2. chiffrement GPG avec la clé publique importée, puis suppression du dump clair
-3. upload vers **Backblaze B2** (`backups/YYYY/MM/…`)
-4. nettoyage local
-
-La rétention locale appliquée par le script est de **7 jours**. Le script déclare une rétention distante de 30 jours, mais ne l'applique pas lui-même : cette durée doit être configurée avec une règle de cycle de vie Backblaze B2.
-
-En cas d'échec détecté, le script tente d'envoyer un mail de diagnostic via l'API Resend. La VM n'importe que la clé publique GPG ; le déchiffrement nécessite la clé privée correspondante, qui n'est pas déployée par le playbook. Un script de test de restauration ([`admin-test-save.sh`](backend/cron/db-save/admin-test-save.sh)) permet de vérifier qu'une sauvegarde est exploitable.
-
-> <details>
-> <summary>Exemple d'email de notification automatique :</summary>
->
-> ![Exemple d'email](docs/assets/mail-example.png)
->
-> </details>
-
-## Monitoring
-
-Stack de monitoring : **Prometheus** + **Grafana** + **postgres-exporter** (côté VM API), **Prometheus agent** + **kube-state-metrics** (côté cluster K3S).
-
-Le Prometheus agent du cluster K3S fait du **remote-write** vers le Prometheus central de la VM API. Cela me donne une vue unifiée, sans avoir à exposer le cluster à l'extérieur.
-
-Grafana est accessible publiquement en lecture seule sur [openlatex.blavogiez.fr/grafana/dashboards](https://openlatex.blavogiez.fr/grafana/dashboards). Les dashboards Kubernetes et compilateur permettent de sélectionner le namespace `openlatex-prod` ou `openlatex-dev`. Dashboards en place :
-
-- **Account Manager** : durées HTTP (p50/p95), débit, mémoire, event loop lag
-- **Sauvegardes utilisateurs** : nombre par heure, taux de succès et codes d'erreur
-- **Compilateur** : durée de compilation (p50/p95), débit, erreurs et profondeur de la file Redis
-- **K3S instances** : replicas actuels vs souhaités (HPA min/max visibles), CPU / RAM et redémarrages des pods
-- **PostgreSQL** : connexions actives, taille de la base
-
-Des tests de charge k6 sont lancés automatiquement dans la CI/CD après les déploiements, et également en cronjob en permanence afin d'entretenir les métriques et vérifier le comportement réel de l'infrastructure (= la mettre à l'épreuve pour voir comment je peux l'améliorer). Les intervalles de scrape sont adaptés à la criticité des services et la rétention reste volontairement courte pour limiter le stockage nécessaire sur la VM.
-
-## Tests et qualité
-
-- **Tests unitaires Jest** sur le backend (`backend/tests/`) : auth, permissions de ressources, compilation stateless. Exécutés dans le job CI `code-test`.
-- **Tests de charge k6** ([`infra/load-tests/k6/`](infra/load-tests/k6/)) : scénarios par persona (Alice, Bob, Charlie, Grouped) via `all-personas.sh`. Le job CI/CD `infra-load-tests` déclenche `Grouped` après chaque déploiement réussi (~250 compilations en ~1 min 30) pour vérifier que l'infrastructure tient, y compris que l'HPA scale correctement.
-
-Un secret `TEST_BYPASS_SECRET` permet à k6 de contourner le rate limiting via le header `X-Test-Key` pour que ces tests soient réalistes.
-
-J'adore les tests de charge ; je pense que c'est un excellent moyen de détecter des problèmes en situation extrême. J'ai pu corriger beaucoup de problèmes de compilation et rendre l'application plus résiliente après avoir volontairement poussé l'API dans ses limites.
-
-## CI/CD
-
-Le pipeline principal [`.github/workflows/main-build-deploy.yml`](.github/workflows/main-build-deploy.yml) enchaîne les jobs suivants :
-
-1. **`code-test`** : `npm ci` + `npm test` (Jest, Node 22).
-2. **`detect-changes`** : `dorny/paths-filter` pour ne reconstruire les images que si le code concerné a changé.
-3. **`build-compiler`** et **`build-queue-producer`** : builds Docker séparés des workers LaTeX et du producteur BullMQ, puis push vers GHCR.
-4. **`deploy`** : Ansible redéploie les services Docker Compose et met à jour les sauvegardes sur la VM API.
-5. **`deploy-k3s`** : récupération du kubeconfig, puis déploiement du chart Helm avec le namespace correspondant à la branche.
-6. **`infra-load-tests`** : scénario k6 Grouped (~250 compilations) contre l'infrastructure fraîchement déployée.
-
-La branche `main` cible `openlatex-prod` et [openlatex.blavogiez.fr](https://openlatex.blavogiez.fr). Toutes les autres branches ciblent `openlatex-dev` et [openlatex-dev.blavogiez.fr](https://openlatex-dev.blavogiez.fr). On obtient ainsi un environnement / namespace différent selon la branche Git, sans commandes `kubectl` manuelles.
-
-## Limites
-
-Quelques limites pour ne pas saturer la capacité disponible :
-
-- 10 compilations / min par IP
-- 30 requêtes HTTP / min par IP sur la protection par défaut des API
-- 15 tentatives d'authentification / 5 min par IP
-- 5 projets maximum par compte
-- 10 Mio maximum par projet
-
-Les compilations ne disposent pas encore d'une limite différente pour un utilisateur authentifié. Le rate limiting Express ne couvre pas les connexions WebSocket de collaboration.
-
-Les quotas sont garantis par PostgreSQL : `project_count` est mis à jour par `trg_project_count` lors des insertions et suppressions de projets ; `total_size` est mis à jour par `trg_project_size` lors des insertions, modifications et suppressions de fichiers.
-
-## Installation
-
-### Au plus simple (Compose only)
-
-Une version de l'application sans Kubernetes existe, avec le compilateur LaTeX embarqué dans Docker Compose. Ainsi, avec un seul fichier nous pouvons tout installer. Il s'agit du déploiement le plus simple possible.
-
-Un petit script va cloner le dépôt, générer le `.env` et lancer la stack. En une commande, on peut obtenir ce script et l'exécuter, c'est un peu un "déploiement curl".
+Un petit `curl | sh` (en regardant le script avant bien sur ! ) va installer une version sans Kubernetes qui embarque tous les composants dans Docker Compose (frontend, API, compilateur standalone, PostgreSQL, monitoring) ([`docker-compose.full-standalone.yml`](deploy/compose/docker-compose.full-standalone.yml)). Pour une utilisation basique ca convient très bien. Meme si in fine je déploie toujours sur la version Kubernetes, j'utilise ce compose pour tester les changements en local avec le [Makefile](Makefile) qui va avec 
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/OpenLaTeX/openlatex.github.io/refs/heads/main/deploy/curl/install-compose-standalone.sh | sh
 ```
 
-La stack va donc tourner pleinement en local, et c'est le plus simple. Elle embarque le frontend, la base de données, l'API de comptes, le monitoring... et se comporte comme la version Kubernetes, mais sans le scaling et la gestion avancée des compilations (Gestion de queue + Redis). Pour un usage très simple cela convient (= moins de 5 compilations à la seconde). Il faudra entre 500 et 1000Mi de RAM (on peut aller plus bas en enlevant le monitoring).
+j'ai mis une version de démonstration qui tourne sur [openlatex-compose-only.blavogiez.fr](https://openlatex-compose-only.blavogiez.fr) ( et conséquemment elle a ses [dashboards Grafana associés](https://openlatex-compose-only.blavogiez.fr/grafana/dashboards)).
 
-Une version est déployée sur [openlatex-compose-only.blavogiez.fr](https://openlatex-compose-only.blavogiez.fr). On peut également voir son monitoring sur [openlatex-compose-only.blavogiez.fr/grafana/dashboards](https://openlatex-compose-only.blavogiez.fr/grafana/dashboards). Il est très probable que les métriques soient vide car je ne mets pas de tests de charge sur cette version.
+---
 
-### Déploiement en production
+### 2. Déploiement avancé (Cluster Kubernetes & Helm)
 
-On va ici partir sur une approche Git comme source de vérité et Infrastructure as Code.
+Je déploie tout en Kubernetes (le site principal tourne entièrement dessus) en utilisant assez fortement le templating Helm ([`deploy/kubernetes/charts/openlatex/`](deploy/kubernetes/charts/openlatex/)).
+Pour cela j'ai 3 vm qui tournent sur [mon Proxmox](https://github.com/blavogiez-org/proxmox-configuration) et qui sont décrites par [Terraform (BPG Provider)](infra/terraform/). Le cluster se crée au cloud init
+> <details>
+> quand j'aurai fait un peu plus d'administration de cluster kubernetes standard, je mettrai peut etre le fameux Talos linux 
+> </details>
 
-**Sur votre machine / repo GitHub :**
-
-- créer les secrets applicatifs ([`.env.example`](deploy/compose/.env.example)) et les placer dans les secrets GitHub Actions
-- générer une paire de clés SSH `github_deploy_key`
-- renseigner les variables Terraform du provider Proxmox
-
-**Provisionner les VM Proxmox :**
+Pour le moment c'est en playbook Ansible ([`deploy-helm-chart.yml`](infra/ansible/playbooks/deploy-helm-chart.yml)) pour aller rapidement. Je vais bientot essayer ArgoCD pour voir si ça peut etre plus pratique
 
 ```bash
-cd infra/terraform/proxmox
-terraform init
-terraform plan
-terraform apply
+export KUBECONFIG=~/.kube/config
+ansible-playbook infra/ansible/playbooks/deploy-helm-chart.yml -e "target_namespace=openlatex-prod"
 ```
 
-Terraform crée la VM API, le control plane et les deux workers. Les scripts cloud-init installent K3S, appliquent le `taint` du control plane et font rejoindre automatiquement les workers au cluster.
+Les déploiements sont entièrement automatisés dans la CI/CD et séparés par environnement : un push sur `main` déploie le namespace `openlatex-prod` ([openlatex.blavogiez.fr](https://openlatex.blavogiez.fr)) et les autres branches déploient `openlatex-dev` ([openlatex-dev.blavogiez.fr](https://openlatex-dev.blavogiez.fr)).
 
-**Déclencher le déploiement :** un push sur `main` lance le déploiement de production ; un push sur n'importe quelle autre branche alimente l'environnement de développement. Ansible met à jour Docker Compose sur la VM API et déploie le chart Helm dans `openlatex-prod` ou `openlatex-dev`.
+## Architecture Kubernetes en situation
 
-L'infrastructure n'étant pas exposée directement au réseau public, l'accès Web passe par un Cloudflare Tunnel et le reverse proxy central. Les anciens fichiers Terraform AWS restent présents dans le dépôt comme historique de la première infrastructure, mais Proxmox est désormais la cible active.
+L'architecture est entièrement conteneurisée (conteneurs construits + push selon changements par [CI/CD](#cicd)) et déployée sous forme de microservices sur le cluster Kubernetes K3S :
 
-## Procédures
+| Service | Port | Rôle | Déploiement |
+|---|---|---|---|
+| Frontend | 80 | Interface web servie par Caddy | Pod K3S (ou GitHub Pages) |
+| Account Manager | 8000 | Auth JWT, CRUD projets/fichiers | Pod K3S (`account-crud-api`) |
+| Collaboration | 7000 | WebSocket Yjs pour l'édition temps réel | Pod K3S (`collab-websocket`) |
+| Queue Producer | 9000 | Réception HTTP des compilations et push file BullMQ | Pod K3S (`queue-producer`) |
+| Queue Worker | - | Workers `pdflatex` consommant file BullMQ | Pods K3S scalés par HPA (`queue-worker`) |
+| Bdd PostgreSQL | 5432 | Stockage des comptes, projets et fichiers | Pod K3S (subchart Bitnami PostgreSQL) |
+| Redis (Intermédiaire de file) | 6379 | File d'attente des compilations pour BullMQ | Pod K3S (`redis`) |
+| Sauvegardes | - | copies PostgreSQL chiffrés GPG vers endpoint S3 compatible | Pod K3S (`pg-bkup-s3`) |
+| Monitoring | 9090 / 3000 | Prometheus StatefulSet & Grafana | Namespace `monitoring` |
 
-J'ai écrit quelques procédures pour les principales tâches de maintenance (qui ne seraient pas couvertes par les README) :
+```mermaid
+flowchart TD
+    subgraph Internet["Internet & Accès Externe (openlatex.blavogiez.fr)"]
+      U[Navigateur Utilisateur] -->|HTTPS openlatex.blavogiez.fr| Tunnel[Cloudflare Tunnel]
+      U -->|HTTPS openlatex.github.io| FEPages[Frontend GitHub Pages]
+    end
+
+    subgraph K3S[Cluster K3S - 1 control plane + 2 workers]
+      Gateway[Gateway API Traefik - Namespace kube-system]
+
+      subgraph AppNS["Namespace openlatex-prod / dev auto-déployé selon la branche Git (main / autre)"]
+        subgraph WebServices[Services Web & Données]
+          FE[Frontend Caddy]
+          AM[Account CRUD API - 8000]
+          Collab[Collab WebSocket - 7000]
+          PG[(PostgreSQL Bitnami)]
+          Bkup[pg-bkup-s3]
+          
+          AM --> PG
+          Collab --> PG
+          Bkup -->|pg_dump GPG| PG
+        end
+
+        subgraph CompilePipeline[Pipeline Compilation]
+          Producer[Queue Producer - 9000]
+          Redis[(Redis)]
+          Comp[Consommateurs LaTeX de la file]
+          HPA{HPA 8-20 / 2-8}
+
+          Producer --> Redis --> Comp
+          HPA -.->|Scale| Comp
+        end
+      end
+
+      subgraph MonitoringNS[Namespace monitoring]
+        Graf[Grafana] --> Prom[Prometheus StatefulSet]
+        KSM[kube-state-metrics]
+      end
+    end
+
+    subgraph Storage[Stockage S3]
+      B2[(Backblaze B2)]
+    end
+
+    %% Connexion externe vers K3S
+    Tunnel --> Gateway
+
+    %% Routage Gateway API
+    Gateway -->|/| FE
+    Gateway -->|/auth, /projects| AM
+    Gateway -->|/socket| Collab
+    Gateway -->|/compile| Producer
+    Gateway -->|/grafana| Graf
+
+    %% Sauvegardes
+    Bkup -->|Upload S3| B2
+
+    %% Métriques
+    Prom -.->|Scrape| AM
+    Prom -.->|Scrape| Producer
+    Prom -.->|Scrape| KSM
+```
+
+L'infrastructure est isolée du réseau public : l'accès Web passe par un **Cloudflare Tunnel** qui contacte la **Gateway API Kubernetes** (Traefik `Gateway` & `HTTPRoute`) du cluster K3S. Pour les échanges internes ils sont limités au strict minimum avec une network policy de default deny et autorisations ciblées. L'administration à distance s'effectue via le VPN wireguard que j'ai mis sur proxmox.
+
+## Cluster Kubernetes et autoscaling
+
+Le chart Helm `openlatex` factorise tous les deployments via un contrat de template commun dans `values.yaml`. j'ai voulu faire au plus simple en faisant le contrat minimal pour les besoins de l'app.
+
+Petit extrait : 
+![appel du contrat par 3 services](docs/assets/image.png)
+
+Il y a qq changements selon l'environnement (`values-prod.yaml` et `values-dev.yaml`) :
+
+- **production** (`openlatex-prod`) : [openlatex.blavogiez.fr](https://openlatex.blavogiez.fr), de **8 à 20 workers**
+- **développement** (`openlatex-dev`) : [openlatex-dev.blavogiez.fr](https://openlatex-dev.blavogiez.fr), de **2 à 8 workers**, et sauvegarde S3 désactivée
+
+
+- **Autoscaling (HPA)** : cible **50 % CPU utilization**
+  - `scaleUp` : `stabilizationWindowSeconds: 120`, jusqu'à +3 pods / 60s
+  - `scaleDown` : `stabilizationWindowSeconds: 600`, jusqu'à -2 pods / 240s
+
+  L'autoscaling est un peu forcé (En réalité si je mets des grosses limites au compilateur ça peut faire quasiment pareil en performances), je l'ai surtout mis pour apprendre à en manipuler un, voir qq subtilités, et concevoir une architecture scalable (La gestion de file découplée en un producteur / consommateur et intermédiaire) 
+
+- Le control plane est `tainted` 
+
+## Collaboration temps réel
+
+Le service `collab-websocket` (port **7000**, [`backend/collab-websocket/`](backend/collab-websocket/)) est un serveur Node.js WebSocket basé sur **Yjs** + **y-websocket**. Le token JWT et les permissions d'accès au projet sont vérifiés lors de la négociation WebSocket. À l'ouverture d'un projet, le document Yjs est initialisé à partir des fichiers présents dans PostgreSQL et se synchronise côté client avec CodeMirror 6.
+
+## Sécurité & Réseau
+
+- **NetworkPolicies Kubernetes** ([`default-networking.yaml`](deploy/kubernetes/charts/openlatex/templates/default-networking.yaml), [`networking.yaml`](deploy/kubernetes/charts/openlatex/templates/networking.yaml)) :
+  - Politique *Default Deny* (tt ingress egress bloqué, sauf ingress traefik kube system et egress CoreDNS)
+  - Ingress PostgreSQL restreint aux seuls pods autorisés (`account-crud-api`, `collab-websocket`, `pg-bkup`).
+  - Ingress Prometheus restreint aux endpoints de scraping (`queue-producer`, `account-crud-api`).
+- **Contextes de sécurité** : conteneurs exécutés avec un utilisateur non-root standardisé (`UID 10000`).
+<details>
+pour aller plus loin je vais regarder pour mettre un runtime de conteneurs plus isolé comme Kata
+</details>
+
+
+- **Compilation temporaire** ([`backend/compiler/queue-worker/lib/Compiler.js`](backend/compiler/queue-worker/lib/Compiler.js)) :
+  - `pdflatex -interaction=nonstopmode -no-shell-escape`
+  - Timeout dur à **30 s**, `maxBuffer` 10 Mio, exécution en dossier temporaire supprimé après compilation.
+- **Auth & Rate limiting** : les mots de passe hachés avec `bcrypt` (10 rounds), sessions JWT. le rate limiting est appliqué par `express-rate-limit` (10 compilations/min, 15 auth/5 min, 30 requêtes API/min).
+
+## Sauvegardes
+
+Les sauvegardes de la base PostgreSQL sont automatisées dans les deux versions par [pg-bkup](https://github.com/jkaninda/pg-bkup).
+C'est un tool qui va droit au but, un conteneur avec ses variables d'environnement (dont sa cron expression), que j'ai pris pour faire au plus simple
+
+## Monitoring
+
+La stack de monitoring est déployée dans le namespace dédié `monitoring` via son propre chart Helm :
+
+- **Prometheus** déployé en **StatefulSet** avec stockage persistant pour conserver l'historique des métriques.
+- **kube-state-metrics** pour la visibilité des ressources et replicas k3s
+- **Grafana** exposé publiquement en lecture seule sur [openlatex.blavogiez.fr/grafana/dashboards](https://openlatex.blavogiez.fr/grafana/dashboards) avec dashboards paramétrés par namespace (`openlatex-prod` / `openlatex-dev`) :
+  - **Account Manager crud api** : temps de réponse HTTP (p50/p95), débit, mémoire, lag event loop.
+  - **Compilateur & K3S** : temps de compilation, profondeur file Redis, réplicas réels vs HPA min/max, CPU / RAM pods.
+  - **PostgreSQL & Sauvegardes** : connexions, taille DB, taux de succès des sauvegardes des utilisateurs.
+
+<img width="1852" height="962" alt="Dashboards Grafana" src="https://github.com/user-attachments/assets/44c80388-68c3-46cc-8172-0a332a76f048" />
+
+Pour entretenir les métriques et surveiller l'application et son comportement sous charge, des tests de charge k6 aléatoire sont effectués en continu par cronjob.  
+
+## Tests
+
+- **Tests unitaires Jest** backend (`backend/tests/`) : auth, permissions, compilation stateless (exécutés dans le job CI `code-test`).
+- **Tests de charge Grafana k6** ([`infra/load-tests/k6/`](infra/load-tests/k6/)) : scénarios multi-personas. Le job CI `infra-load-tests` déclenche le profil `Grouped` (~250 compilations en 1 min 30) après chaque déploiement pour valider la tenue de charge et la réactivité du HPA.
+- Un header secret `X-Test-Key` (`TEST_BYPASS_SECRET`) permet à k6 de contourner le rate limiting lors des tests.
+
+## CI/CD
+
+Le workflow GitHub Actions [`.github/workflows/main-build-deploy.yml`](.github/workflows/main-build-deploy.yml) automatise l'ensemble du pipeline :
+
+1. **`code-test`** : validation basique des tests
+2. **`services-to-build`** : détection précise des services modifiés dans le dernier commit via un [`action-changed-files, action publique réutilisée`](https://github.com/hellofresh/action-changed-files/tree/master) assez sympa qui permet d'aller plus loin que les autres avec une extraction du look ahead de la regexp
+<details>
+l'action prend tous les fichiers qui ont changé depuis les derniers commits, et compare leur chemin à ces expressions
+          
+si ca match, ca extrait le ?P<service> comme service ayant changé et l'ajoute au json matrix.   
+</details>
+
+3. **`build-push-changed-container-images`** : les services modifiés précédemment détectés sont construits et push vers GHCR, avec le matrix / parallélisme de GHA pour factoriser le code (donc il peut y avoir entre 0 et 5 jobs)
+4. **`deploy-k3s-helm`** : déploiement automatisé du chart Helm avec Ansible sur le cluster K3S **dans le namespace cible selon la branche (openlatex-prod pour main, openlatex-dev pour les autres)**
+5. **`infra-load-tests`** : exécution du scénario k6 de charge sur l'infrastructure déployée (250 tests pour voir comment ca réagit / tient et si les vitesses sont bonnes).
+
+Dans le pipeline j'ai fait attention à :
+- externaliser le code (pas faire + de 5 lignes de shell inline), notamment avec les playbooks ansible (Même en dehors de l'externalisation de code c'est mieux pour bcp de tâches je trouve)
+- utiliser ce qui existe déjà (le grand avantage de GHA) comme l'action changed files
+- éliminer la redondance (= utiliser le matrix / parallélisme)
+- la rendre rapide (ce qui peut passer par le filtrage de ce qui a besoin d'être réalisé (comme la construction des images dépendant des fichiers changés depuis le dernier commit). Le job ci cd le plus rapide qui soit, c'est celui qu'on n'a pas à faire car superflu)
+
+
+
+Bref un DAG se comprend mieux en image !
+
+![alt text](docs/assets/image-1.png)
+
+## limits de rate / sur la BDD
+
+- 10 compilations / min par IP
+- 30 requêtes HTTP / min par IP sur les API
+- 15 tentatives d'authentification / 5 min par IP
+- 5 projets maximum par compte et 10 Mio maximum par projet (garantis par triggers PostgreSQL `trg_project_count` et `trg_project_size`)
+
+## Procédures & Maintenance
+
+Quelques procédures que j'avais écrit :
 
 - [Sauvegarde de la BDD](docs/procedures/sauvegarde-bdd.md)
 - [Restauration d'une BDD](docs/procedures/restaurer-bdd.md)
@@ -297,28 +257,28 @@ J'ai écrit quelques procédures pour les principales tâches de maintenance (qu
 
 ## Remarque personnelle
 
-### Pourquoi ai-je fait ce projet ?
+J'écris tous mes rendus en LaTeX (En contexte académique, je trouve le rendu beaucoup plus propre que n'importe quoi d'autre et surtout c'est versionnable puisque c'est un document as code). [Exemple d'un rendu](https://github.com/blavogiez/developpement-modulab-Semestre3/blob/master/rendus/analyse/rapport/G2_SAE3.3-Rapport_Analyse.pdf)
 
-Je trouve que LaTeX est génial pour écrire des documents académiques parfaits, mais son gros problème est dans l'installation et l'utilisation. LaTeX s'adresse à des gens qui ne font pas forcément d'informatique (mathématiques, physique), pourtant son installation native requiert une certaine familiarité. C'est d'ailleurs pour ça qu'Overleaf est leader du marché, et de très loin, avec un WYSIWYG attractif.
+Il me fallait un outil accessible partout avec base de données pour travailler mes rapports de cours et écrire en groupe simplement. Au-delà de l'outil, c'est surtout devenu mon terrain pratique pour monter en compétences sur une stack DevOps.
 
-Il me fallait une façon d'écrire les rapports en cours ou depuis chez moi, donc avec une base de données. Cela permet également, lors d'un travail de groupe, à d'autres personnes de contribuer à un rapport sans être familières avec LaTeX.
+Au final j'estime avoir gagné :
+- 10% d'utilité stricte du projet
+- 90% ce que j'ai appris en le faisant / déployant. Ca fait 10 mois que je suis dessus, un peu chaque semaine, et ça me permet d'évoluer avec, si je veux apprendre un élément d'une stack ou le pousser plus loin, j'ai juste à l'appliquer sur ce projet. 
 
-Mais par dessus tout, c'était surtout un bon moyen d'apprendre une stack sur un cas pratique qui m'a accompagné pendant plusieurs mois. À chaque fois que je veux appliquer un composant ou paradigme de développement, j'ai juste à l'implémenter dans l'application. 
-
-Je me suis surtout concentré sur la partie infrastructure et déploiement, je n'ai pas beaucoup de temps et je préfère passer du temps dessus plutôt que le Front par exemple. Cela correspond mieux à mon parcours professionnel cible.
+J'ai encore beaucoup à apprendre et continuerai sur ce projet / l'administration de mon proxmox.  
 
 ## Stack technique
 
 | Domaine | Outils |
 |---|---|
-| **Infrastructure** | Terraform (provider Proxmox), Ansible, Kubernetes (1 control plane + 2 workers), Helm, HPA, Traefik Ingress, Caddy |
-| **Conteneurisation** | Docker, Docker Compose |
-| **CI/CD** | GitHub Actions, GHCR, environnements / namespaces prod et dev |
-| **Observabilité** | Prometheus (+ remote-write), Grafana, postgres-exporter, kube-state-metrics |
-| **Sécurité & Backups** | Cloudflare Tunnel, NetworkPolicy, conteneurs non-root, chiffrement GPG, Backblaze B2 |
-| **Application** | Node.js 22, Express, BullMQ, Redis, JWT, `bcrypt`, `pg`, `prom-client` · Yjs, y-websocket |
-| **Base de données** | PostgreSQL (triggers de quotas, BYTEA pour le contenu des fichiers) |
-| **Tests** | Jest (unitaires backend), Grafana k6 (charge en CI) |
+| **Infrastructure, Kubernetes** | Terraform (Proxmox), K3S (1 control plane + 2 workers), Helm, HPA, Kubernetes Gateway API (Traefik) |
+| **Automatisation, CI/CD** | GitHub Actions (matrix builds sélectifs), GHCR, Ansible |
+| **Conteneurisation** | Docker, Docker Compose (pour la version standalone), Build d'images en ci cd |
+| **Observabilité** | Prometheus (StatefulSet), Grafana, exporters comme kube-state-metrics |
+| **Sécurité, Sauvegardes** | Cloudflare Tunnel, hardening NetworkPolicies (mode Default Deny), deploiement d'un backup S3, GPG, Backblaze B2 |
+| **Application** | Node.js 22, Express, BullMQ, Redis, JWT, `bcrypt`, `pg`, `prom-client`, Yjs, y-websocket |
+| **Base de données** | PostgreSQL (Bitnami subchart, triggers de quotas, BYTEA) |
+| **Tests** | Jest (unitaires backend), Grafana k6 (charge automatisée) |
 
 ## Licence
 
