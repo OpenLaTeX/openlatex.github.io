@@ -94,6 +94,11 @@ postgresql:
     secretKeys:
       userPasswordKey: POSTGRES_PASSWORD
   primary:
+    podLabels:
+      app: latex-postgres
+    # on la gere dans templates/networking.yaml
+    networkPolicy:
+      enabled: false
     initdb:
       scriptsConfigMap: latex-postgres-initdb
     persistence:

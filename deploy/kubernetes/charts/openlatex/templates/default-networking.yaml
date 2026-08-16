@@ -1,0 +1,65 @@
+# CF https://kubernetes.io/docs/concepts/services-networking/network-policies/
+
+# on refuse tout par défaut
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy 
+metadata:
+  name: default-deny-network-policy 
+  namespace: {{ .Values.namespace }}
+spec: 
+  podSelector: {}
+  policyTypes: 
+  - Ingress 
+  - Egress 
+--- 
+# autoriser entree de Traefik (HTTP Route gateway api) pour que le routage marche
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-traefik-ingress-network-policy
+  namespace: {{ .Values.namespace }}
+spec:
+  podSelector:
+    matchExpressions:
+      - key: app
+        operator: In
+        values:
+          - {{ .Values.deployments.producer.name }}
+          - {{ .Values.deployments.collabWebsocket.name }}
+          - {{ .Values.deployments.crudApi.name }}
+          - {{ .Values.deployments.frontend.name }}
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: traefik
+--- 
+# DNS en sortie pour tout le monde vers coredns 
+# interessant de regarder : k get deploy -n kube-system coredns -o yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy 
+metadata:
+  name: default-allow-dns-network-policy 
+  namespace: {{ .Values.namespace }}
+spec: 
+  podSelector: {}
+  policyTypes: 
+  - Egress 
+  egress: 
+    - to: 
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports: 
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
