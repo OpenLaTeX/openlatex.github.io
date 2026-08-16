@@ -48,7 +48,7 @@ jobs:
             backend/package*.json
             backend/compiler/Dockerfile.base
 
-  build-push-container-images:
+  build-push-changed-container-images:
     needs: [services-to-build, code-test]
     if: ${{ fromJson(needs.services-to-build.outputs.matrix).include[0] || github.event_name == 'workflow_dispatch' }}
     permissions:
@@ -83,7 +83,7 @@ jobs:
     secrets: inherit
 
   deploy-k3s-helm:
-    needs: [build-push-container-images]
+    needs: [build-push-changed-container-images]
     if: always() && !failure() && !cancelled()
     runs-on: self-hosted
     steps:
@@ -120,6 +120,12 @@ jobs:
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           JWT_EXPIRES_IN: ${{ secrets.JWT_EXPIRES_IN }}
+          B2_S3_ENDPOINT: ${{ secrets.B2_S3_ENDPOINT || vars.B2_S3_ENDPOINT }}
+          B2_BUCKET_NAME: ${{ secrets.B2_BUCKET_NAME || vars.B2_BUCKET_NAME }}
+          B2_REGION: ${{ secrets.B2_REGION || vars.B2_REGION }}
+          B2_APPLICATION_KEY_ID: ${{ secrets.B2_APPLICATION_KEY_ID }}
+          B2_APPLICATION_KEY: ${{ secrets.B2_APPLICATION_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: | 
           echo "deploy pour le namespace $RELEASE_NAMESPACE" 
           export KUBECONFIG=${{ github.workspace }}/.kube/config 

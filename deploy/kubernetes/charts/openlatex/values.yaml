@@ -42,6 +42,15 @@ deployments:
     name: latex-frontend
     image: ghcr.io/openlatex/frontend:latest
     port: 80
+  pg-bkup-s3:
+    # optionnel, active en prod, desac en dev
+    enabled: true
+    name: pg-bkup 
+    image: jkaninda/pg-bkup:latest
+    args: ["backup", "--storage", "s3"]
+    # no port / svc il doit pas etre joignable
+    envFromConfigMaps: [latex-pg-bkup-config]
+    envFromSecrets: [latex-pg-bkup-secret]
 
 workerHpa:
   minReplicas: 2
@@ -56,6 +65,18 @@ POSTGRES_PASSWORD: "changeme"
 TEST_BYPASS_SECRET: "changeme"
 JWT_SECRET: "changeme"
 JWT_EXPIRES_IN: "1h"
+
+# backup S3 / B2
+BACKUP_STORAGE: "s3"
+BACKUP_CRON_EXPRESSION: "0 10,15,23 * * *"
+BACKUP_RETENTION_DAYS: 7
+TZ: "Europe/Paris"
+B2_S3_ENDPOINT: ""
+B2_BUCKET_NAME: ""
+B2_REGION: ""
+B2_APPLICATION_KEY_ID: ""
+B2_APPLICATION_KEY: ""
+GPG_PASSPHRASE: "changeme"
 
 frontendUrl: https://openlatex.github.io
 # deux url différentes sur internet pour accéder aux namespaces afin d'avoir une version stable et une version test
