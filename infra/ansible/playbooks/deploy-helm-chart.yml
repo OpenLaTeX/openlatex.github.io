@@ -40,6 +40,11 @@
         wait: true
          
 
+    - name: appliquer la config globale traefik (HelmChartConfig sur namespace kube-system)
+      kubernetes.core.k8s:
+        state: present
+        src: "{{ playbook_dir }}/../../../deploy/kubernetes/cluster/traefik-k3s-config.yaml"
+
     - name: Déployer le helm chart openlatex complet(+ injection du secret)
       kubernetes.core.helm:
         name: openlatex-compile
