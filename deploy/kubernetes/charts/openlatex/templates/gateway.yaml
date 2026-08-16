@@ -1,28 +1,4 @@
-# k3s l'active pas par défaut
-apiVersion: helm.cattle.io/v1
-kind: HelmChartConfig
-metadata:
-  name: traefik
-  namespace: kube-system
-spec:
-  valuesContent: |
-    providers:
-      kubernetesGateway:
-        enabled: true
-
-    additionalArguments:
-      - "--entrypoints.web.address=:8000"
-
-    ports:
-      web:
-        port: 8000
-        exposedPort: 8000
-
-    gateway:
-      listeners:
-        web:
-          namespacePolicy:
-            from: All
+# cf config globale du traefik k3s (Entrypoint) deploy/kubernetes/cluster/traefik-k3s-config.yaml (appliquée une seule fois)
 --- 
 # cf https://doc.traefik.io/traefik/reference/routing-configuration/kubernetes/gateway-api/
 # cf https://kubernetes.io/docs/concepts/services-networking/gateway/

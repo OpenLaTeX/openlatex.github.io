@@ -1,0 +1,24 @@
+apiVersion: helm.cattle.io/v1
+kind: HelmChartConfig
+metadata:
+  name: traefik
+  namespace: kube-system
+spec:
+  valuesContent: |
+    providers:
+      kubernetesGateway:
+        enabled: true
+
+    additionalArguments:
+      - "--entrypoints.web.address=:8000"
+
+    ports:
+      web:
+        port: 8000
+        exposedPort: 8000
+
+    gateway:
+      listeners:
+        web:
+          namespacePolicy:
+            from: All

@@ -16,3 +16,6 @@ shut-dev-v:
 
 deploy-helm:
 	ansible-playbook infra/ansible/playbooks/deploy-helm-chart.yml -e "TEST_BYPASS_SECRET=$$(openssl rand -hex 16)" -e "POSTGRES_PASSWORD=$$(openssl rand -hex 16)" -e "JWT_SECRET=$$(openssl rand -hex 32)" -K
+
+k3s-traefik-config:
+	kubectl apply -f deploy/kubernetes/cluster/traefik-k3s-config.yaml
