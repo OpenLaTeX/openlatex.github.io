@@ -10,6 +10,8 @@ namespaces: [openlatex-dev, openlatex-prod]
 prometheusImage: prom/prometheus:v2.55.1
 grafanaImage: grafana/grafana-oss:10.4.3
 
+prometheusStorageSize: 10Gi
+
 serviceAccount:
   create: true
 
