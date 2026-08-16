@@ -3,3 +3,7 @@ namespacedUrl: openlatex-dev.blavogiez.fr
 workerHpa:
   minReplicas: 2
   maxReplicas: 8
+
+deployments:
+  pg-bkup-s3:
+    enabled: false

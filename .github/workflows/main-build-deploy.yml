@@ -120,6 +120,12 @@ jobs:
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           JWT_EXPIRES_IN: ${{ secrets.JWT_EXPIRES_IN }}
+          B2_S3_ENDPOINT: ${{ secrets.B2_S3_ENDPOINT || vars.B2_S3_ENDPOINT }}
+          B2_BUCKET_NAME: ${{ secrets.B2_BUCKET_NAME || vars.B2_BUCKET_NAME }}
+          B2_REGION: ${{ secrets.B2_REGION || vars.B2_REGION }}
+          B2_APPLICATION_KEY_ID: ${{ secrets.B2_APPLICATION_KEY_ID }}
+          B2_APPLICATION_KEY: ${{ secrets.B2_APPLICATION_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: | 
           echo "deploy pour le namespace $RELEASE_NAMESPACE" 
           export KUBECONFIG=${{ github.workspace }}/.kube/config 

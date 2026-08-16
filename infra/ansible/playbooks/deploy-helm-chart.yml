@@ -14,6 +14,12 @@
     postgres_password: "{{ POSTGRES_PASSWORD | default(lookup('env', 'POSTGRES_PASSWORD'), true) }}"
     jwt_secret: "{{ JWT_SECRET | default(lookup('env', 'JWT_SECRET'), true) }}"
     jwt_expires_in: "{{ JWT_EXPIRES_IN | default('1h', true) }}"
+    b2_s3_endpoint: "{{ lookup('env', 'B2_S3_ENDPOINT') | default('', true) }}"
+    b2_bucket_name: "{{ lookup('env', 'B2_BUCKET_NAME') | default('', true) }}"
+    b2_region: "{{ lookup('env', 'B2_REGION') | default('', true) }}"
+    b2_application_key_id: "{{ lookup('env', 'B2_APPLICATION_KEY_ID') | default('', true) }}"
+    b2_application_key: "{{ lookup('env', 'B2_APPLICATION_KEY') | default('', true) }}"
+    gpg_passphrase: "{{ lookup('env', 'GPG_PASSPHRASE') | default('changeme', true) }}"
   environment:
     K8S_AUTH_KUBECONFIG: "{{ lookup('env', 'KUBECONFIG') | default('./k3s.yaml', true) }}"
   tasks:
@@ -60,6 +66,12 @@
           POSTGRES_PASSWORD: "{{ postgres_password }}"
           JWT_SECRET: "{{ jwt_secret }}"
           JWT_EXPIRES_IN: "{{ jwt_expires_in }}"
+          B2_S3_ENDPOINT: "{{ b2_s3_endpoint }}"
+          B2_BUCKET_NAME: "{{ b2_bucket_name }}"
+          B2_REGION: "{{ b2_region }}"
+          B2_APPLICATION_KEY_ID: "{{ b2_application_key_id }}"
+          B2_APPLICATION_KEY: "{{ b2_application_key }}"
+          GPG_PASSPHRASE: "{{ gpg_passphrase }}"
           namespace: "{{ target_namespace }}"
         # l'image de compilation est assez lourde donc un délai de pull est à prendre en compte
         timeout: 1800s

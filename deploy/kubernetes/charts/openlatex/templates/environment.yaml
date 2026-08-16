@@ -51,3 +51,38 @@ type: Opaque
 stringData:
   JWT_SECRET: {{ .Values.JWT_SECRET | quote }}
   JWT_EXPIRES_IN: {{ .Values.JWT_EXPIRES_IN | quote }}
+---
+
+# optionnel !
+{{- if (index .Values.deployments "pg-bkup-s3").enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: latex-pg-bkup-config
+  namespace: {{ .Values.namespace }}
+data:
+  DB_HOST: {{ .Values.POSTGRES_HOST | quote }}
+  DB_PORT: {{ .Values.POSTGRES_PORT | quote }}
+  DB_NAME: {{ .Values.POSTGRES_DB | quote }}
+  DB_USERNAME: {{ .Values.POSTGRES_USER | quote }}
+  AWS_S3_ENDPOINT: {{ .Values.B2_S3_ENDPOINT | quote }}
+  AWS_S3_BUCKET_NAME: {{ .Values.B2_BUCKET_NAME | quote }}
+  AWS_REGION: {{ .Values.B2_REGION | quote }}
+  BACKUP_CRON_EXPRESSION: {{ .Values.BACKUP_CRON_EXPRESSION | quote }}
+  BACKUP_RETENTION_DAYS: {{ .Values.BACKUP_RETENTION_DAYS | quote }}
+  TZ: {{ .Values.TZ | default "Europe/Paris" | quote }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: latex-pg-bkup-secret
+  namespace: {{ .Values.namespace }}
+type: Opaque
+stringData:
+  DB_PASSWORD: {{ .Values.POSTGRES_PASSWORD | quote }}
+  AWS_ACCESS_KEY: {{ .Values.B2_APPLICATION_KEY_ID | quote }}
+  AWS_SECRET_KEY: {{ .Values.B2_APPLICATION_KEY | quote }}
+  GPG_PASSPHRASE: {{ .Values.GPG_PASSPHRASE | quote }}
+{{- end }}
+
+
