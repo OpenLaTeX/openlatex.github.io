@@ -38,15 +38,6 @@ services:
       DB_NAME: ${POSTGRES_DB:-openlatex}
       DB_USERNAME: ${POSTGRES_USER:-openlatex}
       DB_PASSWORD: ${POSTGRES_PASSWORD:-openlatex}
-      # l'upload S3 est optionnel . Preciser la variable BACKUP_STORAGE=s3
-      AWS_S3_ENDPOINT: ${B2_S3_ENDPOINT:-}
-      AWS_S3_BUCKET_NAME: ${B2_BUCKET_NAME:-}
-      AWS_REGION: ${B2_REGION:-}
-      AWS_ACCESS_KEY: ${B2_APPLICATION_KEY_ID:-}
-      AWS_SECRET_KEY: ${B2_APPLICATION_KEY:-}
-      BACKUP_CRON_EXPRESSION: "${BACKUP_CRON_EXPRESSION:-0 10,15,23 * * *}"
-      BACKUP_RETENTION_DAYS: ${BACKUP_RETENTION_DAYS:-7}
-      GPG_PASSPHRASE: ${GPG_PASSPHRASE:?GPG_PASSPHRASE pas present faire ./gen-env.sh}
       TZ: Europe/Paris
     networks:
       - openlatex
@@ -156,18 +147,6 @@ services:
       - '--web.console.templates=/usr/share/prometheus/consoles'
       - '--web.enable-remote-write-receiver'
       - '--web.enable-admin-api'
-    networks:
-      - openlatex
-
-  postgres-exporter:
-    image: prometheuscommunity/postgres-exporter:latest
-    container_name: openlatex_postgres_exporter
-    restart: unless-stopped
-    environment:
-      DATA_SOURCE_NAME: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable
-    depends_on:
-      postgres:
-        condition: service_healthy
     networks:
       - openlatex
 

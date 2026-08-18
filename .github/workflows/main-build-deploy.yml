@@ -82,6 +82,20 @@ jobs:
       changed: ${{ contains(needs.services-to-build.outputs.matrix, matrix.container-image) || github.event_name == 'workflow_dispatch' }}
     secrets: inherit
 
+  # optionnel, déploie la version compose standalone de démo (https://openlatex-compose-only.blavogiez.fr)
+  deploy-demo-standalone:
+    needs: [code-test]
+    uses: blavogiez-org/komodo-upsert/.github/workflows/upsert-compose.yml@main
+    with:
+      compose_path: 'deploy/compose/docker-compose.traefik.full-standalone.yml'
+      action: ${{ inputs.action || 'deploy' }}
+      git_account: ${{ inputs.git_account || 'blavogiez' }}
+      komodo_endpoint: ${{ inputs.komodo_endpoint || 'https://komodo.priv.blavogiez.fr' }}
+    secrets:
+      KOMODO_API_KEY: ${{ secrets.KOMODO_API_KEY }}
+      KOMODO_API_SECRET: ${{ secrets.KOMODO_API_SECRET }}
+      KOMODO_SERVER: ${{ vars.KOMODO_SERVER }}
+
   deploy-k3s-helm:
     needs: [build-push-changed-container-images]
     if: always() && !failure() && !cancelled()
