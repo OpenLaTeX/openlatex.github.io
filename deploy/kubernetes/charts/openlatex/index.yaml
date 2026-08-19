@@ -1,0 +1,65 @@
+apiVersion: v1
+entries:
+  openlatex-compile:
+  - apiVersion: v2
+    appVersion: 1.0.0
+    created: "2026-08-20T00:59:52.235212166+02:00"
+    dependencies:
+    - condition: postgresql.enabled
+      name: postgresql
+      repository: oci://registry-1.docker.io/bitnamicharts
+      version: 18.8.2
+    description: Helm chart de toute l'application OpenLaTeX
+    digest: 56162335bfd7451a0407df4bcc4547f108b276a5d9b66cff2f942d95f043db90
+    name: openlatex-compile
+    type: application
+    urls:
+    - openlatex-compile-0.2.0.tgz
+    version: 0.2.0
+  postgresql:
+  - annotations:
+      fips: "true"
+      images: |
+        - name: os-shell
+          version: "5"
+          image: registry-1.docker.io/bitnami/os-shell:latest
+        - name: postgres-exporter
+          version: 0.20.1
+          image: registry-1.docker.io/bitnami/postgres-exporter:latest
+        - name: postgresql
+          version: 18.4.0
+          image: registry-1.docker.io/bitnami/postgresql:latest
+      licenses: Apache-2.0
+      tanzuCategory: service
+    apiVersion: v2
+    appVersion: 18.4.0
+    created: "2026-08-20T00:59:52.243247422+02:00"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.41.0
+    description: PostgreSQL (Postgres) is an open source object-relational database
+      known for reliability and data integrity. ACID-compliant, it supports foreign
+      keys, joins, views, triggers and stored procedures.
+    digest: aa3ac2513e22d135c0b1da1951d33f1d7ef0e994a137cd20d2e597f3d4840ce3
+    home: https://bitnami.com
+    icon: https://dyltqmyl993wv.cloudfront.net/assets/stacks/postgresql/img/postgresql-stack-220x234.png
+    keywords:
+    - postgresql
+    - postgres
+    - database
+    - sql
+    - replication
+    - cluster
+    maintainers:
+    - name: Broadcom, Inc. All Rights Reserved.
+      url: https://github.com/bitnami/charts
+    name: postgresql
+    sources:
+    - https://github.com/bitnami/charts/tree/main/bitnami/postgresql
+    urls:
+    - charts/postgresql-18.8.2.tgz
+    version: 18.8.2
+generated: "2026-08-20T00:59:52.226820431+02:00"

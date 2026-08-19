@@ -96,6 +96,31 @@ jobs:
       KOMODO_API_SECRET: ${{ secrets.KOMODO_API_SECRET }}
       KOMODO_SERVER: ${{ vars.KOMODO_SERVER }}
 
+  # optionnel, déploie sur GHCR le helm chart pour qu'il soit utilisable ailleurs
+  publish-helm-chart:
+    needs: [code-test]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: azure/setup-helm@v4
+
+      - name: Set lowercase owner
+        run: echo "OWNER_LC=${GITHUB_REPOSITORY_OWNER,,}" >> $GITHUB_ENV
+
+      - name: Publier le chart sur GHCR
+        uses: bsord/helm-push@v4.2.0
+        with:
+          useOCIRegistry: true
+          registry-url: oci://ghcr.io/${{ env.OWNER_LC }}
+          username: ${{ github.actor }}
+          access-token: ${{ secrets.GITHUB_TOKEN }}
+          force: true
+          chart-folder: deploy/kubernetes/charts/openlatex
+
   deploy-k3s-helm:
     needs: [build-push-changed-container-images]
     if: always() && !failure() && !cancelled()
@@ -111,8 +136,7 @@ jobs:
           export PATH="$HOME/.local/bin:$PATH"
           ansible-galaxy collection install kubernetes.core
 
-      - name: Installer Helm
-        uses: azure/setup-helm@v4
+      - uses: azure/setup-helm@v4
 
       - name: Config SSH
         uses: webfactory/ssh-agent@v0.7.0
